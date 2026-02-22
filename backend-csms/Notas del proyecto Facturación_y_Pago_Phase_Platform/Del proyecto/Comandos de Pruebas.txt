@@ -1,0 +1,42 @@
+Ejecucuón de múltiples pruebas a la vez
+
+//Pruebas unitarias por módulo:
+# Módulo de Auth (servicio + guards)
+npm run test src/auth/auth.service.spec.ts
+
+# Módulo de Conductores
+npm run test src/conductores/conductores.service.spec.ts
+
+# Módulo de Tarjetas
+npm run test src/tarjetas/tarjetas.service.spec.ts
+
+# Módulo de Pagos
+npm run test src/pagos/pagos.service.spec.ts
+
+# Módulo de Facturas
+npm run test src/facturas/facturas.service.spec.ts
+
+# Módulo de Tarifas
+npm run test src/tarifas/tarifas.service.spec.ts
+
+
+npm run test                <---- probar
+npm run test:cov            <---- probar con estadísticas
+
+
+
+//Pruebas de integración con Postman
+//Ejecutar colección de pruebas de integración
+newman run postman/phase-platform.postman_collection.json -e postman/phase-platform.postman_environment.json -r cli
+
+
+//Pruebas con JMeter 
+jmeter.bat    
+
+.\run-tests.ps1                   <---- ejecutar prueba y limpiar resultados anteriores
+.\clean-jmeter-results.ps1        <---- limpiar resultados anteriores
+
+
+//Pruebas de seguridad
+cd "C:\Users\Marlon\Documents\Facturación_y_Pago_Phase_Platform"
+.\scripts\run-security-tests.ps1 -targetUrl "http://localhost:3000"         <----- ejecutar las pruebas  (solo es posible usando el terminal como administrador)

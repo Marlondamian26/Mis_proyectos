@@ -1,0 +1,28 @@
+Reinstala Postman (eliminando antes la carpeta %APPDATA%\Postman en Windows 
+Guía Completa para Reinstalar Postman Correctamente
+
+📌 Pasos para Windows:
+Desinstalar Postman:
+
+Ve a Configuración > Aplicaciones > Aplicaciones instaladas
+
+Busca "Postman" > Haz clic en "Desinstalar"
+
+Eliminar archivos residuales:
+
+Presiona Win + R, escribe %APPDATA% y presiona Enter
+
+Busca y elimina la carpeta Postman completamente
+
+Limpiar registro (opcional pero recomendado):
+
+Abre el Editor del Registro (regedit)
+
+Navega a:
+
+HKEY_CURRENT_USER\Software\Postman
+HKEY_LOCAL_MACHINE\SOFTWARE\Postman
+Elimina estas claves (solo si existen)
+
+Reinstalar:
+
