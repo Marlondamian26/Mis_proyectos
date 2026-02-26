@@ -66,7 +66,35 @@ npm install
 
 # 3. Configurar variables de entorno
 cp .env.example .env
-# Editar .env con tus credenciales
+# Editar .env con tus credenciales:
+#Entorno
+NODE_ENV=development
+
+#Base de datos
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=phase_user
+DB_PASSWORD=m
+DB_DATABASE=phase_platform
+
+#JWT
+JWT_SECRET=your_jwt_secret_key_here
+JWT_EXPIRATION=1d
+
+#Rate Limiting
+THROTTLE_TTL=60
+THROTTLE_LIMIT=100
+
+#Cache
+CACHE_TTL=60000
+CACHE_MAX=100
+
+#SSL (solo para producción)
+SSL_ENABLED=false
+
+#Configuración de CORS
+FRONTEND_URL=http://localhost:4200  # En desarrollo
+# FRONTEND_URL=https://tu-dominio.com  # En producción
 
 # 4. Crear base de datos en PostgreSQL
 # (usando pgAdmin o línea de comandos, a continuación se muestran algunos comandos a tener presente)
@@ -105,62 +133,27 @@ npm run migration:run
 npm run start:dev
 Variables de Entorno (.env)
 env
-# Servidor
+#Servidor
 PORT=3000
 NODE_ENV=development
 
-
-#env configuración:
-# Entorno
-NODE_ENV=development
-
-# Base de datos
-DB_HOST=localhost
-DB_PORT=5432
-DB_USERNAME=phase_user
-DB_PASSWORD=m
-DB_DATABASE=phase_platform
-
-# JWT
-JWT_SECRET=your_jwt_secret_key_here
-JWT_EXPIRATION=1d
-
-# Rate Limiting
-THROTTLE_TTL=60
-THROTTLE_LIMIT=100
-
-# Cache
-CACHE_TTL=60000
-CACHE_MAX=100
-
-# SSL (solo para producción)
-SSL_ENABLED=false
-
-
-# Configuración de CORS
-FRONTEND_URL=http://localhost:4200  # En desarrollo
-# FRONTEND_URL=https://tu-dominio.com  # En producción
-
-
-🧪 Pruebas
-bash
-# Pruebas unitarias
+# 7. 🧪 Pruebas
+Pruebas unitarias
 npm run test
 
-# Pruebas e2e
+Pruebas e2e
 npm run test:e2e
 
-Usar Redis para caché de sesiones
-REDIS_URL=redis://localhost:6379/1
 
-
-👥 Contribuciones
+# 👥 Contribuciones
 Este proyecto forma parte del ecosistema Phase. Las contribuciones deben seguir las guías de estilo establecidas y pasar todas las pruebas.
 
-📄 Licencia
+
+# 📄 Licencia
 MIT © Marlon Damián
 
-📞 Contacto
+
+# 📞 Contacto
 Autor: Marlon Damián Monterrey Morejón
 
 Email: [monterreymorejonm@gmail.com]
