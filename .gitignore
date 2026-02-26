@@ -1,0 +1,37 @@
+# Entorno virtual
+venv/
+.env
+
+# Base de datos
+*.sqlite3
+*.db
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.py[cod]
+*$py.class
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+media/
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Node (para cuando tengas React)
+node_modules/
+npm-debug.log
+dist/
+build/
+
+# IDE
+.idea/
+*.swp
+*.swo
+*~

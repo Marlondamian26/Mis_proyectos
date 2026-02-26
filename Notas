@@ -1,0 +1,46 @@
+# Activa el entorno virtual
+# En Windows:
+# .\venv\Scripts\Activate.ps1    o     \venv\Scripts\activate      ----- para activar el entorno
+#deactivate    ----  para salir del entorno
+
+
+
+#Mantener un archivo requirements.txt
+# Después de instalar todo, guarda las dependencias
+#pip freeze > requirements.txt    ----- actualizar después de instalar cada nueva dependencia
+
+# Para restaurar después:
+#pip install -r requirements.txt
+
+# 3. Verificas que ahora aparece
+#cat requirements.txt
+
+
+# Antes de cambios importantes, copia las migraciones
+#Copy-Item -Recurse .\usuarios\migrations .\usuarios\migrations_backup    ---- copia de migraciones
+
+
+
+
+
+#Cuando hacer migraciones: Al hacer cambios en código o añadir nuevas librerías,al clonar el repositorio.
+#python manage.py makemigrations  ----- Después de cambiar models.py
+#python manage.py migrate         ----- Después de makemigrations
+
+
+
+
+#Si mañana tu PC explota:
+# 1. Instalar Python
+# 2. Clonar proyecto
+# 3. Crear venv
+#python -m venv venv
+#.\venv\Scripts\activate
+
+# 4. ¡MAGIA! Un comando y todo igual:
+#pip install -r requirements.txt
+
+# 5. Aplicar migraciones
+#python manage.py migrate
+
+# 6. Listo, igual que antes
