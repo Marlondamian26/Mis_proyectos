@@ -57,8 +57,6 @@ Este sistema constituye la columna vertebral tecnológica para la gestión de la
 - npm o yarn
 
 ### Pasos de instalación
-
-```bash
 # 1. Clonar el repositorio
 git clone https://github.com/Marlondamian26/Mis_proyectos.git
 cd Mis_proyectos/backend-csms
