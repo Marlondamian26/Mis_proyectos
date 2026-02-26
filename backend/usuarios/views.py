@@ -2,15 +2,16 @@ from rest_framework import viewsets, generics, permissions, status
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework_simplejwt.authentication import JWTAuthentication  # <-- NUEVO
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.shortcuts import get_object_or_404
-from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth import update_session_auth_hash  # <-- NUEVO IMPORT
 from .models import Usuario, Doctor, Enfermera, Paciente, Especialidad, Horario, Cita
 from .serializers import (
     UsuarioSerializer, RegistroUsuarioSerializer, DoctorSerializer,
     EnfermeraSerializer, PacienteSerializer, EspecialidadSerializer,
     HorarioSerializer, CitaSerializer
 )
+
 
 # Vista para registro de usuarios (pública - NO requiere token)
 @api_view(['POST'])
@@ -32,6 +33,15 @@ def registro_usuario(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# Vista para obtener información del usuario actual (requiere token)
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])  # <-- Requiere token
+def usuario_actual(request):
+    serializer = UsuarioSerializer(request.user)
+    return Response(serializer.data)
+
+
+# ===== NUEVA FUNCIÓN =====
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def cambiar_contrasena(request):
@@ -52,13 +62,8 @@ def cambiar_contrasena(request):
     update_session_auth_hash(request, user)
     
     return Response({'message': 'Contraseña actualizada correctamente'}, status=status.HTTP_200_OK)
+# =========================
 
-# Vista para obtener información del usuario actual (requiere token)
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])  # <-- Requiere token
-def usuario_actual(request):
-    serializer = UsuarioSerializer(request.user)
-    return Response(serializer.data)
 
 # ViewSets (todos requieren autenticación)
 class UsuarioViewSet(viewsets.ModelViewSet):

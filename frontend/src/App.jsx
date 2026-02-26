@@ -8,7 +8,9 @@ import Registro from './components/Registro'
 import Dashboard from './components/Dashboard'
 import Citas from './components/Citas'
 import Doctores from './components/Doctores'
-import Perfil from './components/Perfil'  // <-- NUEVO
+import Perfil from './components/Perfil' 
+import AdminDashboard from './components/AdminDashboard'
+import EnfermeriaDashboard from './components/EnfermeriaDashboard'
 
 function App() {
   return (
@@ -23,8 +25,10 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/citas" element={<Citas />} />
           <Route path="/doctores" element={<Doctores />} />
-          <Route path="/perfil" element={<Perfil />} />  {/* <-- NUEVA RUTA */}
-          
+          <Route path="/perfil" element={<Perfil />} />  
+          <Route path="/admin" element={<AdminDashboard />} /> 
+          <Route path="/enfermeria" element={<EnfermeriaDashboard />} /> 
+
           {/* Ruta por defecto */}
           <Route path="/" element={<Navigate to="/login" />} />
         </Routes>

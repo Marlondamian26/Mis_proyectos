@@ -1,6 +1,10 @@
 import React, { useState } from 'react'
 import axios from 'axios'
 import { useNavigate, Link } from 'react-router-dom'
+import { 
+  FaUser, FaEnvelope, FaPhone, FaLock, FaEye, FaEyeSlash,
+  FaCheckCircle, FaExclamationTriangle, FaSpinner, FaUserPlus
+} from 'react-icons/fa'
 
 function Registro() {
   const [formData, setFormData] = useState({
@@ -12,26 +16,153 @@ function Registro() {
     telefono: '',
     rol: 'patient'  // Por defecto paciente
   })
+  
+  const [errors, setErrors] = useState({})
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [passwordStrength, setPasswordStrength] = useState({
+    score: 0,
+    message: '',
+    color: '#95a5a6'
+  })
+  
   const navigate = useNavigate()
 
+  // Validar fortaleza de contraseña
+  const validatePasswordStrength = (password) => {
+    let score = 0
+    let message = ''
+    let color = '#95a5a6'
+
+    if (password.length >= 4) score += 1
+    if (password.length >= 6) score += 1
+    if (/[A-Z]/.test(password)) score += 1
+    if (/[0-9]/.test(password)) score += 1
+    if (/[^A-Za-z0-9]/.test(password)) score += 1
+
+    if (password.length === 0) {
+      message = 'Ingresa una contraseña'
+      color = '#95a5a6'
+    } else if (score <= 2) {
+      message = 'Contraseña débil'
+      color = '#e74c3c'
+    } else if (score <= 3) {
+      message = 'Contraseña media'
+      color = '#f39c12'
+    } else if (score <= 4) {
+      message = 'Contraseña fuerte'
+      color = '#27ae60'
+    } else {
+      message = 'Contraseña muy fuerte'
+      color = '#27ae60'
+    }
+
+    setPasswordStrength({ score, message, color })
+  }
+
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    })
+    const { name, value } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }))
+
+    // Limpiar error del campo específico
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }))
+    }
+
+    // Validar fortaleza de contraseña
+    if (name === 'password') {
+      validatePasswordStrength(value)
+    }
+
+    // Limpiar error general
+    if (error) setError('')
+  }
+
+  const validateForm = () => {
+    const newErrors = {}
+
+    // Validar username
+    if (!formData.username.trim()) {
+      newErrors.username = 'El nombre de usuario es requerido'
+    } else if (formData.username.length < 3) {
+      newErrors.username = 'El usuario debe tener al menos 3 caracteres'
+    }
+
+    // Validar contraseña
+    if (!formData.password) {
+      newErrors.password = 'La contraseña es requerida'
+    } else if (formData.password.length < 4) {
+      newErrors.password = 'La contraseña debe tener al menos 4 caracteres'
+    }
+
+    // Validar nombre
+    if (!formData.first_name.trim()) {
+      newErrors.first_name = 'El nombre es requerido'
+    }
+
+    // Validar apellido
+    if (!formData.last_name.trim()) {
+      newErrors.last_name = 'El apellido es requerido'
+    }
+
+    // Validar email
+    if (!formData.email.trim()) {
+      newErrors.email = 'El email es requerido'
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Email inválido'
+    }
+
+    // Validar teléfono (opcional pero con formato)
+    if (formData.telefono && !/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/.test(formData.telefono)) {
+      newErrors.telefono = 'Formato de teléfono inválido'
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    
+    // Validar formulario
+    if (!validateForm()) {
+      setError('Por favor corrige los errores en el formulario')
+      return
+    }
+
     setLoading(true)
     setError('')
     setSuccess('')
 
+    console.log('Enviando registro:', formData)
+
     try {
-      const response = await axios.post('http://127.0.0.1:8000/api/registro/', formData)
+      // Configurar timeout
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 10000)
+
+      const response = await axios.post(
+        'http://127.0.0.1:8000/api/registro/', 
+        formData,
+        {
+          signal: controller.signal,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      )
+
+      clearTimeout(timeoutId)
+
+      console.log('Respuesta del servidor:', response.data)
       
       setSuccess('¡Registro exitoso! Redirigiendo al login...')
       
@@ -44,121 +175,330 @@ function Registro() {
         setTimeout(() => navigate('/login'), 2000)
       }
     } catch (err) {
-      if (err.response?.data) {
-        // Mostrar errores específicos del backend
-        const errors = err.response.data
-        if (errors.username) setError(`Usuario: ${errors.username[0]}`)
-        else if (errors.password) setError(`Contraseña: ${errors.password[0]}`)
-        else if (errors.email) setError(`Email: ${errors.email[0]}`)
-        else setError('Error en el registro. Verifica los datos.')
+      console.error('Error detallado:', err)
+
+      if (err.name === 'AbortError' || err.code === 'ECONNABORTED') {
+        setError('Tiempo de espera agotado. Verifica que el servidor esté corriendo.')
+      } else if (err.response) {
+        // Errores del servidor
+        console.error('Error response:', err.response.data)
+        
+        if (err.response.status === 400) {
+          // Errores de validación del backend
+          const backendErrors = err.response.data
+          
+          if (typeof backendErrors === 'object') {
+            // Mostrar errores específicos del backend
+            const errorMessages = []
+            Object.entries(backendErrors).forEach(([field, messages]) => {
+              if (Array.isArray(messages)) {
+                errorMessages.push(`${field}: ${messages.join(', ')}`)
+                // Marcar el campo con error
+                setErrors(prev => ({
+                  ...prev,
+                  [field]: messages[0]
+                }))
+              }
+            })
+            
+            if (errorMessages.length > 0) {
+              setError(errorMessages.join('\n'))
+            } else {
+              setError('Error en los datos enviados')
+            }
+          } else {
+            setError(backendErrors.message || 'Error en el registro')
+          }
+        } else if (err.response.status === 409) {
+          setError('El nombre de usuario ya existe')
+          setErrors(prev => ({
+            ...prev,
+            username: 'Este usuario ya está registrado'
+          }))
+        } else {
+          setError(`Error del servidor: ${err.response.status}`)
+        }
+      } else if (err.request) {
+        setError('No se pudo conectar con el servidor. Verifica que el backend esté corriendo.')
       } else {
-        setError('Error de conexión con el servidor')
+        setError('Error al conectar con el servidor')
       }
-      console.error('Error de registro:', err)
     } finally {
       setLoading(false)
     }
   }
 
+  const handleDemoData = () => {
+    setFormData({
+      username: 'paciente_demo',
+      password: 'Demo123!',
+      first_name: 'Juan',
+      last_name: 'Pérez',
+      email: 'juan.perez@email.com',
+      telefono: '+244 923 456 789',
+      rol: 'patient'
+    })
+    validatePasswordStrength('Demo123!')
+  }
+
   return (
     <div style={styles.container}>
       <div style={styles.card}>
-        <h1 style={styles.title}>Belkis-saúde</h1>
-        <h2 style={styles.subtitle}>Registro de Paciente</h2>
-        
-        {error && <div style={styles.error}>{error}</div>}
-        {success && <div style={styles.success}>{success}</div>}
-        
+        {/* Logo y título */}
+        <div style={styles.header}>
+          <FaUserPlus style={styles.headerIcon} />
+          <h1 style={styles.title}>Belkis-saúde</h1>
+          <p style={styles.subtitle}>Crear nueva cuenta</p>
+        </div>
+
+        {/* Mensajes */}
+        {error && (
+          <div style={styles.errorContainer}>
+            <FaExclamationTriangle style={styles.messageIcon} />
+            <div style={styles.errorText}>{error}</div>
+          </div>
+        )}
+
+        {success && (
+          <div style={styles.successContainer}>
+            <FaCheckCircle style={styles.messageIcon} />
+            <div style={styles.successText}>{success}</div>
+          </div>
+        )}
+
+        {/* Formulario */}
         <form onSubmit={handleSubmit} style={styles.form}>
+          {/* Nombre y Apellido en fila */}
           <div style={styles.row}>
             <div style={styles.inputGroup}>
-              <label style={styles.label}>Nombre:</label>
+              <label style={styles.label}>
+                <FaUser style={styles.inputIcon} />
+                Nombre *
+              </label>
               <input
                 type="text"
                 name="first_name"
                 value={formData.first_name}
                 onChange={handleChange}
-                style={styles.input}
-                required
+                style={{
+                  ...styles.input,
+                  ...(errors.first_name ? styles.inputError : {})
+                }}
+                placeholder="Tu nombre"
+                disabled={loading}
+                maxLength="50"
               />
+              {errors.first_name && (
+                <span style={styles.fieldError}>{errors.first_name}</span>
+              )}
             </div>
-            
+
             <div style={styles.inputGroup}>
-              <label style={styles.label}>Apellido:</label>
+              <label style={styles.label}>
+                <FaUser style={styles.inputIcon} />
+                Apellido *
+              </label>
               <input
                 type="text"
                 name="last_name"
                 value={formData.last_name}
                 onChange={handleChange}
-                style={styles.input}
-                required
+                style={{
+                  ...styles.input,
+                  ...(errors.last_name ? styles.inputError : {})
+                }}
+                placeholder="Tu apellido"
+                disabled={loading}
+                maxLength="50"
               />
+              {errors.last_name && (
+                <span style={styles.fieldError}>{errors.last_name}</span>
+              )}
             </div>
           </div>
 
+          {/* Usuario */}
           <div style={styles.inputGroup}>
-            <label style={styles.label}>Usuario:</label>
+            <label style={styles.label}>
+              <FaUser style={styles.inputIcon} />
+              Usuario *
+            </label>
             <input
               type="text"
               name="username"
               value={formData.username}
               onChange={handleChange}
-              style={styles.input}
-              required
+              style={{
+                ...styles.input,
+                ...(errors.username ? styles.inputError : {})
+              }}
+              placeholder="Ej: juan.perez"
+              disabled={loading}
+              maxLength="30"
+              autoComplete="off"
             />
+            {errors.username && (
+              <span style={styles.fieldError}>{errors.username}</span>
+            )}
+            <span style={styles.inputHint}>Mínimo 3 caracteres</span>
           </div>
 
+          {/* Email */}
           <div style={styles.inputGroup}>
-            <label style={styles.label}>Email:</label>
+            <label style={styles.label}>
+              <FaEnvelope style={styles.inputIcon} />
+              Email *
+            </label>
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
-              style={styles.input}
-              required
+              style={{
+                ...styles.input,
+                ...(errors.email ? styles.inputError : {})
+              }}
+              placeholder="correo@ejemplo.com"
+              disabled={loading}
+              autoComplete="off"
             />
+            {errors.email && (
+              <span style={styles.fieldError}>{errors.email}</span>
+            )}
           </div>
 
+          {/* Teléfono */}
           <div style={styles.inputGroup}>
-            <label style={styles.label}>Teléfono:</label>
+            <label style={styles.label}>
+              <FaPhone style={styles.inputIcon} />
+              Teléfono
+            </label>
             <input
               type="tel"
               name="telefono"
               value={formData.telefono}
               onChange={handleChange}
-              style={styles.input}
+              style={{
+                ...styles.input,
+                ...(errors.telefono ? styles.inputError : {})
+              }}
               placeholder="+244 XXX XXX XXX"
-              required
+              disabled={loading}
             />
+            {errors.telefono && (
+              <span style={styles.fieldError}>{errors.telefono}</span>
+            )}
+            <span style={styles.inputHint}>Formato: +244 923 456 789</span>
           </div>
 
+          {/* Contraseña */}
           <div style={styles.inputGroup}>
-            <label style={styles.label}>Contraseña:</label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              style={styles.input}
-              required
-              minLength="4"
-            />
+            <label style={styles.label}>
+              <FaLock style={styles.inputIcon} />
+              Contraseña *
+            </label>
+            <div style={styles.passwordWrapper}>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                style={{
+                  ...styles.passwordInput,
+                  ...(errors.password ? styles.inputError : {})
+                }}
+                placeholder="••••••••"
+                disabled={loading}
+                maxLength="50"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={styles.passwordToggle}
+                tabIndex="-1"
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
+            {errors.password && (
+              <span style={styles.fieldError}>{errors.password}</span>
+            )}
+            
+            {/* Indicador de fortaleza de contraseña */}
+            {formData.password && (
+              <div style={styles.strengthContainer}>
+                <div style={styles.strengthBar}>
+                  <div style={{
+                    ...styles.strengthFill,
+                    width: `${(passwordStrength.score / 5) * 100}%`,
+                    backgroundColor: passwordStrength.color
+                  }} />
+                </div>
+                <span style={{...styles.strengthText, color: passwordStrength.color}}>
+                  {passwordStrength.message}
+                </span>
+              </div>
+            )}
+            
+            <span style={styles.inputHint}>Mínimo 4 caracteres</span>
           </div>
 
+          {/* Rol (fijo como patient, oculto) */}
+          <input type="hidden" name="rol" value="patient" />
+
+          {/* Botón de registro */}
           <button 
             type="submit" 
-            style={styles.button}
+            style={{
+              ...styles.submitButton,
+              ...(loading ? styles.submitButtonDisabled : {})
+            }}
             disabled={loading}
           >
-            {loading ? 'Registrando...' : 'Registrarse'}
+            {loading ? (
+              <>
+                <FaSpinner style={styles.spinner} />
+                Registrando...
+              </>
+            ) : (
+              <>
+                <FaUserPlus />
+                Crear Cuenta
+              </>
+            )}
           </button>
+
+          {/* Botón de demo (solo desarrollo) */}
+          {process.env.NODE_ENV === 'development' && !loading && (
+            <button 
+              type="button"
+              onClick={handleDemoData}
+              style={styles.demoButton}
+            >
+              🚀 Cargar datos de demo
+            </button>
+          )}
         </form>
-        
-        <p style={styles.loginText}>
-          ¿Ya tienes cuenta?{' '}
-          <Link to="/login" style={styles.link}>Inicia Sesión</Link>
-        </p>
+
+        {/* Enlace a login */}
+        <div style={styles.loginContainer}>
+          <p style={styles.loginText}>
+            ¿Ya tienes una cuenta?{' '}
+            <Link to="/login" style={styles.loginLink}>
+              Inicia Sesión
+            </Link>
+          </p>
+        </div>
+
+        {/* Términos y condiciones */}
+        <div style={styles.termsContainer}>
+          <p style={styles.termsText}>
+            Al registrarte, aceptas nuestros{' '}
+            <a href="/terminos" style={styles.termsLink}>Términos y Condiciones</a>{' '}
+            y{' '}
+            <a href="/privacidad" style={styles.termsLink}>Política de Privacidad</a>
+          </p>
+        </div>
       </div>
     </div>
   )
@@ -170,90 +510,279 @@ const styles = {
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: '100vh',
-    backgroundColor: '#f5f5f5',
-    padding: '20px'
+    backgroundColor: '#f5f7fa',
+    padding: '20px',
+    fontFamily: 'system-ui, -apple-system, sans-serif'
   },
   card: {
     backgroundColor: 'white',
     padding: '40px',
-    borderRadius: '10px',
-    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+    borderRadius: '20px',
+    boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
     width: '100%',
-    maxWidth: '500px'
+    maxWidth: '500px',
+    transition: 'transform 0.3s',
+    ':hover': {
+      transform: 'translateY(-5px)'
+    }
+  },
+  header: {
+    textAlign: 'center',
+    marginBottom: '30px'
+  },
+  headerIcon: {
+    fontSize: '48px',
+    color: '#27ae60',
+    marginBottom: '10px'
   },
   title: {
     color: '#2c3e50',
-    textAlign: 'center',
-    marginBottom: '10px',
-    fontSize: '28px'
+    fontSize: '28px',
+    margin: '0 0 5px 0',
+    fontWeight: '700'
   },
   subtitle: {
     color: '#7f8c8d',
-    textAlign: 'center',
-    marginBottom: '30px',
-    fontSize: '18px'
+    fontSize: '14px',
+    margin: 0
+  },
+  errorContainer: {
+    backgroundColor: '#f8d7da',
+    border: '1px solid #f5c6cb',
+    borderRadius: '10px',
+    padding: '15px',
+    marginBottom: '20px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px'
+  },
+  successContainer: {
+    backgroundColor: '#d4edda',
+    border: '1px solid #c3e6cb',
+    borderRadius: '10px',
+    padding: '15px',
+    marginBottom: '20px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px'
+  },
+  messageIcon: {
+    fontSize: '20px',
+    flexShrink: 0
+  },
+  errorText: {
+    color: '#721c24',
+    fontSize: '14px',
+    whiteSpace: 'pre-line',
+    flex: 1
+  },
+  successText: {
+    color: '#155724',
+    fontSize: '14px',
+    flex: 1
   },
   form: {
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    gap: '20px'
   },
   row: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
-    gap: '10px'
+    gap: '15px'
   },
   inputGroup: {
-    marginBottom: '20px'
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '5px'
   },
   label: {
-    display: 'block',
-    marginBottom: '5px',
-    color: '#34495e',
-    fontWeight: 'bold'
+    fontSize: '13px',
+    fontWeight: '600',
+    color: '#2c3e50',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '5px'
   },
-  input: {
-    width: '100%',
-    padding: '10px',
-    fontSize: '16px',
-    border: '1px solid #ddd',
-    borderRadius: '5px',
-    boxSizing: 'border-box'
-  },
-  button: {
-    backgroundColor: '#27ae60',
-    color: 'white',
-    padding: '12px',
-    fontSize: '16px',
-    border: 'none',
-    borderRadius: '5px',
-    cursor: 'pointer',
-    marginTop: '10px'
-  },
-  error: {
-    backgroundColor: '#f8d7da',
-    color: '#721c24',
-    padding: '10px',
-    borderRadius: '5px',
-    marginBottom: '20px',
-    textAlign: 'center'
-  },
-  success: {
-    backgroundColor: '#d4edda',
-    color: '#155724',
-    padding: '10px',
-    borderRadius: '5px',
-    marginBottom: '20px',
-    textAlign: 'center'
-  },
-  loginText: {
-    textAlign: 'center',
-    marginTop: '20px',
+  inputIcon: {
+    fontSize: '12px',
     color: '#7f8c8d'
   },
-  link: {
+  input: {
+    padding: '12px',
+    border: '2px solid #e0e0e0',
+    borderRadius: '8px',
+    fontSize: '14px',
+    transition: 'border-color 0.3s',
+    outline: 'none',
+    ':focus': {
+      borderColor: '#3498db'
+    },
+    ':disabled': {
+      backgroundColor: '#f5f5f5',
+      cursor: 'not-allowed'
+    }
+  },
+  inputError: {
+    borderColor: '#e74c3c'
+  },
+  passwordWrapper: {
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center'
+  },
+  passwordInput: {
+    flex: 1,
+    padding: '12px',
+    paddingRight: '40px',
+    border: '2px solid #e0e0e0',
+    borderRadius: '8px',
+    fontSize: '14px',
+    transition: 'border-color 0.3s',
+    outline: 'none',
+    ':focus': {
+      borderColor: '#3498db'
+    }
+  },
+  passwordToggle: {
+    position: 'absolute',
+    right: '12px',
+    background: 'none',
+    border: 'none',
+    fontSize: '16px',
+    cursor: 'pointer',
+    color: '#95a5a6',
+    padding: '0',
+    ':hover': {
+      color: '#34495e'
+    }
+  },
+  fieldError: {
+    color: '#e74c3c',
+    fontSize: '12px',
+    marginTop: '3px'
+  },
+  inputHint: {
+    fontSize: '11px',
+    color: '#95a5a6',
+    marginTop: '2px'
+  },
+  strengthContainer: {
+    marginTop: '8px'
+  },
+  strengthBar: {
+    height: '4px',
+    backgroundColor: '#ecf0f1',
+    borderRadius: '2px',
+    overflow: 'hidden',
+    marginBottom: '4px'
+  },
+  strengthFill: {
+    height: '100%',
+    transition: 'width 0.3s, background-color 0.3s'
+  },
+  strengthText: {
+    fontSize: '11px',
+    fontWeight: '500'
+  },
+  submitButton: {
+    backgroundColor: '#27ae60',
+    color: 'white',
+    padding: '14px',
+    fontSize: '16px',
+    fontWeight: '600',
+    border: 'none',
+    borderRadius: '10px',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '8px',
+    transition: 'background-color 0.3s, transform 0.1s',
+    marginTop: '10px',
+    ':hover': {
+      backgroundColor: '#219a52',
+      transform: 'translateY(-2px)'
+    },
+    ':active': {
+      transform: 'translateY(0)'
+    }
+  },
+  submitButtonDisabled: {
+    backgroundColor: '#95a5a6',
+    cursor: 'not-allowed',
+    ':hover': {
+      backgroundColor: '#95a5a6',
+      transform: 'none'
+    }
+  },
+  demoButton: {
+    backgroundColor: '#3498db',
+    color: 'white',
+    padding: '12px',
+    fontSize: '14px',
+    border: 'none',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '8px',
+    transition: 'background-color 0.3s',
+    ':hover': {
+      backgroundColor: '#2980b9'
+    }
+  },
+  spinner: {
+    animation: 'spin 1s linear infinite'
+  },
+  loginContainer: {
+    marginTop: '25px',
+    textAlign: 'center',
+    paddingTop: '20px',
+    borderTop: '1px solid #ecf0f1'
+  },
+  loginText: {
+    color: '#7f8c8d',
+    fontSize: '14px',
+    margin: 0
+  },
+  loginLink: {
     color: '#3498db',
-    textDecoration: 'none'
+    textDecoration: 'none',
+    fontWeight: '600',
+    ':hover': {
+      textDecoration: 'underline'
+    }
+  },
+  termsContainer: {
+    marginTop: '15px',
+    textAlign: 'center'
+  },
+  termsText: {
+    color: '#95a5a6',
+    fontSize: '12px',
+    margin: 0,
+    lineHeight: '1.5'
+  },
+  termsLink: {
+    color: '#7f8c8d',
+    textDecoration: 'none',
+    ':hover': {
+      textDecoration: 'underline',
+      color: '#3498db'
+    }
   }
 }
+
+// Añadir animación de spin para el loader
+const styleSheet = document.createElement("style")
+styleSheet.textContent = `
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`
+document.head.appendChild(styleSheet)
 
 export default Registro

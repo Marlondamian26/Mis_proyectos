@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react'
 import axiosInstance from '../services/auth'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { FaCalendarAlt, FaClock, FaUserMd, FaNotesMedical, FaCheck, FaTimes } from 'react-icons/fa'
-import { format, addDays, isSameDay, parseISO } from 'date-fns'
+import { format, addDays, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
 
 function Citas() {
-  const [citas, setCitas] = useState([])
+  const [citas, setCitas] = useState([]) // Inicializado como array vacío
   const [doctores, setDoctores] = useState([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -17,7 +17,6 @@ function Citas() {
   const navigate = useNavigate()
   const location = useLocation()
   
-  // Estado para nueva cita
   const [nuevaCita, setNuevaCita] = useState({
     doctor: location.state?.doctorSeleccionado?.id || '',
     fecha: format(new Date(), 'yyyy-MM-dd'),
@@ -39,9 +38,12 @@ function Citas() {
   const fetchCitas = async () => {
     try {
       const response = await axiosInstance.get('citas/')
-      setCitas(response.data)
+      // Asegurar que siempre sea un array
+      const citasData = Array.isArray(response.data) ? response.data : []
+      setCitas(citasData)
     } catch (error) {
       console.error('Error cargando citas:', error)
+      setCitas([]) // En caso de error, dejar array vacío
       mostrarMensaje('Error al cargar las citas', 'error')
     } finally {
       setLoading(false)
@@ -51,31 +53,31 @@ function Citas() {
   const fetchDoctores = async () => {
     try {
       const response = await axiosInstance.get('doctores/')
-      setDoctores(response.data)
+      const doctoresData = Array.isArray(response.data) ? response.data : []
+      setDoctores(doctoresData)
     } catch (error) {
       console.error('Error cargando doctores:', error)
+      setDoctores([])
     }
   }
 
   const fetchHorariosDisponibles = async () => {
     setCargandoHorarios(true)
     try {
-      // Primero obtenemos los horarios base del doctor
       const response = await axiosInstance.get(`horarios/?doctor=${nuevaCita.doctor}`)
+      const horariosData = Array.isArray(response.data) ? response.data : []
       
-      // Luego obtenemos las citas ya reservadas para ese día
       const citasResponse = await axiosInstance.get('citas/', {
         params: {
           doctor: nuevaCita.doctor,
           fecha: nuevaCita.fecha
         }
       })
+      const citasOcupadas = Array.isArray(citasResponse.data) ? citasResponse.data : []
+      const horariosOcupados = citasOcupadas.map(c => c.hora)
       
-      const horariosOcupados = citasResponse.data.map(c => c.hora)
-      
-      // Generar slots de 30 minutos basados en los horarios del doctor
       const slots = []
-      response.data.forEach(horario => {
+      horariosData.forEach(horario => {
         if (!horario.activo) return
         
         const [horaInicio, minInicio] = horario.hora_inicio.split(':').map(Number)
@@ -99,6 +101,7 @@ function Citas() {
       setHorariosDisponibles(slots)
     } catch (error) {
       console.error('Error cargando horarios:', error)
+      setHorariosDisponibles([])
     } finally {
       setCargandoHorarios(false)
     }
@@ -121,13 +124,12 @@ function Citas() {
     }
 
     try {
-      const response = await axiosInstance.post('citas/', nuevaCita)
+      await axiosInstance.post('citas/', nuevaCita)
       
       mostrarMensaje('¡Cita reservada con éxito!', 'success')
       setShowForm(false)
-      fetchCitas()  // Recargar la lista
+      fetchCitas()
       
-      // Resetear formulario
       setNuevaCita({
         doctor: '',
         fecha: format(new Date(), 'yyyy-MM-dd'),
@@ -169,10 +171,11 @@ function Citas() {
     return <span style={{...styles.badge, ...estilos[estado]}}>{estado}</span>
   }
 
-  // Separar citas en próximas y pasadas
+  // Verificar que citas es un array antes de filtrar
+  const citasArray = Array.isArray(citas) ? citas : []
   const now = new Date()
-  const citasProximas = citas.filter(c => new Date(`${c.fecha}T${c.hora}`) > now)
-  const citasPasadas = citas.filter(c => new Date(`${c.fecha}T${c.hora}`) <= now)
+  const citasProximas = citasArray.filter(c => new Date(`${c.fecha}T${c.hora}`) > now)
+  const citasPasadas = citasArray.filter(c => new Date(`${c.fecha}T${c.hora}`) <= now)
 
   if (loading) {
     return <div style={styles.loading}>Cargando citas...</div>
@@ -180,33 +183,24 @@ function Citas() {
 
   return (
     <div style={styles.container}>
-      {/* Header */}
       <div style={styles.header}>
         <h1>📅 Gestión de Citas</h1>
         <div>
-          <button 
-            onClick={() => navigate('/dashboard')} 
-            style={styles.backButton}
-          >
+          <button onClick={() => navigate('/dashboard')} style={styles.backButton}>
             ← Volver
           </button>
-          <button 
-            onClick={() => setShowForm(!showForm)} 
-            style={styles.newButton}
-          >
+          <button onClick={() => setShowForm(!showForm)} style={styles.newButton}>
             {showForm ? '✕ Cancelar' : '+ Nueva Cita'}
           </button>
         </div>
       </div>
 
-      {/* Mensajes */}
       {mensaje.texto && (
         <div style={mensaje.tipo === 'success' ? styles.successMessage : styles.errorMessage}>
           {mensaje.texto}
         </div>
       )}
 
-      {/* Formulario nueva cita */}
       {showForm && (
         <div style={styles.formContainer}>
           <h2>Reservar Nueva Cita</h2>
@@ -295,9 +289,7 @@ function Citas() {
         </div>
       )}
 
-      {/* Lista de citas */}
       <div style={styles.citasContainer}>
-        {/* Próximas citas */}
         <div style={styles.section}>
           <h2>📌 Próximas Citas</h2>
           {citasProximas.length === 0 ? (
@@ -320,10 +312,7 @@ function Citas() {
                 </div>
                 {cita.estado !== 'cancelada' && cita.estado !== 'completada' && (
                   <div style={styles.citaFooter}>
-                    <button 
-                      onClick={() => cancelarCita(cita.id)}
-                      style={styles.cancelButton}
-                    >
+                    <button onClick={() => cancelarCita(cita.id)} style={styles.cancelButton}>
                       <FaTimes /> Cancelar cita
                     </button>
                   </div>
@@ -333,7 +322,6 @@ function Citas() {
           )}
         </div>
 
-        {/* Historial de citas */}
         <div style={styles.section}>
           <h2>📋 Historial de Citas</h2>
           {citasPasadas.length === 0 ? (

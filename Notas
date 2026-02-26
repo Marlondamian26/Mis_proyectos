@@ -7,6 +7,8 @@
 #python manage.py runserver      ------ correr el servidor
 #Ctrl+C      ------ para detener el servidor
 
+#npm run dev   ------ para iniciar el frontend
+
 # 1. Abre la shell
 #python manage.py shell   entrar al shell
 

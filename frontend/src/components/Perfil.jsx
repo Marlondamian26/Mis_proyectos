@@ -1,16 +1,23 @@
 import React, { useEffect, useState } from 'react'
 import axiosInstance from '../services/auth'
 import { useNavigate } from 'react-router-dom'
-import { FaUser, FaEnvelope, FaPhone, FaBirthdayCake, FaAllergies, FaTint, FaUserMd, FaHistory, FaEdit, FaKey, FaSave, FaTimes } from 'react-icons/fa'
+import { 
+  FaUser, FaEnvelope, FaPhone, FaAllergies, FaTint, 
+  FaUserMd, FaHistory, FaEdit, FaKey, FaSave, FaTimes,
+  FaBirthdayCake, FaVenusMars, FaAddressCard, FaHeart,
+  FaExclamationTriangle, FaCheckCircle, FaSpinner
+} from 'react-icons/fa'
 
 function Perfil() {
   const [user, setUser] = useState(null)
   const [paciente, setPaciente] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [loadingMessage, setLoadingMessage] = useState('Cargando perfil...')
   const [editMode, setEditMode] = useState(false)
   const [changePasswordMode, setChangePasswordMode] = useState(false)
   const [historialCitas, setHistorialCitas] = useState([])
   const [mensaje, setMensaje] = useState({ texto: '', tipo: '' })
+  const [saving, setSaving] = useState(false)
   const navigate = useNavigate()
 
   // Estados para edición
@@ -32,15 +39,41 @@ function Perfil() {
     confirm_password: ''
   })
 
+  // Estado para validación de contraseña
+  const [passwordErrors, setPasswordErrors] = useState({
+    old_password: '',
+    new_password: '',
+    confirm_password: ''
+  })
+
   useEffect(() => {
     fetchUserData()
   }, [])
 
   const fetchUserData = async () => {
+    setLoading(true)
+    setLoadingMessage('Cargando tu información...')
+    
     try {
+      // Verificar token primero
+      const token = localStorage.getItem('access_token')
+      if (!token) {
+        console.log('No hay token, redirigiendo a login')
+        navigate('/login')
+        return
+      }
+
       // Obtener usuario actual
+      setLoadingMessage('Obteniendo datos del usuario...')
       const userResponse = await axiosInstance.get('usuario-actual/')
+      
+      if (!userResponse.data) {
+        throw new Error('No se recibieron datos del usuario')
+      }
+
+      console.log('Usuario cargado:', userResponse.data)
       setUser(userResponse.data)
+      
       setEditForm({
         first_name: userResponse.data.first_name || '',
         last_name: userResponse.data.last_name || '',
@@ -54,9 +87,15 @@ function Perfil() {
 
       // Si es paciente, obtener su perfil y citas
       if (userResponse.data.rol === 'patient') {
+        setLoadingMessage('Cargando información médica...')
+        
+        // Obtener pacientes
         const pacientesResponse = await axiosInstance.get('pacientes/')
-        const miPaciente = pacientesResponse.data.find(p => p.usuario?.id === userResponse.data.id)
+        const pacientesData = Array.isArray(pacientesResponse.data) ? pacientesResponse.data : []
+        const miPaciente = pacientesData.find(p => p.usuario?.id === userResponse.data.id)
+        
         if (miPaciente) {
+          console.log('Perfil de paciente cargado:', miPaciente)
           setPaciente(miPaciente)
           setEditForm(prev => ({
             ...prev,
@@ -68,35 +107,85 @@ function Perfil() {
         }
 
         // Obtener historial de citas
+        setLoadingMessage('Cargando historial de citas...')
         const citasResponse = await axiosInstance.get('citas/')
-        const citasCompletadas = citasResponse.data.filter(c => 
+        const citasData = Array.isArray(citasResponse.data) ? citasResponse.data : []
+        
+        const citasCompletadas = citasData.filter(c => 
           c.estado === 'completada' || c.estado === 'cancelada' || c.estado === 'no_asistio'
         )
+        
+        console.log(`Historial cargado: ${citasCompletadas.length} citas`)
         setHistorialCitas(citasCompletadas)
       }
     } catch (error) {
-      console.error('Error cargando perfil:', error)
-      mostrarMensaje('Error al cargar el perfil', 'error')
+      console.error('Error detallado cargando perfil:', error)
+      
+      if (error.response) {
+        if (error.response.status === 401) {
+          mostrarMensaje('Sesión expirada. Por favor inicia sesión nuevamente.', 'error')
+          setTimeout(() => navigate('/login'), 2000)
+        } else {
+          mostrarMensaje(`Error del servidor: ${error.response.status}`, 'error')
+        }
+      } else if (error.request) {
+        mostrarMensaje('No se pudo conectar con el servidor', 'error')
+      } else {
+        mostrarMensaje('Error al cargar el perfil: ' + error.message, 'error')
+      }
     } finally {
       setLoading(false)
     }
   }
 
   const handleEditChange = (e) => {
-    setEditForm({
-      ...editForm,
-      [e.target.name]: e.target.value
-    })
+    const { name, value } = e.target
+    setEditForm(prev => ({
+      ...prev,
+      [name]: value
+    }))
   }
 
   const handlePasswordChange = (e) => {
-    setPasswordForm({
-      ...passwordForm,
-      [e.target.name]: e.target.value
-    })
+    const { name, value } = e.target
+    setPasswordForm(prev => ({
+      ...prev,
+      [name]: value
+    }))
+    
+    // Limpiar error del campo
+    setPasswordErrors(prev => ({
+      ...prev,
+      [name]: ''
+    }))
+  }
+
+  const validatePasswordForm = () => {
+    const errors = {}
+    
+    if (!passwordForm.old_password) {
+      errors.old_password = 'La contraseña actual es requerida'
+    }
+    
+    if (!passwordForm.new_password) {
+      errors.new_password = 'La nueva contraseña es requerida'
+    } else if (passwordForm.new_password.length < 4) {
+      errors.new_password = 'La contraseña debe tener al menos 4 caracteres'
+    }
+    
+    if (!passwordForm.confirm_password) {
+      errors.confirm_password = 'Confirma tu nueva contraseña'
+    } else if (passwordForm.new_password !== passwordForm.confirm_password) {
+      errors.confirm_password = 'Las contraseñas no coinciden'
+    }
+    
+    setPasswordErrors(errors)
+    return Object.keys(errors).length === 0
   }
 
   const guardarPerfil = async () => {
+    setSaving(true)
+    
     try {
       // Actualizar usuario
       await axiosInstance.patch(`usuarios/${user.id}/`, {
@@ -116,35 +205,37 @@ function Perfil() {
         })
       }
 
-      mostrarMensaje('Perfil actualizado correctamente', 'success')
+      mostrarMensaje('✅ Perfil actualizado correctamente', 'success')
       setEditMode(false)
-      fetchUserData() // Recargar datos
+      await fetchUserData() // Recargar datos
     } catch (error) {
       console.error('Error actualizando perfil:', error)
-      mostrarMensaje('Error al actualizar el perfil', 'error')
+      
+      if (error.response?.data) {
+        const errors = Object.entries(error.response.data)
+          .map(([field, msg]) => `${field}: ${msg}`)
+          .join('\n')
+        mostrarMensaje(`Error al actualizar:\n${errors}`, 'error')
+      } else {
+        mostrarMensaje('Error al actualizar el perfil', 'error')
+      }
+    } finally {
+      setSaving(false)
     }
   }
 
   const cambiarContrasena = async () => {
-    // Validaciones
-    if (passwordForm.new_password !== passwordForm.confirm_password) {
-      mostrarMensaje('Las contraseñas no coinciden', 'error')
-      return
-    }
-
-    if (passwordForm.new_password.length < 4) {
-      mostrarMensaje('La contraseña debe tener al menos 4 caracteres', 'error')
-      return
-    }
-
+    if (!validatePasswordForm()) return
+    
+    setSaving(true)
+    
     try {
-      // Nota: Este endpoint requiere implementación en el backend
       await axiosInstance.post('cambiar-contrasena/', {
         old_password: passwordForm.old_password,
         new_password: passwordForm.new_password
       })
 
-      mostrarMensaje('Contraseña cambiada correctamente', 'success')
+      mostrarMensaje('✅ Contraseña cambiada correctamente', 'success')
       setChangePasswordMode(false)
       setPasswordForm({
         old_password: '',
@@ -153,7 +244,16 @@ function Perfil() {
       })
     } catch (error) {
       console.error('Error cambiando contraseña:', error)
-      mostrarMensaje('Error al cambiar la contraseña. Verifica tu contraseña actual.', 'error')
+      
+      if (error.response?.data?.error) {
+        mostrarMensaje(error.response.data.error, 'error')
+      } else if (error.response?.status === 400) {
+        mostrarMensaje('Contraseña actual incorrecta', 'error')
+      } else {
+        mostrarMensaje('Error al cambiar la contraseña', 'error')
+      }
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -176,15 +276,43 @@ function Perfil() {
     return colores[grupo] || '#f0f0f0'
   }
 
+  const formatFecha = (fecha) => {
+    try {
+      return new Date(fecha).toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      })
+    } catch {
+      return fecha
+    }
+  }
+
   if (loading) {
-    return <div style={styles.loading}>Cargando perfil...</div>
+    return (
+      <div style={styles.loadingContainer}>
+        <FaSpinner style={styles.loadingSpinner} />
+        <p style={styles.loadingText}>{loadingMessage}</p>
+        <p style={styles.loadingSubtext}>Por favor espera</p>
+      </div>
+    )
   }
 
   return (
     <div style={styles.container}>
       {/* Header */}
       <div style={styles.header}>
-        <h1>👤 Mi Perfil</h1>
+        <div style={styles.headerLeft}>
+          <h1 style={styles.title}>
+            <FaUser style={styles.titleIcon} />
+            Mi Perfil
+          </h1>
+          <p style={styles.subtitle}>
+            {user?.rol === 'patient' && 'Gestiona tu información personal y médica'}
+            {user?.rol === 'doctor' && 'Información profesional y de contacto'}
+            {user?.rol === 'admin' && 'Panel de administración de perfil'}
+          </p>
+        </div>
         <button onClick={() => navigate('/dashboard')} style={styles.backButton}>
           ← Volver al Dashboard
         </button>
@@ -193,19 +321,28 @@ function Perfil() {
       {/* Mensajes */}
       {mensaje.texto && (
         <div style={mensaje.tipo === 'success' ? styles.successMessage : styles.errorMessage}>
-          {mensaje.texto}
+          {mensaje.tipo === 'success' ? <FaCheckCircle /> : <FaExclamationTriangle />}
+          <span style={styles.messageText}>{mensaje.texto}</span>
         </div>
       )}
 
       {/* Contenido del perfil */}
       <div style={styles.content}>
-        {/* Columna izquierda - Información personal */}
+        {/* Columna izquierda */}
         <div style={styles.leftColumn}>
+          {/* Tarjeta de información personal */}
           <div style={styles.card}>
             <div style={styles.cardHeader}>
-              <h2>Información Personal</h2>
+              <div style={styles.cardTitle}>
+                <FaUser style={styles.cardIcon} />
+                <h2>Información Personal</h2>
+              </div>
               {!editMode && !changePasswordMode && (
-                <button onClick={() => setEditMode(true)} style={styles.editButton}>
+                <button 
+                  onClick={() => setEditMode(true)} 
+                  style={styles.editButton}
+                  title="Editar perfil"
+                >
                   <FaEdit /> Editar
                 </button>
               )}
@@ -214,106 +351,148 @@ function Perfil() {
             {editMode ? (
               // Modo edición
               <div style={styles.editForm}>
-                <div style={styles.formGroup}>
-                  <label><FaUser /> Nombre:</label>
-                  <input
-                    type="text"
-                    name="first_name"
-                    value={editForm.first_name}
-                    onChange={handleEditChange}
-                    style={styles.input}
-                  />
+                <div style={styles.formRow}>
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>
+                      <FaUser /> Nombre
+                    </label>
+                    <input
+                      type="text"
+                      name="first_name"
+                      value={editForm.first_name}
+                      onChange={handleEditChange}
+                      style={styles.input}
+                      placeholder="Tu nombre"
+                    />
+                  </div>
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>
+                      <FaUser /> Apellido
+                    </label>
+                    <input
+                      type="text"
+                      name="last_name"
+                      value={editForm.last_name}
+                      onChange={handleEditChange}
+                      style={styles.input}
+                      placeholder="Tu apellido"
+                    />
+                  </div>
                 </div>
+
                 <div style={styles.formGroup}>
-                  <label><FaUser /> Apellido:</label>
-                  <input
-                    type="text"
-                    name="last_name"
-                    value={editForm.last_name}
-                    onChange={handleEditChange}
-                    style={styles.input}
-                  />
-                </div>
-                <div style={styles.formGroup}>
-                  <label><FaEnvelope /> Email:</label>
+                  <label style={styles.label}>
+                    <FaEnvelope /> Email
+                  </label>
                   <input
                     type="email"
                     name="email"
                     value={editForm.email}
                     onChange={handleEditChange}
                     style={styles.input}
+                    placeholder="correo@ejemplo.com"
                   />
                 </div>
+
                 <div style={styles.formGroup}>
-                  <label><FaPhone /> Teléfono:</label>
+                  <label style={styles.label}>
+                    <FaPhone /> Teléfono
+                  </label>
                   <input
                     type="text"
                     name="telefono"
                     value={editForm.telefono}
                     onChange={handleEditChange}
                     style={styles.input}
+                    placeholder="+244 XXX XXX XXX"
                   />
                 </div>
 
-                {user.rol === 'patient' && (
+                {user?.rol === 'patient' && (
                   <>
                     <div style={styles.formGroup}>
-                      <label><FaAllergies /> Alergias:</label>
+                      <label style={styles.label}>
+                        <FaAllergies /> Alergias
+                      </label>
                       <textarea
                         name="alergias"
                         value={editForm.alergias}
                         onChange={handleEditChange}
                         style={styles.textarea}
                         rows="3"
+                        placeholder="Ej: Penicilina, polen, mariscos..."
                       />
                     </div>
-                    <div style={styles.formGroup}>
-                      <label><FaTint /> Grupo Sanguíneo:</label>
-                      <select
-                        name="grupo_sanguineo"
-                        value={editForm.grupo_sanguineo}
-                        onChange={handleEditChange}
-                        style={styles.select}
-                      >
-                        <option value="">Seleccionar</option>
-                        <option value="A+">A+</option>
-                        <option value="A-">A-</option>
-                        <option value="B+">B+</option>
-                        <option value="B-">B-</option>
-                        <option value="AB+">AB+</option>
-                        <option value="AB-">AB-</option>
-                        <option value="O+">O+</option>
-                        <option value="O-">O-</option>
-                      </select>
+
+                    <div style={styles.formRow}>
+                      <div style={styles.formGroup}>
+                        <label style={styles.label}>
+                          <FaTint /> Grupo Sanguíneo
+                        </label>
+                        <select
+                          name="grupo_sanguineo"
+                          value={editForm.grupo_sanguineo}
+                          onChange={handleEditChange}
+                          style={styles.select}
+                        >
+                          <option value="">Seleccionar</option>
+                          <option value="A+">A+</option>
+                          <option value="A-">A-</option>
+                          <option value="B+">B+</option>
+                          <option value="B-">B-</option>
+                          <option value="AB+">AB+</option>
+                          <option value="AB-">AB-</option>
+                          <option value="O+">O+</option>
+                          <option value="O-">O-</option>
+                        </select>
+                      </div>
                     </div>
-                    <div style={styles.formGroup}>
-                      <label>Contacto de emergencia:</label>
-                      <input
-                        type="text"
-                        name="contacto_emergencia"
-                        value={editForm.contacto_emergencia}
-                        onChange={handleEditChange}
-                        style={styles.input}
-                      />
-                    </div>
-                    <div style={styles.formGroup}>
-                      <label>Tel. emergencia:</label>
-                      <input
-                        type="text"
-                        name="telefono_emergencia"
-                        value={editForm.telefono_emergencia}
-                        onChange={handleEditChange}
-                        style={styles.input}
-                      />
+
+                    <div style={styles.formRow}>
+                      <div style={styles.formGroup}>
+                        <label style={styles.label}>
+                          <FaAddressCard /> Contacto de emergencia
+                        </label>
+                        <input
+                          type="text"
+                          name="contacto_emergencia"
+                          value={editForm.contacto_emergencia}
+                          onChange={handleEditChange}
+                          style={styles.input}
+                          placeholder="Nombre completo"
+                        />
+                      </div>
+                      <div style={styles.formGroup}>
+                        <label style={styles.label}>
+                          <FaPhone /> Tel. emergencia
+                        </label>
+                        <input
+                          type="text"
+                          name="telefono_emergencia"
+                          value={editForm.telefono_emergencia}
+                          onChange={handleEditChange}
+                          style={styles.input}
+                          placeholder="+244 XXX XXX XXX"
+                        />
+                      </div>
                     </div>
                   </>
                 )}
 
                 <div style={styles.editButtons}>
-                  <button onClick={guardarPerfil} style={styles.saveButton}>
-                    <FaSave /> Guardar
+                  <button 
+                    onClick={guardarPerfil} 
+                    style={styles.saveButton}
+                    disabled={saving}
+                  >
+                    {saving ? <FaSpinner style={styles.spinner} /> : <FaSave />}
+                    {saving ? 'Guardando...' : 'Guardar Cambios'}
                   </button>
-                  <button onClick={() => setEditMode(false)} style={styles.cancelButton}>
+                  <button 
+                    onClick={() => setEditMode(false)} 
+                    style={styles.cancelButton}
+                    disabled={saving}
+                  >
                     <FaTimes /> Cancelar
                   </button>
                 </div>
@@ -321,38 +500,85 @@ function Perfil() {
             ) : (
               // Modo visualización
               <div style={styles.infoDisplay}>
-                <p><strong><FaUser /> Nombre:</strong> {user?.first_name} {user?.last_name}</p>
-                <p><strong><FaEnvelope /> Email:</strong> {user?.email}</p>
-                <p><strong><FaPhone /> Teléfono:</strong> {user?.telefono}</p>
-                <p><strong><FaBirthdayCake /> Rol:</strong> {user?.rol}</p>
+                <div style={styles.infoGrid}>
+                  <div style={styles.infoItem}>
+                    <span style={styles.infoLabel}>Nombre completo:</span>
+                    <span style={styles.infoValue}>
+                      {user?.first_name} {user?.last_name}
+                    </span>
+                  </div>
+                  <div style={styles.infoItem}>
+                    <span style={styles.infoLabel}>Email:</span>
+                    <span style={styles.infoValue}>{user?.email || 'No especificado'}</span>
+                  </div>
+                  <div style={styles.infoItem}>
+                    <span style={styles.infoLabel}>Teléfono:</span>
+                    <span style={styles.infoValue}>{user?.telefono || 'No especificado'}</span>
+                  </div>
+                  <div style={styles.infoItem}>
+                    <span style={styles.infoLabel}>Rol:</span>
+                    <span style={{
+                      ...styles.rolBadge,
+                      backgroundColor: user?.rol === 'admin' ? '#e74c3c' :
+                                    user?.rol === 'doctor' ? '#3498db' :
+                                    user?.rol === 'nurse' ? '#27ae60' : '#95a5a6'
+                    }}>
+                      {user?.rol === 'admin' && 'Administrador'}
+                      {user?.rol === 'doctor' && 'Médico'}
+                      {user?.rol === 'nurse' && 'Enfermería'}
+                      {user?.rol === 'patient' && 'Paciente'}
+                    </span>
+                  </div>
+                </div>
                 
                 {user?.rol === 'patient' && paciente && (
-                  <>
-                    <p><strong><FaAllergies /> Alergias:</strong> {paciente.alergias || 'No especificadas'}</p>
-                    <p><strong><FaTint /> Grupo Sanguíneo:</strong> {
-                      paciente.grupo_sanguineo ? (
+                  <div style={styles.medicalInfo}>
+                    <h3 style={styles.medicalTitle}>
+                      <FaHeart style={styles.medicalIcon} />
+                      Información Médica
+                    </h3>
+                    <div style={styles.infoGrid}>
+                      <div style={styles.infoItem}>
+                        <span style={styles.infoLabel}>Alergias:</span>
+                        <span style={styles.infoValue}>{paciente.alergias || 'No especificadas'}</span>
+                      </div>
+                      <div style={styles.infoItem}>
+                        <span style={styles.infoLabel}>Grupo Sanguíneo:</span>
                         <span style={{
                           ...styles.grupoSanguineo,
                           backgroundColor: getGrupoSanguineoColor(paciente.grupo_sanguineo)
                         }}>
-                          {paciente.grupo_sanguineo}
+                          {paciente.grupo_sanguineo || 'No especificado'}
                         </span>
-                      ) : 'No especificado'
-                    }</p>
-                    <p><strong>Contacto de emergencia:</strong> {paciente.contacto_emergencia || 'No especificado'}</p>
-                    <p><strong>Tel. emergencia:</strong> {paciente.telefono_emergencia || 'No especificado'}</p>
-                  </>
+                      </div>
+                      <div style={styles.infoItem}>
+                        <span style={styles.infoLabel}>Contacto de emergencia:</span>
+                        <span style={styles.infoValue}>{paciente.contacto_emergencia || 'No especificado'}</span>
+                      </div>
+                      <div style={styles.infoItem}>
+                        <span style={styles.infoLabel}>Tel. emergencia:</span>
+                        <span style={styles.infoValue}>{paciente.telefono_emergencia || 'No especificado'}</span>
+                      </div>
+                    </div>
+                  </div>
                 )}
               </div>
             )}
           </div>
 
-          {/* Cambio de contraseña */}
+          {/* Tarjeta de seguridad (cambio de contraseña) */}
           <div style={styles.card}>
             <div style={styles.cardHeader}>
-              <h2>Seguridad</h2>
+              <div style={styles.cardTitle}>
+                <FaKey style={styles.cardIcon} />
+                <h2>Seguridad</h2>
+              </div>
               {!changePasswordMode && !editMode && (
-                <button onClick={() => setChangePasswordMode(true)} style={styles.editButton}>
+                <button 
+                  onClick={() => setChangePasswordMode(true)} 
+                  style={styles.editButton}
+                  title="Cambiar contraseña"
+                >
                   <FaKey /> Cambiar contraseña
                 </button>
               )}
@@ -361,75 +587,135 @@ function Perfil() {
             {changePasswordMode ? (
               <div style={styles.editForm}>
                 <div style={styles.formGroup}>
-                  <label>Contraseña actual:</label>
+                  <label style={styles.label}>Contraseña actual:</label>
                   <input
                     type="password"
                     name="old_password"
                     value={passwordForm.old_password}
                     onChange={handlePasswordChange}
-                    style={styles.input}
+                    style={{...styles.input, borderColor: passwordErrors.old_password ? '#e74c3c' : '#ddd'}}
+                    placeholder="••••••••"
                   />
+                  {passwordErrors.old_password && (
+                    <span style={styles.fieldError}>{passwordErrors.old_password}</span>
+                  )}
                 </div>
+
                 <div style={styles.formGroup}>
-                  <label>Nueva contraseña:</label>
+                  <label style={styles.label}>Nueva contraseña:</label>
                   <input
                     type="password"
                     name="new_password"
                     value={passwordForm.new_password}
                     onChange={handlePasswordChange}
-                    style={styles.input}
+                    style={{...styles.input, borderColor: passwordErrors.new_password ? '#e74c3c' : '#ddd'}}
+                    placeholder="••••••••"
                   />
+                  {passwordErrors.new_password && (
+                    <span style={styles.fieldError}>{passwordErrors.new_password}</span>
+                  )}
+                  <span style={styles.passwordHint}>Mínimo 4 caracteres</span>
                 </div>
+
                 <div style={styles.formGroup}>
-                  <label>Confirmar nueva contraseña:</label>
+                  <label style={styles.label}>Confirmar nueva contraseña:</label>
                   <input
                     type="password"
                     name="confirm_password"
                     value={passwordForm.confirm_password}
                     onChange={handlePasswordChange}
-                    style={styles.input}
+                    style={{...styles.input, borderColor: passwordErrors.confirm_password ? '#e74c3c' : '#ddd'}}
+                    placeholder="••••••••"
                   />
+                  {passwordErrors.confirm_password && (
+                    <span style={styles.fieldError}>{passwordErrors.confirm_password}</span>
+                  )}
                 </div>
+
                 <div style={styles.editButtons}>
-                  <button onClick={cambiarContrasena} style={styles.saveButton}>
-                    <FaKey /> Cambiar
+                  <button 
+                    onClick={cambiarContrasena} 
+                    style={styles.saveButton}
+                    disabled={saving}
+                  >
+                    {saving ? <FaSpinner style={styles.spinner} /> : <FaKey />}
+                    {saving ? 'Cambiando...' : 'Cambiar Contraseña'}
                   </button>
-                  <button onClick={() => setChangePasswordMode(false)} style={styles.cancelButton}>
+                  <button 
+                    onClick={() => {
+                      setChangePasswordMode(false)
+                      setPasswordForm({
+                        old_password: '',
+                        new_password: '',
+                        confirm_password: ''
+                      })
+                      setPasswordErrors({})
+                    }} 
+                    style={styles.cancelButton}
+                    disabled={saving}
+                  >
                     <FaTimes /> Cancelar
                   </button>
                 </div>
               </div>
             ) : (
-              <p style={styles.passwordHint}>••••••••</p>
+              <div style={styles.passwordDisplay}>
+                <FaKey style={styles.passwordIcon} />
+                <span style={styles.passwordPlaceholder}>••••••••</span>
+                <span style={styles.passwordHint}>La contraseña está encriptada por seguridad</span>
+              </div>
             )}
           </div>
         </div>
 
-        {/* Columna derecha - Historial médico */}
+        {/* Columna derecha - Historial médico (solo para pacientes) */}
         {user?.rol === 'patient' && (
           <div style={styles.rightColumn}>
             <div style={styles.card}>
               <div style={styles.cardHeader}>
-                <h2><FaHistory /> Historial Médico</h2>
+                <div style={styles.cardTitle}>
+                  <FaHistory style={styles.cardIcon} />
+                  <h2>Historial Médico</h2>
+                </div>
+                <span style={styles.historialCount}>
+                  {historialCitas.length} citas
+                </span>
               </div>
               
               {historialCitas.length === 0 ? (
-                <p style={styles.emptyState}>No hay citas en el historial</p>
+                <div style={styles.emptyState}>
+                  <FaHistory style={styles.emptyIcon} />
+                  <p style={styles.emptyText}>No hay citas en el historial</p>
+                  <p style={styles.emptySubtext}>Las citas completadas aparecerán aquí</p>
+                </div>
               ) : (
                 <div style={styles.historialList}>
-                  {historialCitas.map(cita => (
+                  {historialCitas.map((cita, index) => (
                     <div key={cita.id} style={styles.historialItem}>
                       <div style={styles.historialHeader}>
-                        <strong>{cita.fecha} - {cita.hora}</strong>
+                        <span style={styles.historialDate}>
+                          <FaHistory style={styles.historialDateIcon} />
+                          {formatFecha(cita.fecha)} - {cita.hora}
+                        </span>
                         <span style={{
-                          ...styles.badge,
-                          backgroundColor: cita.estado === 'completada' ? '#27ae60' : '#e74c3c'
+                          ...styles.historialBadge,
+                          backgroundColor: cita.estado === 'completada' ? '#27ae60' : 
+                                         cita.estado === 'cancelada' ? '#e74c3c' : '#f39c12'
                         }}>
                           {cita.estado}
                         </span>
                       </div>
-                      <p><FaUserMd /> Dr. {cita.doctor_nombre}</p>
-                      {cita.motivo && <p><strong>Motivo:</strong> {cita.motivo}</p>}
+                      <div style={styles.historialBody}>
+                        <div style={styles.historialDoctor}>
+                          <FaUserMd style={styles.historialDoctorIcon} />
+                          Dr. {cita.doctor_nombre}
+                        </div>
+                        {cita.motivo && (
+                          <div style={styles.historialMotivo}>
+                            <strong>Motivo:</strong> {cita.motivo}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -447,8 +733,32 @@ const styles = {
     padding: '20px',
     maxWidth: '1200px',
     margin: '0 auto',
-    backgroundColor: '#f5f5f5',
-    minHeight: '100vh'
+    backgroundColor: '#f5f7fa',
+    minHeight: '100vh',
+    fontFamily: 'system-ui, -apple-system, sans-serif'
+  },
+  loadingContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    minHeight: '100vh',
+    backgroundColor: '#f5f7fa'
+  },
+  loadingSpinner: {
+    fontSize: '48px',
+    color: '#3498db',
+    animation: 'spin 1s linear infinite',
+    marginBottom: '20px'
+  },
+  loadingText: {
+    fontSize: '18px',
+    color: '#2c3e50',
+    marginBottom: '5px'
+  },
+  loadingSubtext: {
+    fontSize: '14px',
+    color: '#7f8c8d'
   },
   header: {
     display: 'flex',
@@ -456,18 +766,69 @@ const styles = {
     alignItems: 'center',
     marginBottom: '30px',
     backgroundColor: 'white',
-    padding: '20px',
-    borderRadius: '10px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+    padding: '25px',
+    borderRadius: '15px',
+    boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+  },
+  headerLeft: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '5px'
+  },
+  title: {
+    fontSize: '28px',
+    color: '#2c3e50',
+    margin: 0,
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px'
+  },
+  titleIcon: {
+    color: '#3498db'
+  },
+  subtitle: {
+    fontSize: '14px',
+    color: '#7f8c8d',
+    margin: 0
   },
   backButton: {
     backgroundColor: '#6c757d',
     color: 'white',
     padding: '10px 20px',
     border: 'none',
-    borderRadius: '5px',
+    borderRadius: '8px',
     cursor: 'pointer',
-    fontSize: '14px'
+    fontSize: '14px',
+    transition: 'background-color 0.3s',
+    ':hover': {
+      backgroundColor: '#5a6268'
+    }
+  },
+  successMessage: {
+    backgroundColor: '#d4edda',
+    color: '#155724',
+    padding: '15px 20px',
+    borderRadius: '10px',
+    marginBottom: '20px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    border: '1px solid #c3e6cb'
+  },
+  errorMessage: {
+    backgroundColor: '#f8d7da',
+    color: '#721c24',
+    padding: '15px 20px',
+    borderRadius: '10px',
+    marginBottom: '20px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    border: '1px solid #f5c6cb'
+  },
+  messageText: {
+    fontSize: '14px',
+    whiteSpace: 'pre-line'
   },
   content: {
     display: 'grid',
@@ -486,9 +847,14 @@ const styles = {
   },
   card: {
     backgroundColor: 'white',
-    borderRadius: '10px',
-    padding: '20px',
-    boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+    borderRadius: '15px',
+    padding: '25px',
+    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+    transition: 'transform 0.3s',
+    ':hover': {
+      transform: 'translateY(-2px)',
+      boxShadow: '0 6px 12px rgba(0,0,0,0.15)'
+    }
   },
   cardHeader: {
     display: 'flex',
@@ -496,150 +862,328 @@ const styles = {
     alignItems: 'center',
     marginBottom: '20px',
     borderBottom: '1px solid #ecf0f1',
-    paddingBottom: '10px'
+    paddingBottom: '15px'
+  },
+  cardTitle: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px'
+  },
+  cardIcon: {
+    fontSize: '20px',
+    color: '#3498db'
   },
   editButton: {
     backgroundColor: '#3498db',
     color: 'white',
-    padding: '5px 10px',
+    padding: '8px 15px',
     border: 'none',
-    borderRadius: '3px',
+    borderRadius: '6px',
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
     gap: '5px',
-    fontSize: '12px'
+    fontSize: '13px',
+    transition: 'background-color 0.3s',
+    ':hover': {
+      backgroundColor: '#2980b9'
+    }
   },
   infoDisplay: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '10px'
+    gap: '20px'
+  },
+  infoGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(2, 1fr)',
+    gap: '15px'
+  },
+  infoItem: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '5px'
+  },
+  infoLabel: {
+    fontSize: '12px',
+    color: '#7f8c8d',
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px'
+  },
+  infoValue: {
+    fontSize: '15px',
+    color: '#2c3e50',
+    fontWeight: '500'
+  },
+  rolBadge: {
+    padding: '4px 10px',
+    borderRadius: '15px',
+    color: 'white',
+    fontSize: '12px',
+    fontWeight: '500',
+    display: 'inline-block',
+    width: 'fit-content'
+  },
+  medicalInfo: {
+    marginTop: '15px',
+    paddingTop: '15px',
+    borderTop: '1px dashed #ecf0f1'
+  },
+  medicalTitle: {
+    fontSize: '16px',
+    color: '#2c3e50',
+    marginBottom: '15px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '5px'
+  },
+  medicalIcon: {
+    color: '#e74c3c'
+  },
+  grupoSanguineo: {
+    padding: '4px 10px',
+    borderRadius: '15px',
+    fontWeight: 'bold',
+    display: 'inline-block',
+    width: 'fit-content'
   },
   editForm: {
     display: 'flex',
     flexDirection: 'column',
     gap: '15px'
   },
+  formRow: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '10px'
+  },
   formGroup: {
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    gap: '5px'
   },
   label: {
-    fontWeight: 'bold',
-    marginBottom: '5px',
-    color: '#2c3e50'
+    fontSize: '13px',
+    fontWeight: '600',
+    color: '#2c3e50',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '5px'
   },
   input: {
-    padding: '8px',
+    padding: '10px',
     border: '1px solid #ddd',
-    borderRadius: '5px',
-    fontSize: '14px'
+    borderRadius: '8px',
+    fontSize: '14px',
+    transition: 'border-color 0.3s',
+    outline: 'none',
+    ':focus': {
+      borderColor: '#3498db'
+    }
   },
   textarea: {
-    padding: '8px',
+    padding: '10px',
     border: '1px solid #ddd',
-    borderRadius: '5px',
+    borderRadius: '8px',
     fontSize: '14px',
-    resize: 'vertical'
+    resize: 'vertical',
+    minHeight: '80px',
+    outline: 'none',
+    ':focus': {
+      borderColor: '#3498db'
+    }
   },
   select: {
-    padding: '8px',
+    padding: '10px',
     border: '1px solid #ddd',
-    borderRadius: '5px',
-    fontSize: '14px'
+    borderRadius: '8px',
+    fontSize: '14px',
+    outline: 'none',
+    ':focus': {
+      borderColor: '#3498db'
+    }
   },
   editButtons: {
     display: 'flex',
     gap: '10px',
-    marginTop: '10px'
+    marginTop: '15px'
   },
   saveButton: {
     backgroundColor: '#27ae60',
     color: 'white',
-    padding: '10px',
+    padding: '12px',
     border: 'none',
-    borderRadius: '5px',
+    borderRadius: '8px',
     cursor: 'pointer',
-    flex: 1,
+    flex: 2,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: '5px'
+    gap: '8px',
+    fontSize: '14px',
+    fontWeight: '500',
+    transition: 'background-color 0.3s',
+    ':hover': {
+      backgroundColor: '#219a52'
+    },
+    ':disabled': {
+      backgroundColor: '#95a5a6',
+      cursor: 'not-allowed'
+    }
   },
   cancelButton: {
     backgroundColor: '#e74c3c',
     color: 'white',
-    padding: '10px',
+    padding: '12px',
     border: 'none',
-    borderRadius: '5px',
+    borderRadius: '8px',
     cursor: 'pointer',
     flex: 1,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: '5px'
+    gap: '8px',
+    fontSize: '14px',
+    fontWeight: '500',
+    transition: 'background-color 0.3s',
+    ':hover': {
+      backgroundColor: '#c0392b'
+    },
+    ':disabled': {
+      backgroundColor: '#95a5a6',
+      cursor: 'not-allowed'
+    }
   },
-  grupoSanguineo: {
-    padding: '3px 8px',
-    borderRadius: '3px',
-    fontWeight: 'bold',
-    display: 'inline-block'
+  fieldError: {
+    color: '#e74c3c',
+    fontSize: '12px',
+    marginTop: '3px'
+  },
+  passwordDisplay: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    color: '#7f8c8d'
+  },
+  passwordIcon: {
+    fontSize: '20px'
+  },
+  passwordPlaceholder: {
+    fontSize: '20px',
+    letterSpacing: '2px'
   },
   passwordHint: {
+    fontSize: '12px',
+    color: '#95a5a6',
+    marginTop: '3px'
+  },
+  historialCount: {
+    backgroundColor: '#f0f0f0',
+    padding: '4px 10px',
+    borderRadius: '15px',
+    fontSize: '12px',
+    color: '#7f8c8d'
+  },
+  emptyState: {
+    textAlign: 'center',
+    padding: '40px 20px'
+  },
+  emptyIcon: {
+    fontSize: '48px',
+    color: '#bdc3c7',
+        marginBottom: '15px'
+  },
+  emptyText: {
+    fontSize: '16px',
     color: '#7f8c8d',
-    fontStyle: 'italic'
+    marginBottom: '5px'
+  },
+  emptySubtext: {
+    fontSize: '14px',
+    color: '#95a5a6'
   },
   historialList: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '10px'
+    gap: '15px'
   },
   historialItem: {
     backgroundColor: '#f8f9fa',
-    padding: '10px',
-    borderRadius: '5px',
-    border: '1px solid #e0e0e0'
+    padding: '15px',
+    borderRadius: '10px',
+    border: '1px solid #e9ecef',
+    transition: 'transform 0.2s',
+    ':hover': {
+      transform: 'translateX(5px)',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+    }
   },
   historialHeader: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '5px'
+    marginBottom: '10px',
+    paddingBottom: '8px',
+    borderBottom: '1px dashed #dee2e6'
   },
-  badge: {
-    padding: '2px 5px',
-    borderRadius: '3px',
-    color: 'white',
-    fontSize: '11px'
+  historialDate: {
+    fontSize: '14px',
+    fontWeight: '600',
+    color: '#2c3e50',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '5px'
   },
-  emptyState: {
-    textAlign: 'center',
-    color: '#7f8c8d',
-    padding: '40px',
-    fontStyle: 'italic'
-  },
-  successMessage: {
-    backgroundColor: '#d4edda',
-    color: '#155724',
-    padding: '15px',
-    borderRadius: '5px',
-    marginBottom: '20px',
-    textAlign: 'center'
-  },
-  errorMessage: {
-    backgroundColor: '#f8d7da',
-    color: '#721c24',
-    padding: '15px',
-    borderRadius: '5px',
-    marginBottom: '20px',
-    textAlign: 'center'
-  },
-  loading: {
-    textAlign: 'center',
-    fontSize: '20px',
-    marginTop: '50px',
+  historialDateIcon: {
+    fontSize: '12px',
     color: '#3498db'
+  },
+  historialBadge: {
+    padding: '3px 8px',
+    borderRadius: '12px',
+    color: 'white',
+    fontSize: '11px',
+    fontWeight: '500',
+    textTransform: 'capitalize'
+  },
+  historialBody: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px'
+  },
+  historialDoctor: {
+    fontSize: '14px',
+    color: '#34495e',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '5px'
+  },
+  historialDoctorIcon: {
+    fontSize: '12px',
+    color: '#e67e22'
+  },
+  historialMotivo: {
+    fontSize: '13px',
+    color: '#7f8c8d',
+    lineHeight: '1.5',
+    backgroundColor: '#fff',
+    padding: '8px',
+    borderRadius: '6px',
+    border: '1px solid #e9ecef'
+  },
+  spinner: {
+    animation: 'spin 1s linear infinite'
   }
 }
+
+// Añadir animación de spin para el loader
+const styleSheet = document.createElement("style")
+styleSheet.textContent = `
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`
+document.head.appendChild(styleSheet)
 
 export default Perfil

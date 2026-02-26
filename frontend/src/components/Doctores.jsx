@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { FaStar, FaMapMarkerAlt, FaPhone, FaEnvelope, FaCalendarAlt } from 'react-icons/fa'
 
 function Doctores() {
-  const [doctores, setDoctores] = useState([])
+  const [doctores, setDoctores] = useState([]) // Array vacío por defecto
   const [especialidades, setEspecialidades] = useState([])
   const [loading, setLoading] = useState(true)
   const [filtroEspecialidad, setFiltroEspecialidad] = useState('')
@@ -20,9 +20,12 @@ function Doctores() {
   const fetchDoctores = async () => {
     try {
       const response = await axiosInstance.get('doctores/')
-      setDoctores(response.data)
+      // Asegurar que es array
+      const doctoresData = Array.isArray(response.data) ? response.data : []
+      setDoctores(doctoresData)
     } catch (error) {
       console.error('Error cargando doctores:', error)
+      setDoctores([])
     } finally {
       setLoading(false)
     }
@@ -31,18 +34,22 @@ function Doctores() {
   const fetchEspecialidades = async () => {
     try {
       const response = await axiosInstance.get('especialidades/')
-      setEspecialidades(response.data)
+      const especialidadesData = Array.isArray(response.data) ? response.data : []
+      setEspecialidades(especialidadesData)
     } catch (error) {
       console.error('Error cargando especialidades:', error)
+      setEspecialidades([])
     }
   }
 
   const fetchHorarios = async (doctorId) => {
     try {
       const response = await axiosInstance.get(`horarios/?doctor=${doctorId}`)
-      setHorarios(response.data)
+      const horariosData = Array.isArray(response.data) ? response.data : []
+      setHorarios(horariosData)
     } catch (error) {
       console.error('Error cargando horarios:', error)
+      setHorarios([])
     }
   }
 
@@ -58,10 +65,11 @@ function Doctores() {
 
   const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
 
-  // Filtrar doctores por especialidad
+  // Asegurar que doctores es array antes de filtrar
+  const doctoresArray = Array.isArray(doctores) ? doctores : []
   const doctoresFiltrados = filtroEspecialidad
-    ? doctores.filter(d => d.especialidad === filtroEspecialidad)
-    : doctores
+    ? doctoresArray.filter(d => d.especialidad === filtroEspecialidad)
+    : doctoresArray
 
   if (loading) {
     return <div style={styles.loading}>Cargando doctores...</div>
@@ -192,7 +200,7 @@ function Doctores() {
         </div>
       )}
 
-      {doctoresFiltrados.length === 0 && (
+      {doctoresFiltrados.length === 0 && !loading && (
         <div style={styles.noResults}>
           No se encontraron doctores {filtroEspecialidad && `con especialidad "${filtroEspecialidad}"`}
         </div>
