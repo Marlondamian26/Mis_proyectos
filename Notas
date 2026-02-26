@@ -3,7 +3,9 @@
 # .\venv\Scripts\Activate.ps1    o     \venv\Scripts\activate      ----- para activar el entorno
 #deactivate    ----  para salir del entorno
 
-
+# Asegúrate de que el servidor esté corriendo
+#python manage.py runserver      ------ correr el servidor
+#Ctrl+C      ------ para detener el servidor
 
 #Mantener un archivo requirements.txt
 # Después de instalar todo, guarda las dependencias

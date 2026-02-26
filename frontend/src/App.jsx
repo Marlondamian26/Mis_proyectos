@@ -1,26 +1,33 @@
-import { useState, useEffect } from 'react'
-import axios from 'axios'
+import React from 'react'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import './App.css'
 
+// Componentes (los crearemos después)
+import Login from './components/Login'
+import Registro from './components/Registro'
+import Dashboard from './components/Dashboard'
+import Citas from './components/Citas'
+import Doctores from './components/Doctores'
+
 function App() {
-  const [mensaje, setMensaje] = useState('Cargando...')
-
-  useEffect(() => {
-    // Llama al backend
-    axios.get('http://localhost:8000/api/health/')
-      .then(response => {
-        setMensaje(response.data.message)
-      })
-      .catch(error => {
-        setMensaje('Error conectando con el backend: ' + error.message)
-      })
-  }, [])
-
   return (
-    <div className="App">
-      <h1>Belkis-saúde</h1>
-      <p>Mensaje del backend: <strong>{mensaje}</strong></p>
-    </div>
+    <Router>
+      <div className="App">
+        <Routes>
+          {/* Rutas públicas */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/registro" element={<Registro />} />
+          
+          {/* Rutas protegidas (requieren token) */}
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/citas" element={<Citas />} />
+          <Route path="/doctores" element={<Doctores />} />
+          
+          {/* Ruta por defecto */}
+          <Route path="/" element={<Navigate to="/login" />} />
+        </Routes>
+      </div>
+    </Router>
   )
 }
 
