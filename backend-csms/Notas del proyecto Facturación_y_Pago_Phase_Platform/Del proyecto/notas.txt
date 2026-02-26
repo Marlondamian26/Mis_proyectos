@@ -7,16 +7,8 @@ NODE_ENV=production npm run start:prod     <------ ejecutar en producción
    
 node src/shared/test-db.js
 
-cd C:\Users\Marlon\Documents\Facturación_y_Pago_Phase_Platform      <---- ruta al proyecto en PowerShell
-
 pandoc -s Tesis_2025_FTI_Versión_Final.docx -oTesis_2025_FTI_Versión_Final_Latex.tex   <---- Para pasar el documento a latex con Pandoc. 
 
-# Base de datos en PostgreSQL
-DB_HOST=localhost
-DB_PORT=5432
-DB_USERNAME=phase_user
-DB_PASSWORD=m
-DB_DATABASE=phase_platform
 
 
 
