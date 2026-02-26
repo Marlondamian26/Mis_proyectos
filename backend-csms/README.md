@@ -66,7 +66,8 @@ npm install
 
 # 3. Configurar variables de entorno
 cp .env.example .env
-# Editar .env con tus credenciales:
+#Editar .env con tus credenciales:
+
 #Entorno
 NODE_ENV=development
 
@@ -120,7 +121,7 @@ COMMENT ON SCHEMA public IS 'standard public schema';"       <----- borrar toda 
 
 pg_dump -U phase_user -d phase_platform -Fc -f "phase_backup_$(Get-Date -Format 'yyyyMMdd').dump"     <----- hacer copia de seguridad de la base de datos
 
-# Desde el terminal integrado de VSCode (Ctrl+`)
+#Desde el terminal integrado de VSCode (Ctrl+`)
 pg_dump -h localhost -U phase_user -d phase_platform -F c -b -v -f "backup_$(Get-Date -Format 'yyyy-MM-dd_HHmmss').dump"     <----- hacer copia de seguridad de la base de datos con fecha y hora
 
 Get-ChildItem -Path . -Filter "phase_backup_*.dump" | Sort-Object LastWriteTime -Descending | Select-Object -First 1      <----- encontrar copia de seguridad de la base de datos
