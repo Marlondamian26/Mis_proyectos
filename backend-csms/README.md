@@ -94,10 +94,10 @@ SSL_ENABLED=false
 
 #Configuración de CORS
 FRONTEND_URL=http://localhost:4200  # En desarrollo
-# FRONTEND_URL=https://tu-dominio.com  # En producción
+#FRONTEND_URL=https://tu-dominio.com  # En producción
 
 # 4. Crear base de datos en PostgreSQL
-# (usando pgAdmin o línea de comandos, a continuación se muestran algunos comandos a tener presente)
+#(usando pgAdmin o línea de comandos, a continuación se muestran algunos comandos a tener presente)
 CREATE USER phase_user WITH PASSWORD 'm';                       <---- crear usuario de la base de datos
 CREATE DATABASE phase_platform OWNER phase_user;                <----- crear la base de datos
 
