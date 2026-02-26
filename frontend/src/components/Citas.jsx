@@ -1,14 +1,576 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import axiosInstance from '../services/auth'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { FaCalendarAlt, FaClock, FaUserMd, FaNotesMedical, FaCheck, FaTimes } from 'react-icons/fa'
+import { format, addDays, isSameDay, parseISO } from 'date-fns'
+import { es } from 'date-fns/locale'
 
 function Citas() {
+  const [citas, setCitas] = useState([])
+  const [doctores, setDoctores] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [showForm, setShowForm] = useState(false)
+  const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'))
+  const [horariosDisponibles, setHorariosDisponibles] = useState([])
+  const [cargandoHorarios, setCargandoHorarios] = useState(false)
+  const [mensaje, setMensaje] = useState({ texto: '', tipo: '' })
+  const navigate = useNavigate()
+  const location = useLocation()
+  
+  // Estado para nueva cita
+  const [nuevaCita, setNuevaCita] = useState({
+    doctor: location.state?.doctorSeleccionado?.id || '',
+    fecha: format(new Date(), 'yyyy-MM-dd'),
+    hora: '',
+    motivo: ''
+  })
+
+  useEffect(() => {
+    fetchCitas()
+    fetchDoctores()
+  }, [])
+
+  useEffect(() => {
+    if (nuevaCita.doctor && nuevaCita.fecha) {
+      fetchHorariosDisponibles()
+    }
+  }, [nuevaCita.doctor, nuevaCita.fecha])
+
+  const fetchCitas = async () => {
+    try {
+      const response = await axiosInstance.get('citas/')
+      setCitas(response.data)
+    } catch (error) {
+      console.error('Error cargando citas:', error)
+      mostrarMensaje('Error al cargar las citas', 'error')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const fetchDoctores = async () => {
+    try {
+      const response = await axiosInstance.get('doctores/')
+      setDoctores(response.data)
+    } catch (error) {
+      console.error('Error cargando doctores:', error)
+    }
+  }
+
+  const fetchHorariosDisponibles = async () => {
+    setCargandoHorarios(true)
+    try {
+      // Primero obtenemos los horarios base del doctor
+      const response = await axiosInstance.get(`horarios/?doctor=${nuevaCita.doctor}`)
+      
+      // Luego obtenemos las citas ya reservadas para ese día
+      const citasResponse = await axiosInstance.get('citas/', {
+        params: {
+          doctor: nuevaCita.doctor,
+          fecha: nuevaCita.fecha
+        }
+      })
+      
+      const horariosOcupados = citasResponse.data.map(c => c.hora)
+      
+      // Generar slots de 30 minutos basados en los horarios del doctor
+      const slots = []
+      response.data.forEach(horario => {
+        if (!horario.activo) return
+        
+        const [horaInicio, minInicio] = horario.hora_inicio.split(':').map(Number)
+        const [horaFin, minFin] = horario.hora_fin.split(':').map(Number)
+        
+        let horaActual = new Date()
+        horaActual.setHours(horaInicio, minInicio, 0)
+        
+        const horaFinal = new Date()
+        horaFinal.setHours(horaFin, minFin, 0)
+        
+        while (horaActual < horaFinal) {
+          const horaStr = format(horaActual, 'HH:mm')
+          if (!horariosOcupados.includes(horaStr)) {
+            slots.push(horaStr)
+          }
+          horaActual.setMinutes(horaActual.getMinutes() + 30)
+        }
+      })
+      
+      setHorariosDisponibles(slots)
+    } catch (error) {
+      console.error('Error cargando horarios:', error)
+    } finally {
+      setCargandoHorarios(false)
+    }
+  }
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target
+    setNuevaCita(prev => ({
+      ...prev,
+      [name]: value
+    }))
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    
+    if (!nuevaCita.doctor || !nuevaCita.fecha || !nuevaCita.hora) {
+      mostrarMensaje('Por favor completa todos los campos requeridos', 'error')
+      return
+    }
+
+    try {
+      const response = await axiosInstance.post('citas/', nuevaCita)
+      
+      mostrarMensaje('¡Cita reservada con éxito!', 'success')
+      setShowForm(false)
+      fetchCitas()  // Recargar la lista
+      
+      // Resetear formulario
+      setNuevaCita({
+        doctor: '',
+        fecha: format(new Date(), 'yyyy-MM-dd'),
+        hora: '',
+        motivo: ''
+      })
+    } catch (error) {
+      console.error('Error creando cita:', error)
+      mostrarMensaje(error.response?.data?.message || 'Error al crear la cita', 'error')
+    }
+  }
+
+  const cancelarCita = async (citaId) => {
+    if (!window.confirm('¿Estás seguro de cancelar esta cita?')) return
+    
+    try {
+      await axiosInstance.delete(`citas/${citaId}/`)
+      mostrarMensaje('Cita cancelada', 'success')
+      fetchCitas()
+    } catch (error) {
+      console.error('Error cancelando cita:', error)
+      mostrarMensaje('Error al cancelar la cita', 'error')
+    }
+  }
+
+  const mostrarMensaje = (texto, tipo) => {
+    setMensaje({ texto, tipo })
+    setTimeout(() => setMensaje({ texto: '', tipo: '' }), 5000)
+  }
+
+  const getEstadoBadge = (estado) => {
+    const estilos = {
+      pendiente: { backgroundColor: '#f39c12', color: 'white' },
+      confirmada: { backgroundColor: '#27ae60', color: 'white' },
+      completada: { backgroundColor: '#3498db', color: 'white' },
+      cancelada: { backgroundColor: '#e74c3c', color: 'white' },
+      no_asistio: { backgroundColor: '#95a5a6', color: 'white' }
+    }
+    return <span style={{...styles.badge, ...estilos[estado]}}>{estado}</span>
+  }
+
+  // Separar citas en próximas y pasadas
+  const now = new Date()
+  const citasProximas = citas.filter(c => new Date(`${c.fecha}T${c.hora}`) > now)
+  const citasPasadas = citas.filter(c => new Date(`${c.fecha}T${c.hora}`) <= now)
+
+  if (loading) {
+    return <div style={styles.loading}>Cargando citas...</div>
+  }
+
   return (
-    <div style={{ textAlign: 'center', marginTop: '50px' }}>
-      <h1>Gestión de Citas</h1>
-      <p>En construcción</p>
-      <Link to="/dashboard">Volver al Dashboard</Link>
+    <div style={styles.container}>
+      {/* Header */}
+      <div style={styles.header}>
+        <h1>📅 Gestión de Citas</h1>
+        <div>
+          <button 
+            onClick={() => navigate('/dashboard')} 
+            style={styles.backButton}
+          >
+            ← Volver
+          </button>
+          <button 
+            onClick={() => setShowForm(!showForm)} 
+            style={styles.newButton}
+          >
+            {showForm ? '✕ Cancelar' : '+ Nueva Cita'}
+          </button>
+        </div>
+      </div>
+
+      {/* Mensajes */}
+      {mensaje.texto && (
+        <div style={mensaje.tipo === 'success' ? styles.successMessage : styles.errorMessage}>
+          {mensaje.texto}
+        </div>
+      )}
+
+      {/* Formulario nueva cita */}
+      {showForm && (
+        <div style={styles.formContainer}>
+          <h2>Reservar Nueva Cita</h2>
+          <form onSubmit={handleSubmit} style={styles.form}>
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Doctor:</label>
+              <select
+                name="doctor"
+                value={nuevaCita.doctor}
+                onChange={handleInputChange}
+                style={styles.select}
+                required
+              >
+                <option value="">Seleccionar doctor</option>
+                {doctores.map(doctor => (
+                  <option key={doctor.id} value={doctor.id}>
+                    Dr. {doctor.usuario?.first_name} {doctor.usuario?.last_name} - {doctor.especialidad}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Fecha:</label>
+              <input
+                type="date"
+                name="fecha"
+                value={nuevaCita.fecha}
+                onChange={handleInputChange}
+                min={format(new Date(), 'yyyy-MM-dd')}
+                max={format(addDays(new Date(), 30), 'yyyy-MM-dd')}
+                style={styles.input}
+                required
+              />
+            </div>
+
+            {cargandoHorarios ? (
+              <div style={styles.loadingSmall}>Cargando horarios disponibles...</div>
+            ) : (
+              nuevaCita.doctor && nuevaCita.fecha && (
+                <div style={styles.formGroup}>
+                  <label style={styles.label}>Hora disponible:</label>
+                  {horariosDisponibles.length > 0 ? (
+                    <div style={styles.horariosGrid}>
+                      {horariosDisponibles.map(hora => (
+                        <button
+                          key={hora}
+                          type="button"
+                          onClick={() => setNuevaCita(prev => ({ ...prev, hora }))}
+                          style={{
+                            ...styles.horaButton,
+                            ...(nuevaCita.hora === hora ? styles.horaButtonSelected : {})
+                          }}
+                        >
+                          {hora}
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <p style={styles.noHorarios}>No hay horarios disponibles para este día</p>
+                  )}
+                </div>
+              )
+            )}
+
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Motivo de la consulta:</label>
+              <textarea
+                name="motivo"
+                value={nuevaCita.motivo}
+                onChange={handleInputChange}
+                style={styles.textarea}
+                rows="3"
+                placeholder="Describe el motivo de tu consulta..."
+              />
+            </div>
+
+            <button 
+              type="submit" 
+              style={styles.submitButton}
+              disabled={!nuevaCita.hora}
+            >
+              Confirmar Reserva
+            </button>
+          </form>
+        </div>
+      )}
+
+      {/* Lista de citas */}
+      <div style={styles.citasContainer}>
+        {/* Próximas citas */}
+        <div style={styles.section}>
+          <h2>📌 Próximas Citas</h2>
+          {citasProximas.length === 0 ? (
+            <p style={styles.emptyState}>No tienes citas próximas</p>
+          ) : (
+            citasProximas.map(cita => (
+              <div key={cita.id} style={styles.citaCard}>
+                <div style={styles.citaHeader}>
+                  <div style={styles.citaDoctor}>
+                    <FaUserMd /> Dr. {cita.doctor_nombre}
+                  </div>
+                  {getEstadoBadge(cita.estado)}
+                </div>
+                <div style={styles.citaBody}>
+                  <p><FaCalendarAlt /> Fecha: {format(parseISO(cita.fecha), 'PPP', { locale: es })}</p>
+                  <p><FaClock /> Hora: {cita.hora}</p>
+                  {cita.motivo && (
+                    <p><FaNotesMedical /> Motivo: {cita.motivo}</p>
+                  )}
+                </div>
+                {cita.estado !== 'cancelada' && cita.estado !== 'completada' && (
+                  <div style={styles.citaFooter}>
+                    <button 
+                      onClick={() => cancelarCita(cita.id)}
+                      style={styles.cancelButton}
+                    >
+                      <FaTimes /> Cancelar cita
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Historial de citas */}
+        <div style={styles.section}>
+          <h2>📋 Historial de Citas</h2>
+          {citasPasadas.length === 0 ? (
+            <p style={styles.emptyState}>No hay citas en el historial</p>
+          ) : (
+            citasPasadas.map(cita => (
+              <div key={cita.id} style={styles.citaCardHistorial}>
+                <div style={styles.citaHeader}>
+                  <div style={styles.citaDoctor}>
+                    <FaUserMd /> Dr. {cita.doctor_nombre}
+                  </div>
+                  {getEstadoBadge(cita.estado)}
+                </div>
+                <div style={styles.citaBody}>
+                  <p><FaCalendarAlt /> {format(parseISO(cita.fecha), 'PPP', { locale: es })} - {cita.hora}</p>
+                  {cita.motivo && <p>Motivo: {cita.motivo}</p>}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
     </div>
   )
+}
+
+const styles = {
+  container: {
+    padding: '20px',
+    maxWidth: '1200px',
+    margin: '0 auto',
+    backgroundColor: '#f5f5f5',
+    minHeight: '100vh'
+  },
+  header: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '30px',
+    backgroundColor: 'white',
+    padding: '20px',
+    borderRadius: '10px',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+  },
+  backButton: {
+    backgroundColor: '#6c757d',
+    color: 'white',
+    padding: '10px 20px',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    fontSize: '14px',
+    marginRight: '10px'
+  },
+  newButton: {
+    backgroundColor: '#27ae60',
+    color: 'white',
+    padding: '10px 20px',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    fontSize: '14px'
+  },
+  successMessage: {
+    backgroundColor: '#d4edda',
+    color: '#155724',
+    padding: '15px',
+    borderRadius: '5px',
+    marginBottom: '20px',
+    textAlign: 'center'
+  },
+  errorMessage: {
+    backgroundColor: '#f8d7da',
+    color: '#721c24',
+    padding: '15px',
+    borderRadius: '5px',
+    marginBottom: '20px',
+    textAlign: 'center'
+  },
+  formContainer: {
+    backgroundColor: 'white',
+    padding: '30px',
+    borderRadius: '10px',
+    marginBottom: '30px',
+    boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+  },
+  form: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '20px'
+  },
+  formGroup: {
+    display: 'flex',
+    flexDirection: 'column'
+  },
+  label: {
+    fontWeight: 'bold',
+    marginBottom: '5px',
+    color: '#2c3e50'
+  },
+  input: {
+    padding: '10px',
+    border: '1px solid #ddd',
+    borderRadius: '5px',
+    fontSize: '16px'
+  },
+  select: {
+    padding: '10px',
+    border: '1px solid #ddd',
+    borderRadius: '5px',
+    fontSize: '16px'
+  },
+  textarea: {
+    padding: '10px',
+    border: '1px solid #ddd',
+    borderRadius: '5px',
+    fontSize: '16px',
+    resize: 'vertical'
+  },
+  horariosGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))',
+    gap: '10px',
+    marginTop: '10px'
+  },
+  horaButton: {
+    padding: '10px',
+    backgroundColor: '#f8f9fa',
+    border: '1px solid #ddd',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    textAlign: 'center'
+  },
+  horaButtonSelected: {
+    backgroundColor: '#3498db',
+    color: 'white',
+    border: 'none'
+  },
+  noHorarios: {
+    color: '#7f8c8d',
+    fontStyle: 'italic',
+    marginTop: '10px'
+  },
+  submitButton: {
+    backgroundColor: '#27ae60',
+    color: 'white',
+    padding: '15px',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    fontSize: '16px',
+    fontWeight: 'bold',
+    marginTop: '20px'
+  },
+  citasContainer: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '20px'
+  },
+  section: {
+    backgroundColor: 'white',
+    padding: '20px',
+    borderRadius: '10px',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+  },
+  emptyState: {
+    textAlign: 'center',
+    color: '#7f8c8d',
+    padding: '40px',
+    fontStyle: 'italic'
+  },
+  citaCard: {
+    border: '1px solid #e0e0e0',
+    borderRadius: '8px',
+    marginBottom: '15px',
+    overflow: 'hidden'
+  },
+  citaCardHistorial: {
+    border: '1px solid #e0e0e0',
+    borderRadius: '8px',
+    marginBottom: '15px',
+    overflow: 'hidden',
+    opacity: 0.8,
+    backgroundColor: '#f8f9fa'
+  },
+  citaHeader: {
+    backgroundColor: '#f8f9fa',
+    padding: '10px 15px',
+    borderBottom: '1px solid #e0e0e0',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  citaDoctor: {
+    fontWeight: 'bold',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '5px'
+  },
+  badge: {
+    padding: '3px 8px',
+    borderRadius: '3px',
+    fontSize: '12px',
+    textTransform: 'capitalize'
+  },
+  citaBody: {
+    padding: '15px'
+  },
+  citaFooter: {
+    padding: '10px 15px',
+    borderTop: '1px solid #e0e0e0',
+    display: 'flex',
+    justifyContent: 'flex-end'
+  },
+  cancelButton: {
+    backgroundColor: '#e74c3c',
+    color: 'white',
+    padding: '5px 10px',
+    border: 'none',
+    borderRadius: '3px',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '5px',
+    fontSize: '12px'
+  },
+  loading: {
+    textAlign: 'center',
+    fontSize: '20px',
+    marginTop: '50px',
+    color: '#3498db'
+  },
+  loadingSmall: {
+    textAlign: 'center',
+    padding: '10px',
+    color: '#7f8c8d'
+  }
 }
 
 export default Citas

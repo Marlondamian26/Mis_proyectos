@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import axios from 'axios'
+import axiosInstance from 'axios'
 import { useNavigate } from 'react-router-dom'
 
 function Dashboard() {
@@ -8,33 +8,21 @@ function Dashboard() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const token = localStorage.getItem('access_token')
-      
-      if (!token) {
-        navigate('/login')
-        return
-      }
-
-      try {
-        const response = await axios.get('http://127.0.0.1:8000/api/usuario-actual/', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        })
-        setUser(response.data)
-      } catch (err) {
-        console.error('Error obteniendo usuario:', err)
-        localStorage.removeItem('access_token')
-        localStorage.removeItem('refresh_token')
-        navigate('/login')
-      } finally {
-        setLoading(false)
-      }
+  const fetchUser = async () => {
+    try {
+      const response = await axiosInstance.get('usuario-actual/')  // URL relativa
+      setUser(response.data)
+    } catch (err) {
+      console.error('Error obteniendo usuario:', err)
+      navigate('/login')
+    } finally {
+      setLoading(false)
     }
+  }
+  
+  fetchUser()
+}, [navigate])
 
-    fetchUser()
-  }, [navigate])
 
   const handleLogout = () => {
     localStorage.removeItem('access_token')
@@ -72,6 +60,9 @@ function Dashboard() {
             </div>
             <div style={styles.menuItem} onClick={() => navigate('/doctores')}>
               👨‍⚕️ Doctores
+            </div>
+            <div style={styles.menuItem} onClick={() => navigate('/perfil')}>  {/* NUEVO */}
+              👤 Mi Perfil
             </div>
           </div>
         </div>

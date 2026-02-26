@@ -19,4 +19,6 @@ urlpatterns = [
     # Rutas personalizadas
     path('registro/', views.registro_usuario, name='registro'),
     path('usuario-actual/', views.usuario_actual, name='usuario_actual'),
+    path('cambiar-contrasena/', views.cambiar_contrasena, name='cambiar_contrasena'),
+
 ]

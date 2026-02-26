@@ -7,6 +7,9 @@
 #python manage.py runserver      ------ correr el servidor
 #Ctrl+C      ------ para detener el servidor
 
+# 1. Abre la shell
+#python manage.py shell   entrar al shell
+
 #Mantener un archivo requirements.txt
 # Después de instalar todo, guarda las dependencias
 #pip freeze > requirements.txt    ----- actualizar después de instalar cada nueva dependencia

@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication  # <-- NUEVO
 from django.shortcuts import get_object_or_404
+from django.contrib.auth import update_session_auth_hash
 from .models import Usuario, Doctor, Enfermera, Paciente, Especialidad, Horario, Cita
 from .serializers import (
     UsuarioSerializer, RegistroUsuarioSerializer, DoctorSerializer,
@@ -29,6 +30,28 @@ def registro_usuario(request):
             'access': str(refresh.access_token),
         }, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def cambiar_contrasena(request):
+    user = request.user
+    old_password = request.data.get('old_password')
+    new_password = request.data.get('new_password')
+    
+    if not user.check_password(old_password):
+        return Response({'error': 'Contraseña actual incorrecta'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    if len(new_password) < 4:
+        return Response({'error': 'La contraseña debe tener al menos 4 caracteres'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    user.set_password(new_password)
+    user.save()
+    
+    # Mantener la sesión activa después de cambiar contraseña
+    update_session_auth_hash(request, user)
+    
+    return Response({'message': 'Contraseña actualizada correctamente'}, status=status.HTTP_200_OK)
 
 # Vista para obtener información del usuario actual (requiere token)
 @api_view(['GET'])

@@ -19,26 +19,23 @@ function Login() {
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
+  e.preventDefault()
+  setLoading(true)
+  setError('')
 
-    try {
-      const response = await axios.post('http://127.0.0.1:8000/api/token/', formData)
-      
-      // Guardar tokens en localStorage
-      localStorage.setItem('access_token', response.data.access)
-      localStorage.setItem('refresh_token', response.data.refresh)
-      
-      // Redirigir al dashboard
-      navigate('/dashboard')
-    } catch (err) {
-      setError('Usuario o contraseña incorrectos')
-      console.error('Error de login:', err)
-    } finally {
-      setLoading(false)
-    }
+  try {
+    const response = await axios.post('http://127.0.0.1:8000/api/token/', formData)
+    
+    localStorage.setItem('access_token', response.data.access)
+    localStorage.setItem('refresh_token', response.data.refresh)
+    
+    navigate('/dashboard')
+  } catch (err) {
+    setError('Usuario o contraseña incorrectos')
+  } finally {
+    setLoading(false)
   }
+}
 
   return (
     <div style={styles.container}>
