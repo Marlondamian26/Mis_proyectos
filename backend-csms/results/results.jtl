@@ -1,2 +1,0 @@
-timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect
-1747386804022,663,Login Request,201,Created,Login Test 1-1,text,true,,810,242,1,1,http://localhost:3000/auth/login,532,0,455
