@@ -5,7 +5,8 @@ import {
   FaUsers, FaUserMd, FaUserNurse, FaCalendarAlt, 
   FaChartBar, FaStethoscope, FaClock, FaPlus, 
   FaEdit, FaTrash, FaEye, FaCheck, FaTimes, FaSpinner,
-  FaExclamationTriangle, FaSync
+  FaExclamationTriangle, FaSync, FaSave, FaBan,
+  FaEnvelope, FaPhone, FaIdCard, FaVenusMars, FaCalendarCheck
 } from 'react-icons/fa'
 
 function AdminDashboard() {
@@ -18,6 +19,7 @@ function AdminDashboard() {
   const [horarios, setHorarios] = useState([])
   const [loading, setLoading] = useState(true)
   const [loadingError, setLoadingError] = useState(null)
+  const [saving, setSaving] = useState(false)
   const [stats, setStats] = useState({
     totalUsuarios: 0,
     totalDoctores: 0,
@@ -27,18 +29,22 @@ function AdminDashboard() {
     citasPendientes: 0,
     citasTotales: 0
   })
-  const [selectedItem, setSelectedItem] = useState(null)
+
+  // Estados para el modal
   const [showModal, setShowModal] = useState(false)
-  const [modalMode, setModalMode] = useState('create')
+  const [modalMode, setModalMode] = useState('create') // 'create', 'edit', 'view'
+  const [selectedItem, setSelectedItem] = useState(null)
   const [formData, setFormData] = useState({})
-  const [saving, setSaving] = useState(false)
   const [mensaje, setMensaje] = useState({ texto: '', tipo: '' })
+
   const navigate = useNavigate()
 
+  // Cargar datos al iniciar
   useEffect(() => {
     checkAdminAndLoadData()
   }, [])
 
+  // Verificar que el usuario es admin
   const checkAdminAndLoadData = async () => {
     setLoading(true)
     setLoadingError(null)
@@ -66,12 +72,12 @@ function AdminDashboard() {
     }
   }
 
+  // Cargar todos los datos
   const loadAllData = async () => {
     setLoading(true)
     setLoadingError(null)
     
     try {
-      // Cargar todos los datos en paralelo
       const [
         usuariosRes,
         doctoresRes,
@@ -88,44 +94,55 @@ function AdminDashboard() {
         axiosInstance.get('horarios/')
       ])
 
-      // Procesar cada respuesta
+      // Procesar usuarios
       if (usuariosRes.status === 'fulfilled') {
-        setUsuarios(Array.isArray(usuariosRes.value.data) ? usuariosRes.value.data : [])
+        const data = Array.isArray(usuariosRes.value.data) ? usuariosRes.value.data : []
+        setUsuarios(data)
       } else {
         console.error('Error cargando usuarios:', usuariosRes.reason)
         setUsuarios([])
       }
 
+      // Procesar doctores
       if (doctoresRes.status === 'fulfilled') {
-        setDoctores(Array.isArray(doctoresRes.value.data) ? doctoresRes.value.data : [])
+        const data = Array.isArray(doctoresRes.value.data) ? doctoresRes.value.data : []
+        setDoctores(data)
       } else {
         console.error('Error cargando doctores:', doctoresRes.reason)
         setDoctores([])
       }
 
+      // Procesar enfermeras
       if (enfermerasRes.status === 'fulfilled') {
-        setEnfermeras(Array.isArray(enfermerasRes.value.data) ? enfermerasRes.value.data : [])
+        const data = Array.isArray(enfermerasRes.value.data) ? enfermerasRes.value.data : []
+        setEnfermeras(data)
       } else {
         console.error('Error cargando enfermeras:', enfermerasRes.reason)
         setEnfermeras([])
       }
 
+      // Procesar citas
       if (citasRes.status === 'fulfilled') {
-        setCitas(Array.isArray(citasRes.value.data) ? citasRes.value.data : [])
+        const data = Array.isArray(citasRes.value.data) ? citasRes.value.data : []
+        setCitas(data)
       } else {
         console.error('Error cargando citas:', citasRes.reason)
         setCitas([])
       }
 
+      // Procesar especialidades
       if (especialidadesRes.status === 'fulfilled') {
-        setEspecialidades(Array.isArray(especialidadesRes.value.data) ? especialidadesRes.value.data : [])
+        const data = Array.isArray(especialidadesRes.value.data) ? especialidadesRes.value.data : []
+        setEspecialidades(data)
       } else {
         console.error('Error cargando especialidades:', especialidadesRes.reason)
         setEspecialidades([])
       }
 
+      // Procesar horarios
       if (horariosRes.status === 'fulfilled') {
-        setHorarios(Array.isArray(horariosRes.value.data) ? horariosRes.value.data : [])
+        const data = Array.isArray(horariosRes.value.data) ? horariosRes.value.data : []
+        setHorarios(data)
       } else {
         console.error('Error cargando horarios:', horariosRes.reason)
         setHorarios([])
@@ -142,12 +159,12 @@ function AdminDashboard() {
     } catch (error) {
       console.error('Error general cargando datos:', error)
       setLoadingError('Error al cargar los datos. Intenta recargar la página.')
-      mostrarMensaje('Error al cargar los datos', 'error')
     } finally {
       setLoading(false)
     }
   }
 
+  // Calcular estadísticas
   const calcularEstadisticas = (usuarios, doctores, enfermeras, citas) => {
     const hoy = new Date().toISOString().split('T')[0]
     const citasArray = Array.isArray(citas) ? citas : []
@@ -168,52 +185,186 @@ function AdminDashboard() {
     })
   }
 
+  // Mostrar mensajes
   const mostrarMensaje = (texto, tipo) => {
     setMensaje({ texto, tipo })
     setTimeout(() => setMensaje({ texto: '', tipo: '' }), 5000)
   }
 
+  // ===== FUNCIONES CRUD =====
+
+  // Abrir modal para crear
   const handleCreate = (tipo) => {
+    console.log('Creando nuevo:', tipo)
     setModalMode('create')
-    setFormData({ tipo, rol: 'patient' })
+    setSelectedItem(null)
+    
+    // Inicializar formulario según el tipo
+    const baseForm = { tipo }
+    
+    if (tipo === 'usuarios') {
+      setFormData({
+        ...baseForm,
+        username: '',
+        password: '',
+        first_name: '',
+        last_name: '',
+        email: '',
+        telefono: '',
+        rol: 'patient'
+      })
+    } else if (tipo === 'doctores') {
+      // PARA DOCTORES: Creamos usuario y perfil en un solo paso
+      setFormData({
+        ...baseForm,
+        // Datos del usuario
+        username: '',
+        password: '',
+        first_name: '',
+        last_name: '',
+        email: '',
+        telefono: '',
+        // Datos específicos de doctor
+        especialidad: '',
+        numero_colegiado: '',
+        biografia: ''
+      })
+    } else if (tipo === 'enfermeras') {
+      // PARA ENFERMERAS: Creamos usuario y perfil en un solo paso
+      setFormData({
+        ...baseForm,
+        // Datos del usuario
+        username: '',
+        password: '',
+        first_name: '',
+        last_name: '',
+        email: '',
+        telefono: '',
+        // Datos específicos de enfermera
+        especialidad_enfermeria: '',
+        numero_licencia: ''
+      })
+    } else if (tipo === 'especialidades') {
+      setFormData({
+        ...baseForm,
+        nombre: '',
+        descripcion: ''
+      })
+    } else if (tipo === 'horarios') {
+      setFormData({
+        ...baseForm,
+        doctor: '',
+        dia_semana: 0,
+        hora_inicio: '09:00',
+        hora_fin: '17:00',
+        activo: true
+      })
+    } else if (tipo === 'citas') {
+      setFormData({
+        ...baseForm,
+        paciente: '',
+        doctor: '',
+        fecha: new Date().toISOString().split('T')[0],
+        hora: '09:00',
+        estado: 'pendiente',
+        motivo: ''
+      })
+    }
+    
     setShowModal(true)
   }
 
+  // Abrir modal para editar
   const handleEdit = (item, tipo) => {
+    console.log('Editando:', item, tipo)
     setModalMode('edit')
     setSelectedItem(item)
-    setFormData({ ...item, tipo })
+    
+    if (tipo === 'doctores') {
+      // Para doctores, incluir datos del usuario en el formulario
+      setFormData({
+        ...item,
+        tipo,
+        first_name: item.usuario?.first_name || '',
+        last_name: item.usuario?.last_name || '',
+        email: item.usuario?.email || '',
+        telefono: item.usuario?.telefono || ''
+      })
+    } else if (tipo === 'enfermeras') {
+      // Para enfermeras, incluir datos del usuario
+      setFormData({
+        ...item,
+        tipo,
+        first_name: item.usuario?.first_name || '',
+        last_name: item.usuario?.last_name || '',
+        email: item.usuario?.email || '',
+        telefono: item.usuario?.telefono || ''
+      })
+    } else {
+      setFormData({ ...item, tipo })
+    }
+    
     setShowModal(true)
   }
 
+  // Abrir modal para ver
   const handleView = (item, tipo) => {
+    console.log('Viendo:', item, tipo)
     setModalMode('view')
     setSelectedItem(item)
-    setFormData({ ...item, tipo })
+    
+    if (tipo === 'doctores') {
+      setFormData({
+        ...item,
+        tipo,
+        first_name: item.usuario?.first_name || '',
+        last_name: item.usuario?.last_name || '',
+        email: item.usuario?.email || '',
+        telefono: item.usuario?.telefono || ''
+      })
+    } else if (tipo === 'enfermeras') {
+      setFormData({
+        ...item,
+        tipo,
+        first_name: item.usuario?.first_name || '',
+        last_name: item.usuario?.last_name || '',
+        email: item.usuario?.email || '',
+        telefono: item.usuario?.telefono || ''
+      })
+    } else {
+      setFormData({ ...item, tipo })
+    }
+    
     setShowModal(true)
   }
 
+  // Eliminar elemento
   const handleDelete = async (tipo, id) => {
-    if (!window.confirm(`¿Estás seguro de eliminar este ${tipo}?`)) return
+    if (!window.confirm(`¿Estás seguro de eliminar este ${tipo}? Esta acción no se puede deshacer.`)) return
 
     try {
+      setSaving(true)
       await axiosInstance.delete(`${tipo}/${id}/`)
       mostrarMensaje(`${tipo} eliminado correctamente`, 'success')
-      loadAllData()
+      await loadAllData() // Recargar datos
     } catch (error) {
       console.error('Error eliminando:', error)
-      mostrarMensaje(`Error al eliminar ${tipo}`, 'error')
+      mostrarMensaje(error.response?.data?.message || `Error al eliminar ${tipo}`, 'error')
+    } finally {
+      setSaving(false)
     }
   }
 
+  // Manejar cambios en el formulario
   const handleInputChange = (e) => {
-    const { name, value } = e.target
+    const { name, value, type, checked } = e.target
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value
     }))
   }
 
+  // Guardar (crear o actualizar)
   const handleSubmit = async (e) => {
     e.preventDefault()
     setSaving(true)
@@ -223,22 +374,143 @@ function AdminDashboard() {
       let response
 
       if (modalMode === 'create') {
-        response = await axiosInstance.post(`${tipo}/`, formData)
-        mostrarMensaje(`${tipo} creado correctamente`, 'success')
-      } else if (modalMode === 'edit') {
-        response = await axiosInstance.put(`${tipo}/${selectedItem.id}/`, formData)
-        mostrarMensaje(`${tipo} actualizado correctamente`, 'success')
+        console.log('Creando con datos:', formData)
+        
+        // CASO ESPECIAL: Crear doctor (usuario + perfil)
+        if (tipo === 'doctores') {
+          // 1. Primero crear el usuario
+          const usuarioData = {
+            username: formData.username,
+            password: formData.password,
+            first_name: formData.first_name,
+            last_name: formData.last_name,
+            email: formData.email,
+            telefono: formData.telefono,
+            rol: 'doctor'
+          }
+          
+          const usuarioResponse = await axiosInstance.post('usuarios/', usuarioData)
+          const nuevoUsuario = usuarioResponse.data
+          
+          // 2. Luego crear el perfil de doctor
+          const doctorData = {
+            usuario: nuevoUsuario.id,
+            especialidad: formData.especialidad,
+            numero_colegiado: formData.numero_colegiado,
+            biografia: formData.biografia || ''
+          }
+          
+          response = await axiosInstance.post('doctores/', doctorData)
+          mostrarMensaje('✅ Doctor creado correctamente', 'success')
+        }
+        // CASO ESPECIAL: Crear enfermera (usuario + perfil)
+        else if (tipo === 'enfermeras') {
+          // 1. Primero crear el usuario
+          const usuarioData = {
+            username: formData.username,
+            password: formData.password,
+            first_name: formData.first_name,
+            last_name: formData.last_name,
+            email: formData.email,
+            telefono: formData.telefono,
+            rol: 'nurse'
+          }
+          
+          const usuarioResponse = await axiosInstance.post('usuarios/', usuarioData)
+          const nuevoUsuario = usuarioResponse.data
+          
+          // 2. Luego crear el perfil de enfermera
+          const enfermeraData = {
+            usuario: nuevoUsuario.id,
+            especialidad_enfermeria: formData.especialidad_enfermeria || '',
+            numero_licencia: formData.numero_licencia
+          }
+          
+          response = await axiosInstance.post('enfermeras/', enfermeraData)
+          mostrarMensaje('✅ Enfermera creada correctamente', 'success')
+        }
+        // Caso normal: crear directamente
+        else {
+          response = await axiosInstance.post(`${tipo}/`, formData)
+          mostrarMensaje(`✅ ${tipo} creado correctamente`, 'success')
+        }
+      } 
+      else if (modalMode === 'edit') {
+        console.log('Actualizando con datos:', formData)
+        
+        // CASO ESPECIAL: Editar doctor (usuario + perfil)
+        if (tipo === 'doctores') {
+          // Actualizar usuario
+          if (selectedItem.usuario) {
+            await axiosInstance.patch(`usuarios/${selectedItem.usuario.id}/`, {
+              first_name: formData.first_name,
+              last_name: formData.last_name,
+              email: formData.email,
+              telefono: formData.telefono
+            })
+          }
+          
+          // Actualizar perfil de doctor
+          response = await axiosInstance.patch(`${tipo}/${selectedItem.id}/`, {
+            especialidad: formData.especialidad,
+            numero_colegiado: formData.numero_colegiado,
+            biografia: formData.biografia
+          })
+          mostrarMensaje('✅ Doctor actualizado correctamente', 'success')
+        }
+        // CASO ESPECIAL: Editar enfermera
+        else if (tipo === 'enfermeras') {
+          // Actualizar usuario
+          if (selectedItem.usuario) {
+            await axiosInstance.patch(`usuarios/${selectedItem.usuario.id}/`, {
+              first_name: formData.first_name,
+              last_name: formData.last_name,
+              email: formData.email,
+              telefono: formData.telefono
+            })
+          }
+          
+          // Actualizar perfil de enfermera
+          response = await axiosInstance.patch(`${tipo}/${selectedItem.id}/`, {
+            especialidad_enfermeria: formData.especialidad_enfermeria,
+            numero_licencia: formData.numero_licencia
+          })
+          mostrarMensaje('✅ Enfermera actualizada correctamente', 'success')
+        }
+        // Caso normal
+        else {
+          response = await axiosInstance.patch(`${tipo}/${selectedItem.id}/`, formData)
+          mostrarMensaje(`✅ ${tipo} actualizado correctamente`, 'success')
+        }
       }
       
       setShowModal(false)
-      await loadAllData()
+      await loadAllData() // Recargar datos
     } catch (error) {
       console.error('Error guardando:', error)
-      mostrarMensaje(error.response?.data?.message || 'Error al guardar los datos', 'error')
+      
+      // Mostrar errores específicos del backend
+      if (error.response?.data) {
+        const errors = Object.entries(error.response.data)
+          .map(([field, msg]) => `${field}: ${msg}`)
+          .join('\n')
+        mostrarMensaje(errors || 'Error al guardar los datos', 'error')
+      } else {
+        mostrarMensaje('Error al guardar los datos', 'error')
+      }
     } finally {
       setSaving(false)
     }
   }
+
+  // Cerrar modal
+  const handleCloseModal = () => {
+    setShowModal(false)
+    setSelectedItem(null)
+    setFormData({})
+  }
+
+  // ===== FUNCIONES AUXILIARES =====
 
   const getEstadoBadge = (estado) => {
     const colores = {
@@ -261,21 +533,22 @@ function AdminDashboard() {
 
   const getRolBadge = (rol) => {
     const colores = {
-      admin: '#e74c3c',
-      doctor: '#3498db',
-      nurse: '#27ae60',
-      patient: '#95a5a6'
+      admin: 'var(--color-admin)',
+      doctor: 'var(--color-doctor)',
+      nurse: 'var(--color-nurse)',
+      patient: 'var(--color-patient)'
     }
     return (
       <span style={{
         ...styles.rolBadge,
-        backgroundColor: colores[rol] || '#95a5a6'
+        backgroundColor: colores[rol] || 'var(--color-patient)'
       }}>
         {rol}
       </span>
     )
   }
 
+  // Renderizado condicional
   if (loading) {
     return (
       <div style={styles.loadingContainer}>
@@ -606,6 +879,9 @@ function AdminDashboard() {
           <div>
             <div style={styles.tableHeader}>
               <h2 style={styles.sectionTitle}>Gestión de Citas</h2>
+              <button onClick={() => handleCreate('citas')} style={styles.createButton}>
+                <FaPlus /> Nueva Cita
+              </button>
             </div>
             {citas.length === 0 ? (
               <div style={styles.emptyState}>
@@ -642,6 +918,9 @@ function AdminDashboard() {
                           </button>
                           <button onClick={() => handleEdit(cita, 'citas')} style={styles.editButton} title="Editar">
                             <FaEdit />
+                          </button>
+                          <button onClick={() => handleDelete('citas', cita.id)} style={styles.deleteButton} title="Eliminar">
+                            <FaTrash />
                           </button>
                         </td>
                       </tr>
@@ -743,7 +1022,8 @@ function AdminDashboard() {
                           <td>
                             <span style={{
                               ...styles.badge,
-                              backgroundColor: horario.activo ? '#27ae60' : '#e74c3c'
+                              backgroundColor: horario.activo ? '#27ae60' : '#e74c3c',
+                              color: 'white'
                             }}>
                               {horario.activo ? 'Activo' : 'Inactivo'}
                             </span>
@@ -772,7 +1052,7 @@ function AdminDashboard() {
 
       {/* Modal para crear/editar/ver */}
       {showModal && (
-        <div style={styles.modalOverlay} onClick={() => setShowModal(false)}>
+        <div style={styles.modalOverlay} onClick={handleCloseModal}>
           <div style={styles.modal} onClick={e => e.stopPropagation()}>
             <h2 style={styles.modalTitle}>
               {modalMode === 'create' && `Crear ${formData.tipo}`}
@@ -781,11 +1061,12 @@ function AdminDashboard() {
             </h2>
             
             <form onSubmit={handleSubmit}>
-              {/* Campos según el tipo */}
-              {formData.tipo === 'usuarios' && (
+              {/* Modal para crear DOCTOR (usuario + perfil) */}
+              {formData.tipo === 'doctores' && (
                 <>
+                  <h3 style={styles.modalSubtitle}>Datos de Usuario</h3>
                   <div style={styles.formGroup}>
-                    <label>Username:</label>
+                    <label style={styles.label}>Username:</label>
                     <input
                       type="text"
                       name="username"
@@ -796,30 +1077,488 @@ function AdminDashboard() {
                       required
                     />
                   </div>
+                  {modalMode === 'create' && (
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>Contraseña:</label>
+                      <input
+                        type="password"
+                        name="password"
+                        value={formData.password || ''}
+                        onChange={handleInputChange}
+                        style={styles.input}
+                        required
+                      />
+                    </div>
+                  )}
+                  <div style={styles.formRow}>
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>Nombre:</label>
+                      <input
+                        type="text"
+                        name="first_name"
+                        value={formData.first_name || ''}
+                        onChange={handleInputChange}
+                        disabled={modalMode === 'view'}
+                        style={styles.input}
+                        required
+                      />
+                    </div>
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>Apellido:</label>
+                      <input
+                        type="text"
+                        name="last_name"
+                        value={formData.last_name || ''}
+                        onChange={handleInputChange}
+                        disabled={modalMode === 'view'}
+                        style={styles.input}
+                        required
+                      />
+                    </div>
+                  </div>
                   <div style={styles.formGroup}>
-                    <label>Nombre:</label>
+                    <label style={styles.label}>Email:</label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email || ''}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={styles.input}
+                      required
+                    />
+                  </div>
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>Teléfono:</label>
                     <input
                       type="text"
-                      name="first_name"
-                      value={formData.first_name || ''}
+                      name="telefono"
+                      value={formData.telefono || ''}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={styles.input}
+                      placeholder="+244 XXX XXX XXX"
+                    />
+                  </div>
+                  
+                  <h3 style={styles.modalSubtitle}>Datos Profesionales</h3>
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>Especialidad:</label>
+                    <input
+                      type="text"
+                      name="especialidad"
+                      value={formData.especialidad || ''}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={styles.input}
+                      required
+                    />
+                  </div>
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>Número de Colegiado:</label>
+                    <input
+                      type="text"
+                      name="numero_colegiado"
+                      value={formData.numero_colegiado || ''}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={styles.input}
+                      required
+                    />
+                  </div>
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>Biografía:</label>
+                    <textarea
+                      name="biografia"
+                      value={formData.biografia || ''}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={styles.textarea}
+                      rows="4"
+                      placeholder="Formación, experiencia, etc."
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* Modal para crear ENFERMERA (usuario + perfil) */}
+              {formData.tipo === 'enfermeras' && (
+                <>
+                  <h3 style={styles.modalSubtitle}>Datos de Usuario</h3>
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>Username:</label>
+                    <input
+                      type="text"
+                      name="username"
+                      value={formData.username || ''}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={styles.input}
+                      required
+                    />
+                  </div>
+                  {modalMode === 'create' && (
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>Contraseña:</label>
+                      <input
+                        type="password"
+                        name="password"
+                        value={formData.password || ''}
+                        onChange={handleInputChange}
+                        style={styles.input}
+                        required
+                      />
+                    </div>
+                  )}
+                  <div style={styles.formRow}>
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>Nombre:</label>
+                      <input
+                        type="text"
+                        name="first_name"
+                        value={formData.first_name || ''}
+                        onChange={handleInputChange}
+                        disabled={modalMode === 'view'}
+                        style={styles.input}
+                        required
+                      />
+                    </div>
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>Apellido:</label>
+                      <input
+                        type="text"
+                        name="last_name"
+                        value={formData.last_name || ''}
+                        onChange={handleInputChange}
+                        disabled={modalMode === 'view'}
+                        style={styles.input}
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>Email:</label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email || ''}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={styles.input}
+                      required
+                    />
+                  </div>
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>Teléfono:</label>
+                    <input
+                      type="text"
+                      name="telefono"
+                      value={formData.telefono || ''}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={styles.input}
+                      placeholder="+244 XXX XXX XXX"
+                    />
+                  </div>
+                  
+                  <h3 style={styles.modalSubtitle}>Datos Profesionales</h3>
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>Especialidad de Enfermería:</label>
+                    <input
+                      type="text"
+                      name="especialidad_enfermeria"
+                      value={formData.especialidad_enfermeria || ''}
                       onChange={handleInputChange}
                       disabled={modalMode === 'view'}
                       style={styles.input}
                     />
                   </div>
                   <div style={styles.formGroup}>
-                    <label>Apellido:</label>
+                    <label style={styles.label}>Número de Licencia:</label>
                     <input
                       type="text"
-                      name="last_name"
-                      value={formData.last_name || ''}
+                      name="numero_licencia"
+                      value={formData.numero_licencia || ''}
                       onChange={handleInputChange}
                       disabled={modalMode === 'view'}
                       style={styles.input}
+                      required
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* Modal para CITAS */}
+              {formData.tipo === 'citas' && (
+                <>
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>Paciente:</label>
+                    <select
+                      name="paciente"
+                      value={formData.paciente || ''}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={styles.select}
+                      required
+                    >
+                      <option value="">Seleccionar paciente</option>
+                      {usuarios.filter(u => u.rol === 'patient').map(u => (
+                        <option key={u.id} value={u.id}>
+                          {u.first_name} {u.last_name} - {u.username}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>Doctor:</label>
+                    <select
+                      name="doctor"
+                      value={formData.doctor || ''}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={styles.select}
+                      required
+                    >
+                      <option value="">Seleccionar doctor</option>
+                      {doctores.map(d => (
+                        <option key={d.id} value={d.id}>
+                          Dr. {d.usuario?.first_name} {d.usuario?.last_name} - {d.especialidad}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div style={styles.formRow}>
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>Fecha:</label>
+                      <input
+                        type="date"
+                        name="fecha"
+                        value={formData.fecha || ''}
+                        onChange={handleInputChange}
+                        disabled={modalMode === 'view'}
+                        style={styles.input}
+                        min={new Date().toISOString().split('T')[0]}
+                        required
+                      />
+                    </div>
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>Hora:</label>
+                      <input
+                        type="time"
+                        name="hora"
+                        value={formData.hora || ''}
+                        onChange={handleInputChange}
+                        disabled={modalMode === 'view'}
+                        style={styles.input}
+                        required
+                      />
+                    </div>
+                  </div>
+                  
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>Estado:</label>
+                    <select
+                      name="estado"
+                      value={formData.estado || 'pendiente'}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={styles.select}
+                    >
+                      <option value="pendiente">🟡 Pendiente</option>
+                      <option value="confirmada">🟢 Confirmada</option>
+                      <option value="completada">🔵 Completada</option>
+                      <option value="cancelada">🔴 Cancelada</option>
+                      <option value="no_asistio">⚫ No Asistió</option>
+                    </select>
+                  </div>
+                  
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>Motivo de la consulta:</label>
+                    <textarea
+                      name="motivo"
+                      value={formData.motivo || ''}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={styles.textarea}
+                      rows="3"
+                      placeholder="Describe el motivo de la consulta..."
+                    />
+                  </div>
+                  
+                  {modalMode === 'view' && selectedItem && (
+                    <div style={styles.infoCard}>
+                      <p><strong>📋 Historial de la cita:</strong></p>
+                      <p>📅 Creada: {new Date(selectedItem?.fecha_creacion).toLocaleString()}</p>
+                      {selectedItem?.fecha_actualizacion && (
+                        <p>🔄 Última actualización: {new Date(selectedItem.fecha_actualizacion).toLocaleString()}</p>
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Modal para ESPECIALIDADES */}
+              {formData.tipo === 'especialidades' && (
+                <>
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>Nombre:</label>
+                    <input
+                      type="text"
+                      name="nombre"
+                      value={formData.nombre || ''}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={styles.input}
+                      required
                     />
                   </div>
                   <div style={styles.formGroup}>
-                    <label>Email:</label>
+                    <label style={styles.label}>Descripción:</label>
+                    <textarea
+                      name="descripcion"
+                      value={formData.descripcion || ''}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={styles.textarea}
+                      rows="3"
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* Modal para HORARIOS */}
+              {formData.tipo === 'horarios' && (
+                <>
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>Doctor:</label>
+                    <select
+                      name="doctor"
+                      value={formData.doctor || ''}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={styles.select}
+                      required
+                    >
+                      <option value="">Seleccionar doctor</option>
+                      {doctores.map(d => (
+                        <option key={d.id} value={d.id}>
+                          Dr. {d.usuario?.first_name} {d.usuario?.last_name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>Día de la semana:</label>
+                    <select
+                      name="dia_semana"
+                      value={formData.dia_semana || 0}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={styles.select}
+                    >
+                      <option value="0">Lunes</option>
+                      <option value="1">Martes</option>
+                      <option value="2">Miércoles</option>
+                      <option value="3">Jueves</option>
+                      <option value="4">Viernes</option>
+                      <option value="5">Sábado</option>
+                      <option value="6">Domingo</option>
+                    </select>
+                  </div>
+                  <div style={styles.formRow}>
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>Hora inicio:</label>
+                      <input
+                        type="time"
+                        name="hora_inicio"
+                        value={formData.hora_inicio || '09:00'}
+                        onChange={handleInputChange}
+                        disabled={modalMode === 'view'}
+                        style={styles.input}
+                      />
+                    </div>
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>Hora fin:</label>
+                      <input
+                        type="time"
+                        name="hora_fin"
+                        value={formData.hora_fin || '17:00'}
+                        onChange={handleInputChange}
+                        disabled={modalMode === 'view'}
+                        style={styles.input}
+                      />
+                    </div>
+                  </div>
+                  <div style={styles.formGroup}>
+                    <label style={styles.checkboxLabel}>
+                      <input
+                        type="checkbox"
+                        name="activo"
+                        checked={formData.activo || false}
+                        onChange={handleInputChange}
+                        disabled={modalMode === 'view'}
+                      /> Activo
+                    </label>
+                  </div>
+                </>
+              )}
+
+              {/* Modal para USUARIOS */}
+              {formData.tipo === 'usuarios' && (
+                <>
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>Username:</label>
+                    <input
+                      type="text"
+                      name="username"
+                      value={formData.username || ''}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={styles.input}
+                      required
+                    />
+                  </div>
+                  {modalMode === 'create' && (
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>Contraseña:</label>
+                      <input
+                        type="password"
+                        name="password"
+                        value={formData.password || ''}
+                        onChange={handleInputChange}
+                        style={styles.input}
+                        required
+                      />
+                    </div>
+                  )}
+                  <div style={styles.formRow}>
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>Nombre:</label>
+                      <input
+                        type="text"
+                        name="first_name"
+                        value={formData.first_name || ''}
+                        onChange={handleInputChange}
+                        disabled={modalMode === 'view'}
+                        style={styles.input}
+                      />
+                    </div>
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>Apellido:</label>
+                      <input
+                        type="text"
+                        name="last_name"
+                        value={formData.last_name || ''}
+                        onChange={handleInputChange}
+                        disabled={modalMode === 'view'}
+                        style={styles.input}
+                      />
+                    </div>
+                  </div>
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>Email:</label>
                     <input
                       type="email"
                       name="email"
@@ -830,7 +1569,7 @@ function AdminDashboard() {
                     />
                   </div>
                   <div style={styles.formGroup}>
-                    <label>Teléfono:</label>
+                    <label style={styles.label}>Teléfono:</label>
                     <input
                       type="text"
                       name="telefono"
@@ -838,10 +1577,11 @@ function AdminDashboard() {
                       onChange={handleInputChange}
                       disabled={modalMode === 'view'}
                       style={styles.input}
+                      placeholder="+244 XXX XXX XXX"
                     />
                   </div>
                   <div style={styles.formGroup}>
-                    <label>Rol:</label>
+                    <label style={styles.label}>Rol:</label>
                     <select
                       name="rol"
                       value={formData.rol || 'patient'}
@@ -855,19 +1595,6 @@ function AdminDashboard() {
                       <option value="admin">Administrador</option>
                     </select>
                   </div>
-                  {modalMode === 'create' && (
-                    <div style={styles.formGroup}>
-                      <label>Contraseña:</label>
-                      <input
-                        type="password"
-                        name="password"
-                        value={formData.password || ''}
-                        onChange={handleInputChange}
-                        style={styles.input}
-                        required
-                      />
-                    </div>
-                  )}
                 </>
               )}
 
@@ -878,23 +1605,23 @@ function AdminDashboard() {
                     style={styles.saveButton}
                     disabled={saving}
                   >
-                    {saving ? <FaSpinner style={styles.spinner} /> : <FaCheck />}
+                    {saving ? <FaSpinner style={styles.spinner} /> : <FaSave />}
                     {saving ? 'Guardando...' : 'Guardar'}
                   </button>
                   <button 
                     type="button" 
-                    onClick={() => setShowModal(false)} 
+                    onClick={handleCloseModal} 
                     style={styles.cancelButton}
                     disabled={saving}
                   >
-                    <FaTimes /> Cancelar
+                    <FaBan /> Cancelar
                   </button>
                 </div>
               )}
               {modalMode === 'view' && (
                 <button 
                   type="button" 
-                  onClick={() => setShowModal(false)} 
+                  onClick={handleCloseModal} 
                   style={styles.closeButton}
                 >
                   Cerrar
@@ -908,7 +1635,7 @@ function AdminDashboard() {
   )
 }
 
-// Estilos 
+// ===== ESTILOS =====
 const styles = {
   container: {
     padding: '20px',
@@ -980,16 +1707,6 @@ const styles = {
     gap: '10px',
     marginBottom: '10px'
   },
-  backButton: {
-    backgroundColor: 'var(--text-muted)',
-    color: 'white',
-    padding: '10px 20px',
-    border: 'none',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    fontSize: '14px',
-    marginTop: '10px'
-  },
   header: {
     display: 'flex',
     justifyContent: 'space-between',
@@ -1015,6 +1732,15 @@ const styles = {
     fontSize: '14px',
     color: 'var(--text-muted)',
     margin: 0
+  },
+  backButton: {
+    backgroundColor: 'var(--text-muted)',
+    color: 'white',
+    padding: '10px 20px',
+    border: 'none',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    fontSize: '14px'
   },
   successMessage: {
     backgroundColor: '#d4edda',
@@ -1057,7 +1783,6 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '15px',
-    transition: 'transform 0.2s',
     color: 'var(--text-primary)'
   },
   statIcon: {
@@ -1081,8 +1806,7 @@ const styles = {
     gap: '8px',
     fontSize: '14px',
     fontWeight: '500',
-    color: 'var(--text-primary)',
-    transition: 'all 0.3s'
+    color: 'var(--text-primary)'
   },
   activeTab: {
     backgroundColor: 'var(--color-admin)',
@@ -1185,8 +1909,7 @@ const styles = {
     borderRadius: '12px',
     fontSize: '11px',
     fontWeight: '500',
-    display: 'inline-block',
-    color: 'white'
+    display: 'inline-block'
   },
   rolBadge: {
     padding: '3px 8px',
@@ -1221,7 +1944,7 @@ const styles = {
     backgroundColor: 'var(--bg-secondary)',
     padding: '30px',
     borderRadius: '15px',
-    maxWidth: '500px',
+    maxWidth: '600px',
     width: '90%',
     maxHeight: '80vh',
     overflowY: 'auto',
@@ -1233,6 +1956,18 @@ const styles = {
     marginBottom: '20px',
     paddingBottom: '10px',
     borderBottom: '1px solid var(--border-color)'
+  },
+  modalSubtitle: {
+    fontSize: '16px',
+    color: 'var(--color-admin)',
+    margin: '20px 0 10px 0',
+    paddingBottom: '5px',
+    borderBottom: '1px solid var(--border-color)'
+  },
+  formRow: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '10px'
   },
   formGroup: {
     marginBottom: '15px',
@@ -1253,6 +1988,16 @@ const styles = {
     backgroundColor: 'var(--bg-primary)',
     color: 'var(--text-primary)'
   },
+  textarea: {
+    padding: '10px',
+    border: '1px solid var(--border-color)',
+    borderRadius: '6px',
+    fontSize: '14px',
+    resize: 'vertical',
+    backgroundColor: 'var(--bg-primary)',
+    color: 'var(--text-primary)',
+    minHeight: '80px'
+  },
   select: {
     padding: '10px',
     border: '1px solid var(--border-color)',
@@ -1260,6 +2005,13 @@ const styles = {
     fontSize: '14px',
     backgroundColor: 'var(--bg-primary)',
     color: 'var(--text-primary)'
+  },
+  checkboxLabel: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    color: 'var(--text-primary)',
+    cursor: 'pointer'
   },
   modalButtons: {
     display: 'flex',
@@ -1307,19 +2059,16 @@ const styles = {
     fontSize: '14px',
     fontWeight: '500'
   },
+  infoCard: {
+    backgroundColor: 'var(--bg-tertiary)',
+    padding: '15px',
+    borderRadius: '8px',
+    marginTop: '20px',
+    border: '1px solid var(--border-color)'
+  },
   spinner: {
     animation: 'spin 1s linear infinite'
   }
 }
-
-// Añadir animación de spin
-const styleSheet = document.createElement("style")
-styleSheet.textContent = `
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-`
-document.head.appendChild(styleSheet)
 
 export default AdminDashboard

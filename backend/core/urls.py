@@ -32,4 +32,5 @@ urlpatterns = [
     
     # Nuestras rutas de la API
     path('api/', include('usuarios.urls')),
+    path('api/', include('notificaciones.urls')), 
 ]

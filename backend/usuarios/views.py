@@ -1,3 +1,5 @@
+from argparse import Action
+
 from rest_framework import viewsets, generics, permissions, status
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.response import Response
@@ -11,6 +13,7 @@ from .serializers import (
     EnfermeraSerializer, PacienteSerializer, EspecialidadSerializer,
     HorarioSerializer, CitaSerializer
 )
+from rest_framework.decorators import action
 
 
 # Vista para registro de usuarios (pública - NO requiere token)
@@ -106,16 +109,59 @@ class CitaViewSet(viewsets.ModelViewSet):
     queryset = Cita.objects.all()
     serializer_class = CitaSerializer
     permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
     
-    def get_queryset(self):
-        user = self.request.user
-        if user.rol == 'patient':
-            paciente = get_object_or_404(Paciente, usuario=user)
-            return Cita.objects.filter(paciente=paciente)
-        elif user.rol == 'doctor':
-            doctor = get_object_or_404(Doctor, usuario=user)
-            return Cita.objects.filter(doctor=doctor)
-        elif user.rol == 'nurse':
-            return Cita.objects.all()
-        return Cita.objects.all()
+    def perform_create(self, serializer):
+        """Al crear una cita, enviar notificación"""
+        cita = serializer.save()
+        # Importación diferida para evitar dependencia circular
+        from notificaciones.services import ServicioNotificaciones
+        # Notificar al paciente que su cita fue creada
+        ServicioNotificaciones.notificar_cita_creada(cita)
+        return cita
+    
+    def perform_update(self, serializer):
+        """Al actualizar una cita, enviar notificación si es necesario"""
+        cita = serializer.save()
+        
+        # Importación diferida
+        from notificaciones.services import ServicioNotificaciones
+        
+        # Si la cita fue cancelada
+        if cita.estado == 'cancelada':
+            ServicioNotificaciones.notificar_cita_cancelada(cita, cancelado_por='admin')
+        
+        # Si la cita fue confirmada
+        elif cita.estado == 'confirmada':
+            ServicioNotificaciones.notificar_cita_confirmada(cita)
+        
+        return cita
+    
+    @action(detail=True, methods=['post'])
+    def cancelar(self, request, pk=None):
+        """Endpoint específico para cancelar cita"""
+        cita = self.get_object()
+        cita.estado = 'cancelada'
+        cita.save()
+        
+        # Importación diferida
+        from notificaciones.services import ServicioNotificaciones
+        # Enviar notificaciones
+        ServicioNotificaciones.notificar_cita_cancelada(cita, cancelado_por='admin')
+        
+        serializer = self.get_serializer(cita)
+        return Response(serializer.data)
+    
+    @action(detail=True, methods=['post'])
+    def confirmar(self, request, pk=None):
+        """Endpoint específico para confirmar cita"""
+        cita = self.get_object()
+        cita.estado = 'confirmada'
+        cita.save()
+        
+        # Importación diferida
+        from notificaciones.services import ServicioNotificaciones
+        # Enviar notificaciones
+        ServicioNotificaciones.notificar_cita_confirmada(cita)
+        
+        serializer = self.get_serializer(cita)
+        return Response(serializer.data)

@@ -23,8 +23,53 @@
 #cat requirements.txt
 
 
+
+
+
+#Migraciones:
 # Antes de cambios importantes, copia las migraciones
 #Copy-Item -Recurse .\usuarios\migrations .\usuarios\migrations_backup    ---- copia de migraciones
+
+#PASOS:
+# 1. Asegúrate de estar en la carpeta backend con el entorno virtual activado
+#cd C:\Users\Marlon Damián\Belkis-saude\backend
+
+# 2. Borrar la base de datos actual (opcional - si quieres empezar completamente limpio)
+#Remove-Item .\db.sqlite3 -ErrorAction SilentlyContinue
+
+# 3. Borrar TODAS las migraciones de todas las apps (PERO conserva __init__.py)
+#Remove-Item .\usuarios\migrations\*.py -Exclude __init__.py -ErrorAction SilentlyContinue
+#Remove-Item .\notificaciones\migrations\*.py -Exclude __init__.py -ErrorAction SilentlyContinue
+# Si tienes otras apps, agrégalas aquí
+
+# 4. Asegurar que los __init__.py existen
+#New-Item -Path .\usuarios\migrations\__init__.py -ItemType File -Force
+#New-Item -Path .\notificaciones\migrations\__init__.py -ItemType File -Force
+
+# 5. Crear TODAS las migraciones desde cero
+#python manage.py makemigrations usuarios
+#python manage.py makemigrations notificaciones
+# Si tienes otras apps, haz makemigrations para cada una
+
+# 6. Ver las migraciones pendientes (opcional)
+#python manage.py showmigrations
+
+# 7. Aplicar TODAS las migraciones
+#python manage.py migrate
+
+# 8. Crear superusuario (tu tía)
+#python manage.py createsuperuser
+# Username: belkis_admin
+# Email: (opcional)
+# Password: admin123
+# Password (again): admin123
+
+# 9. Verificar que todo está bien
+#python manage.py check
+
+
+# 10. Verifica si existe el superusuario 'belkis_admin'
+#python manage.py shell -c "from django.contrib.auth import get_user_model; User = get_user_model(); print('Existe' if User.objects.filter(username='belkis_admin', is_superuser=True).exists() else 'No existe')"
 
 
 
