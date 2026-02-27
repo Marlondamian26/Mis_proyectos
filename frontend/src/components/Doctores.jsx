@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { FaStar, FaMapMarkerAlt, FaPhone, FaEnvelope, FaCalendarAlt } from 'react-icons/fa'
 
 function Doctores() {
-  const [doctores, setDoctores] = useState([]) // Array vacío por defecto
+  const [doctores, setDoctores] = useState([])
   const [especialidades, setEspecialidades] = useState([])
   const [loading, setLoading] = useState(true)
   const [filtroEspecialidad, setFiltroEspecialidad] = useState('')
@@ -20,7 +20,6 @@ function Doctores() {
   const fetchDoctores = async () => {
     try {
       const response = await axiosInstance.get('doctores/')
-      // Asegurar que es array
       const doctoresData = Array.isArray(response.data) ? response.data : []
       setDoctores(doctoresData)
     } catch (error) {
@@ -65,10 +64,23 @@ function Doctores() {
 
   const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
 
-  // Asegurar que doctores es array antes de filtrar
+  // Función para obtener el nombre de la especialidad
+  const getEspecialidadNombre = (doctor) => {
+    if (doctor.especialidad_nombre) {
+      return doctor.especialidad_nombre
+    } else if (doctor.otra_especialidad) {
+      return `${doctor.otra_especialidad} ✏️`
+    }
+    return 'Especialidad no especificada'
+  }
+
+  // Filtrar doctores por especialidad (usando el nombre para la comparación)
   const doctoresArray = Array.isArray(doctores) ? doctores : []
   const doctoresFiltrados = filtroEspecialidad
-    ? doctoresArray.filter(d => d.especialidad === filtroEspecialidad)
+    ? doctoresArray.filter(d => {
+        const espNombre = d.especialidad_nombre || d.otra_especialidad
+        return espNombre === filtroEspecialidad
+      })
     : doctoresArray
 
   if (loading) {
@@ -117,10 +129,7 @@ function Doctores() {
             
             <div style={styles.cardBody}>
               <p style={styles.especialidad}>
-                <strong>🔬 {doctor.especialidad}</strong>
-              </p>
-              <p style={styles.colegiado}>
-                📋 Nº Colegiado: {doctor.numero_colegiado}
+                <strong>🔬 {getEspecialidadNombre(doctor)}</strong>
               </p>
               <p style={styles.biografia}>
                 {doctor.biografia?.substring(0, 100)}...
@@ -153,21 +162,20 @@ function Doctores() {
               />
               <div>
                 <h2>Dr. {doctorSeleccionado.usuario?.first_name} {doctorSeleccionado.usuario?.last_name}</h2>
-                <p style={styles.modalEspecialidad}>{doctorSeleccionado.especialidad}</p>
+                <p style={styles.modalEspecialidad}>{getEspecialidadNombre(doctorSeleccionado)}</p>
               </div>
             </div>
 
             <div style={styles.modalBody}>
               <div style={styles.modalSection}>
                 <h4>📋 Información Profesional</h4>
-                <p><strong>Nº Colegiado:</strong> {doctorSeleccionado.numero_colegiado}</p>
-                <p><strong>Biografía:</strong> {doctorSeleccionado.biografia}</p>
+                <p><strong>Biografía:</strong> {doctorSeleccionado.biografia || 'No especificada'}</p>
               </div>
 
               <div style={styles.modalSection}>
                 <h4>📞 Contacto</h4>
-                <p><FaPhone /> {doctorSeleccionado.usuario?.telefono}</p>
-                <p><FaEnvelope /> {doctorSeleccionado.usuario?.email}</p>
+                <p><FaPhone /> {doctorSeleccionado.usuario?.telefono || 'No especificado'}</p>
+                <p><FaEnvelope /> {doctorSeleccionado.usuario?.email || 'No especificado'}</p>
               </div>
 
               <div style={styles.modalSection}>
@@ -209,8 +217,7 @@ function Doctores() {
   )
 }
 
-
-// Estilos 
+// Estilos (se mantienen igual, solo eliminamos la referencia a colegiado si existía en estilos)
 const styles = {
   container: {
     padding: '20px',
@@ -298,11 +305,6 @@ const styles = {
   },
   especialidad: {
     color: 'var(--color-doctor)',
-    marginBottom: '10px'
-  },
-  colegiado: {
-    color: 'var(--text-secondary)',
-    fontSize: '14px',
     marginBottom: '10px'
   },
   biografia: {

@@ -98,6 +98,20 @@ class EspecialidadViewSet(viewsets.ModelViewSet):
     serializer_class = EspecialidadSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
+    
+    @action(detail=False, methods=['get'])
+    def medicas(self, request):
+        """Filtrar solo especialidades médicas"""
+        especialidades = self.queryset.filter(tipo__in=['medica', 'ambas'], activo=True)
+        serializer = self.get_serializer(especialidades, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'])
+    def enfermeria(self, request):
+        """Filtrar solo especialidades de enfermería"""
+        especialidades = self.queryset.filter(tipo__in=['enfermeria', 'ambas'], activo=True)
+        serializer = self.get_serializer(especialidades, many=True)
+        return Response(serializer.data)
 
 class HorarioViewSet(viewsets.ModelViewSet):
     queryset = Horario.objects.all()

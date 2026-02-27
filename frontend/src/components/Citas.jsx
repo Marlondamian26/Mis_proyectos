@@ -215,11 +215,22 @@ function Citas() {
                 required
               >
                 <option value="">Seleccionar doctor</option>
-                {doctores.map(doctor => (
-                  <option key={doctor.id} value={doctor.id}>
-                    Dr. {doctor.usuario?.first_name} {doctor.usuario?.last_name} - {doctor.especialidad}
-                  </option>
-                ))}
+                {doctores.map(doctor => {
+                  // Determinar la especialidad a mostrar
+                  const especialidadMostrar = doctor.especialidad_nombre || 
+                                             doctor.otra_especialidad || 
+                                             'Especialidad no especificada';
+                  
+                  // Agregar indicador si es una especialidad nueva (no en el catálogo)
+                  const esNueva = doctor.otra_especialidad && !doctor.especialidad_nueva;
+                  
+                  return (
+                    <option key={doctor.id} value={doctor.id}>
+                      Dr. {doctor.usuario?.first_name} {doctor.usuario?.last_name} - {especialidadMostrar}
+                      {esNueva && ' ✏️'}
+                    </option>
+                  );
+                })}
               </select>
             </div>
 

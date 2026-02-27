@@ -201,6 +201,18 @@ function EnfermeriaDashboard() {
     return colores[prioridad] || '#95a5a6'
   }
 
+  // Función para obtener el nombre de la especialidad de enfermería
+  const getEspecialidadNombre = () => {
+    if (!enfermera) return 'Enfermería General'
+    
+    if (enfermera.especialidad_nombre) {
+      return enfermera.especialidad_nombre
+    } else if (enfermera.otra_especialidad) {
+      return `${enfermera.otra_especialidad}`
+    }
+    return 'Enfermería General'
+  }
+
   if (loading) {
     return (
       <div style={styles.loadingContainer}>
@@ -221,8 +233,13 @@ function EnfermeriaDashboard() {
           </h1>
           <p style={styles.subtitle}>
             Bienvenida, {user?.first_name} {user?.last_name}
-            {enfermera && ` - ${enfermera.especialidad_enfermeria || 'Enfermería General'}`}
+            {enfermera && ` - ${getEspecialidadNombre()}`}
           </p>
+          {enfermera?.numero_licencia && (
+            <p style={styles.licenciaInfo}>
+              <FaClipboardList /> Licencia: {enfermera.numero_licencia}
+            </p>
+          )}
         </div>
         <button onClick={() => navigate('/dashboard')} style={styles.backButton}>
           ← Volver al Dashboard
@@ -334,7 +351,7 @@ function EnfermeriaDashboard() {
                         <div style={styles.modal} onClick={e => e.stopPropagation()}>
                           <h3>Registrar Signos Vitales</h3>
                           <p style={styles.modalPaciente}>
-                                       Paciente: {selectedPaciente?.paciente_nombre}
+                            Paciente: {selectedPaciente?.paciente_nombre}
                           </p>
                           
                           <div style={styles.signosForm}>
@@ -623,7 +640,7 @@ function EnfermeriaDashboard() {
   )
 }
 
-// Estilos
+// Estilos (se mantienen igual, solo añadimos un estilo nuevo para licenciaInfo)
 const styles = {
   container: {
     padding: '20px',
@@ -687,6 +704,14 @@ const styles = {
     fontSize: '14px',
     color: 'var(--text-muted)',
     margin: 0
+  },
+  licenciaInfo: {
+    fontSize: '13px',
+    color: 'var(--text-secondary)',
+    margin: '5px 0 0 0',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '5px'
   },
   backButton: {
     backgroundColor: 'var(--text-muted)',

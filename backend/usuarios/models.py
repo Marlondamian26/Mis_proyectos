@@ -37,82 +37,68 @@ class Usuario(AbstractUser):
         null=True,
         verbose_name='Fecha de nacimiento'
     )
+    # Hacer email opcional (aunque AbstractUser lo requiere, podemos permitir blank)
+    email = models.EmailField(blank=True, verbose_name='Correo electrónico')
     
-    # ✅ IMPORTANTE: Solucionar los conflictos de related_name
+    # ✅ Solucionar conflictos de related_name
     groups = models.ManyToManyField(
         'auth.Group',
-        related_name='usuarios_groups',  # Cambiado para evitar conflicto
+        related_name='usuarios_groups',
         blank=True,
         verbose_name='groups',
         help_text='The groups this user belongs to.'
     )
     user_permissions = models.ManyToManyField(
         'auth.Permission',
-        related_name='usuarios_permissions',  # Cambiado para evitar conflicto
+        related_name='usuarios_permissions',
         blank=True,
         verbose_name='user permissions',
         help_text='Specific permissions for this user.'
     )
     
     def __str__(self):
-        return f"{self.first_name} {self.last_name} - {self.get_rol_display()}"
+        nombre = f"{self.first_name} {self.last_name}".strip()
+        if not nombre:
+            return self.username
+        return f"{nombre} - {self.get_rol_display()}"
     
     class Meta:
         verbose_name = 'Usuario'
         verbose_name_plural = 'Usuarios'
+
+
+class Especialidad(models.Model):
     """
-    Modelo personalizado de usuario.
-    AbstractUser ya incluye: username, password, first_name, last_name, email,
-    is_active, is_staff, is_superuser, last_login, date_joined
+    Catálogo de especialidades médicas y de enfermería
     """
-    
-    # Roles posibles en el sistema
-    ROLES = (
-        ('admin', 'Administrador'),      # Dueña/tía con control total
-        ('doctor', 'Médico'),            # Doctores
-        ('nurse', 'Enfermería'),         # Enfermeras
-        ('patient', 'Paciente'),         # Pacientes
+    TIPO_ESPECIALIDAD = (
+        ('medica', 'Especialidad Médica'),
+        ('enfermeria', 'Especialidad de Enfermería'),
+        ('ambas', 'Ambos tipos'),
     )
     
-    # Campos adicionales
-    rol = models.CharField(
-        max_length=10, 
-        choices=ROLES, 
-        default='patient',
-        verbose_name='Rol del usuario'
+    nombre = models.CharField(max_length=100, unique=True)
+    descripcion = models.TextField(blank=True)
+    tipo = models.CharField(
+        max_length=20,
+        choices=TIPO_ESPECIALIDAD,
+        default='medica',
+        verbose_name='Tipo de especialidad'
     )
-    telefono = models.CharField(
-        max_length=20, 
-        blank=True, 
-        verbose_name='Teléfono de contacto'
-    )
-    foto_perfil = models.ImageField(
-        upload_to='perfiles/', 
-        blank=True, 
-        null=True,
-        verbose_name='Foto de perfil'
-    )
-    fecha_nacimiento = models.DateField(
-        blank=True, 
-        null=True,
-        verbose_name='Fecha de nacimiento'
-    )
+    activo = models.BooleanField(default=True, verbose_name='Activo')
     
-    # Para que se muestre bien en el admin
     def __str__(self):
-        return f"{self.first_name} {self.last_name} - {self.get_rol_display()}"
+        return self.nombre
     
     class Meta:
-        verbose_name = 'Usuario'
-        verbose_name_plural = 'Usuarios'
-
-
+        verbose_name = 'Especialidad'
+        verbose_name_plural = 'Especialidades'
+        ordering = ['nombre']
 
 
 class Doctor(models.Model):
     """
     Información adicional específica para usuarios con rol=doctor
-    Se relaciona 1 a 1 con Usuario
     """
     usuario = models.OneToOneField(
         Usuario, 
@@ -120,28 +106,33 @@ class Doctor(models.Model):
         related_name='perfil_doctor',
         verbose_name='Usuario asociado'
     )
-    especialidad = models.CharField(
-        max_length=100,
-        verbose_name='Especialidad médica'
+    especialidad = models.ForeignKey(
+        Especialidad,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=False,  # Obligatorio
+        verbose_name='Especialidad médica',
+        help_text='Selecciona la especialidad principal'
     )
-    numero_colegiado = models.CharField(
-        max_length=50,
-        unique=True,
-        verbose_name='Número de colegiado'
+    otra_especialidad = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name='Otra especialidad',
+        help_text='Si no encuentras tu especialidad, escríbela aquí'
     )
     biografia = models.TextField(
         blank=True,
         verbose_name='Biografía profesional'
     )
+    fecha_registro = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
-        return f"Dr. {self.usuario.first_name} {self.usuario.last_name} - {self.especialidad}"
+        esp = self.especialidad.nombre if self.especialidad else self.otra_especialidad
+        return f"Dr. {self.usuario.first_name} {self.usuario.last_name} - {esp or 'Sin especialidad'}"
     
     class Meta:
         verbose_name = 'Doctor'
         verbose_name_plural = 'Doctores'
-
-
 
 
 class Enfermera(models.Model):
@@ -154,14 +145,23 @@ class Enfermera(models.Model):
         related_name='perfil_enfermera',
         verbose_name='Usuario asociado'
     )
-    especialidad_enfermeria = models.CharField(
+    especialidad = models.ForeignKey(
+        Especialidad,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name='Especialidad de enfermería',
+        help_text='Selecciona la especialidad (opcional)'
+    )
+    otra_especialidad = models.CharField(
         max_length=100,
         blank=True,
-        verbose_name='Especialidad (opcional)'
+        verbose_name='Otra especialidad',
+        help_text='Si no encuentras tu especialidad, escríbela aquí'
     )
     numero_licencia = models.CharField(
         max_length=50,
-        unique=True,
+        blank=True,  # Ahora es opcional
         verbose_name='Número de licencia'
     )
     
@@ -171,8 +171,6 @@ class Enfermera(models.Model):
     class Meta:
         verbose_name = 'Enfermera'
         verbose_name_plural = 'Enfermeras'
-
-
 
 
 class Paciente(models.Model):
@@ -219,25 +217,6 @@ class Paciente(models.Model):
         verbose_name_plural = 'Pacientes'
 
 
-
-
-class Especialidad(models.Model):
-    """
-    Catálogo de especialidades médicas
-    """
-    nombre = models.CharField(max_length=100, unique=True)
-    descripcion = models.TextField(blank=True)
-    
-    def __str__(self):
-        return self.nombre
-    
-    class Meta:
-        verbose_name = 'Especialidad'
-        verbose_name_plural = 'Especialidades'
-
-
-
-
 class Horario(models.Model):
     """
     Define los horarios de atención de un doctor
@@ -272,8 +251,6 @@ class Horario(models.Model):
     def __str__(self):
         dias = dict(self.DIAS_SEMANA)
         return f"{self.doctor} - {dias[self.dia_semana]} {self.hora_inicio}-{self.hora_fin}"
-
-
 
 
 class Cita(models.Model):
@@ -333,7 +310,3 @@ class Cita(models.Model):
     
     def __str__(self):
         return f"{self.paciente} con {self.doctor} - {self.fecha} {self.hora}"
-
-
-
-

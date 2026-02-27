@@ -5,12 +5,14 @@ import {
   FaUser, FaEnvelope, FaPhone, FaAllergies, FaTint, 
   FaUserMd, FaHistory, FaEdit, FaKey, FaSave, FaTimes,
   FaBirthdayCake, FaVenusMars, FaAddressCard, FaHeart,
-  FaExclamationTriangle, FaCheckCircle, FaSpinner
+  FaExclamationTriangle, FaCheckCircle, FaSpinner, FaClipboardList
 } from 'react-icons/fa'
 
 function Perfil() {
   const [user, setUser] = useState(null)
   const [paciente, setPaciente] = useState(null)
+  const [doctor, setDoctor] = useState(null)
+  const [enfermera, setEnfermera] = useState(null)
   const [loading, setLoading] = useState(true)
   const [loadingMessage, setLoadingMessage] = useState('Cargando perfil...')
   const [editMode, setEditMode] = useState(false)
@@ -85,39 +87,18 @@ function Perfil() {
         telefono_emergencia: ''
       })
 
-      // Si es paciente, obtener su perfil y citas
+      // Cargar datos según el rol
       if (userResponse.data.rol === 'patient') {
-        setLoadingMessage('Cargando información médica...')
-        
-        // Obtener pacientes
-        const pacientesResponse = await axiosInstance.get('pacientes/')
-        const pacientesData = Array.isArray(pacientesResponse.data) ? pacientesResponse.data : []
-        const miPaciente = pacientesData.find(p => p.usuario?.id === userResponse.data.id)
-        
-        if (miPaciente) {
-          console.log('Perfil de paciente cargado:', miPaciente)
-          setPaciente(miPaciente)
-          setEditForm(prev => ({
-            ...prev,
-            alergias: miPaciente.alergias || '',
-            grupo_sanguineo: miPaciente.grupo_sanguineo || '',
-            contacto_emergencia: miPaciente.contacto_emergencia || '',
-            telefono_emergencia: miPaciente.telefono_emergencia || ''
-          }))
-        }
-
-        // Obtener historial de citas
-        setLoadingMessage('Cargando historial de citas...')
-        const citasResponse = await axiosInstance.get('citas/')
-        const citasData = Array.isArray(citasResponse.data) ? citasResponse.data : []
-        
-        const citasCompletadas = citasData.filter(c => 
-          c.estado === 'completada' || c.estado === 'cancelada' || c.estado === 'no_asistio'
-        )
-        
-        console.log(`Historial cargado: ${citasCompletadas.length} citas`)
-        setHistorialCitas(citasCompletadas)
+        await cargarDatosPaciente(userResponse.data.id)
+      } else if (userResponse.data.rol === 'doctor') {
+        await cargarDatosDoctor(userResponse.data.id)
+      } else if (userResponse.data.rol === 'nurse') {
+        await cargarDatosEnfermera(userResponse.data.id)
       }
+
+      // Cargar historial de citas para todos
+      await cargarHistorialCitas()
+
     } catch (error) {
       console.error('Error detallado cargando perfil:', error)
       
@@ -136,6 +117,66 @@ function Perfil() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const cargarDatosPaciente = async (usuarioId) => {
+    setLoadingMessage('Cargando información médica...')
+    
+    const pacientesResponse = await axiosInstance.get('pacientes/')
+    const pacientesData = Array.isArray(pacientesResponse.data) ? pacientesResponse.data : []
+    const miPaciente = pacientesData.find(p => p.usuario?.id === usuarioId)
+    
+    if (miPaciente) {
+      console.log('Perfil de paciente cargado:', miPaciente)
+      setPaciente(miPaciente)
+      setEditForm(prev => ({
+        ...prev,
+        alergias: miPaciente.alergias || '',
+        grupo_sanguineo: miPaciente.grupo_sanguineo || '',
+        contacto_emergencia: miPaciente.contacto_emergencia || '',
+        telefono_emergencia: miPaciente.telefono_emergencia || ''
+      }))
+    }
+  }
+
+  const cargarDatosDoctor = async (usuarioId) => {
+    setLoadingMessage('Cargando información profesional...')
+    
+    const doctoresResponse = await axiosInstance.get('doctores/')
+    const doctoresData = Array.isArray(doctoresResponse.data) ? doctoresResponse.data : []
+    const miDoctor = doctoresData.find(d => d.usuario?.id === usuarioId)
+    
+    if (miDoctor) {
+      console.log('Perfil de doctor cargado:', miDoctor)
+      setDoctor(miDoctor)
+    }
+  }
+
+  const cargarDatosEnfermera = async (usuarioId) => {
+    setLoadingMessage('Cargando información profesional...')
+    
+    const enfermerasResponse = await axiosInstance.get('enfermeras/')
+    const enfermerasData = Array.isArray(enfermerasResponse.data) ? enfermerasResponse.data : []
+    const miEnfermera = enfermerasData.find(e => e.usuario?.id === usuarioId)
+    
+    if (miEnfermera) {
+      console.log('Perfil de enfermera cargado:', miEnfermera)
+      setEnfermera(miEnfermera)
+    }
+  }
+
+  const cargarHistorialCitas = async () => {
+    setLoadingMessage('Cargando historial de citas...')
+    
+    const citasResponse = await axiosInstance.get('citas/')
+    const citasData = Array.isArray(citasResponse.data) ? citasResponse.data : []
+    
+    const citasCompletadas = citasData.filter(c => 
+      c.estado === 'completada' || c.estado === 'cancelada' || c.estado === 'no_asistio'
+    )
+    
+    console.log(`Historial cargado: ${citasCompletadas.length} citas`)
+    setHistorialCitas(citasCompletadas)
   }
 
   const handleEditChange = (e) => {
@@ -288,6 +329,20 @@ function Perfil() {
     }
   }
 
+  const getEspecialidadDoctor = () => {
+    if (!doctor) return 'No especificada'
+    if (doctor.especialidad_nombre) return doctor.especialidad_nombre
+    if (doctor.otra_especialidad) return doctor.otra_especialidad
+    return 'No especificada'
+  }
+
+  const getEspecialidadEnfermera = () => {
+    if (!enfermera) return 'No especificada'
+    if (enfermera.especialidad_nombre) return enfermera.especialidad_nombre
+    if (enfermera.otra_especialidad) return enfermera.otra_especialidad
+    return 'Enfermería General'
+  }
+
   if (loading) {
     return (
       <div style={styles.loadingContainer}>
@@ -310,6 +365,7 @@ function Perfil() {
           <p style={styles.subtitle}>
             {user?.rol === 'patient' && 'Gestiona tu información personal y médica'}
             {user?.rol === 'doctor' && 'Información profesional y de contacto'}
+            {user?.rol === 'nurse' && 'Información profesional y de contacto'}
             {user?.rol === 'admin' && 'Panel de administración de perfil'}
           </p>
         </div>
@@ -504,7 +560,7 @@ function Perfil() {
                   <div style={styles.infoItem}>
                     <span style={styles.infoLabel}>Nombre completo:</span>
                     <span style={styles.infoValue}>
-                      {user?.first_name} {user?.last_name}
+                      {user?.first_name} {user?.last_name || 'No especificado'}
                     </span>
                   </div>
                   <div style={styles.infoItem}>
@@ -519,9 +575,9 @@ function Perfil() {
                     <span style={styles.infoLabel}>Rol:</span>
                     <span style={{
                       ...styles.rolBadge,
-                      backgroundColor: user?.rol === 'admin' ? '#e74c3c' :
-                                    user?.rol === 'doctor' ? '#3498db' :
-                                    user?.rol === 'nurse' ? '#27ae60' : '#95a5a6'
+                      backgroundColor: user?.rol === 'admin' ? 'var(--color-admin)' :
+                                    user?.rol === 'doctor' ? 'var(--color-doctor)' :
+                                    user?.rol === 'nurse' ? 'var(--color-nurse)' : 'var(--color-patient)'
                     }}>
                       {user?.rol === 'admin' && 'Administrador'}
                       {user?.rol === 'doctor' && 'Médico'}
@@ -531,6 +587,7 @@ function Perfil() {
                   </div>
                 </div>
                 
+                {/* Información específica para pacientes */}
                 {user?.rol === 'patient' && paciente && (
                   <div style={styles.medicalInfo}>
                     <h3 style={styles.medicalTitle}>
@@ -559,6 +616,48 @@ function Perfil() {
                         <span style={styles.infoLabel}>Tel. emergencia:</span>
                         <span style={styles.infoValue}>{paciente.telefono_emergencia || 'No especificado'}</span>
                       </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Información específica para doctores */}
+                {user?.rol === 'doctor' && doctor && (
+                  <div style={styles.medicalInfo}>
+                    <h3 style={styles.medicalTitle}>
+                      <FaUserMd style={styles.medicalIcon} />
+                      Información Profesional
+                    </h3>
+                    <div style={styles.infoGrid}>
+                      <div style={styles.infoItem}>
+                        <span style={styles.infoLabel}>Especialidad:</span>
+                        <span style={styles.infoValue}>{getEspecialidadDoctor()}</span>
+                      </div>
+                      <div style={styles.infoItem}>
+                        <span style={styles.infoLabel}>Biografía:</span>
+                        <span style={styles.infoValue}>{doctor.biografia || 'No especificada'}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Información específica para enfermeras */}
+                {user?.rol === 'nurse' && enfermera && (
+                  <div style={styles.medicalInfo}>
+                    <h3 style={styles.medicalTitle}>
+                      <FaClipboardList style={styles.medicalIcon} />
+                      Información Profesional
+                    </h3>
+                    <div style={styles.infoGrid}>
+                      <div style={styles.infoItem}>
+                        <span style={styles.infoLabel}>Especialidad:</span>
+                        <span style={styles.infoValue}>{getEspecialidadEnfermera()}</span>
+                      </div>
+                      {enfermera.numero_licencia && (
+                        <div style={styles.infoItem}>
+                          <span style={styles.infoLabel}>Nº Licencia:</span>
+                          <span style={styles.infoValue}>{enfermera.numero_licencia}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
@@ -593,7 +692,7 @@ function Perfil() {
                     name="old_password"
                     value={passwordForm.old_password}
                     onChange={handlePasswordChange}
-                    style={{...styles.input, borderColor: passwordErrors.old_password ? '#e74c3c' : '#ddd'}}
+                    style={{...styles.input, borderColor: passwordErrors.old_password ? '#e74c3c' : 'var(--border-color)'}}
                     placeholder="••••••••"
                   />
                   {passwordErrors.old_password && (
@@ -608,7 +707,7 @@ function Perfil() {
                     name="new_password"
                     value={passwordForm.new_password}
                     onChange={handlePasswordChange}
-                    style={{...styles.input, borderColor: passwordErrors.new_password ? '#e74c3c' : '#ddd'}}
+                    style={{...styles.input, borderColor: passwordErrors.new_password ? '#e74c3c' : 'var(--border-color)'}}
                     placeholder="••••••••"
                   />
                   {passwordErrors.new_password && (
@@ -624,7 +723,7 @@ function Perfil() {
                     name="confirm_password"
                     value={passwordForm.confirm_password}
                     onChange={handlePasswordChange}
-                    style={{...styles.input, borderColor: passwordErrors.confirm_password ? '#e74c3c' : '#ddd'}}
+                    style={{...styles.input, borderColor: passwordErrors.confirm_password ? '#e74c3c' : 'var(--border-color)'}}
                     placeholder="••••••••"
                   />
                   {passwordErrors.confirm_password && (
@@ -668,67 +767,65 @@ function Perfil() {
           </div>
         </div>
 
-        {/* Columna derecha - Historial médico (solo para pacientes) */}
-        {user?.rol === 'patient' && (
-          <div style={styles.rightColumn}>
-            <div style={styles.card}>
-              <div style={styles.cardHeader}>
-                <div style={styles.cardTitle}>
-                  <FaHistory style={styles.cardIcon} />
-                  <h2>Historial Médico</h2>
-                </div>
-                <span style={styles.historialCount}>
-                  {historialCitas.length} citas
-                </span>
+        {/* Columna derecha - Historial médico (para todos los roles) */}
+        <div style={styles.rightColumn}>
+          <div style={styles.card}>
+            <div style={styles.cardHeader}>
+              <div style={styles.cardTitle}>
+                <FaHistory style={styles.cardIcon} />
+                <h2>Historial de Citas</h2>
               </div>
-              
-              {historialCitas.length === 0 ? (
-                <div style={styles.emptyState}>
-                  <FaHistory style={styles.emptyIcon} />
-                  <p style={styles.emptyText}>No hay citas en el historial</p>
-                  <p style={styles.emptySubtext}>Las citas completadas aparecerán aquí</p>
-                </div>
-              ) : (
-                <div style={styles.historialList}>
-                  {historialCitas.map((cita, index) => (
-                    <div key={cita.id} style={styles.historialItem}>
-                      <div style={styles.historialHeader}>
-                        <span style={styles.historialDate}>
-                          <FaHistory style={styles.historialDateIcon} />
-                          {formatFecha(cita.fecha)} - {cita.hora}
-                        </span>
-                        <span style={{
-                          ...styles.historialBadge,
-                          backgroundColor: cita.estado === 'completada' ? '#27ae60' : 
-                                         cita.estado === 'cancelada' ? '#e74c3c' : '#f39c12'
-                        }}>
-                          {cita.estado}
-                        </span>
-                      </div>
-                      <div style={styles.historialBody}>
-                        <div style={styles.historialDoctor}>
-                          <FaUserMd style={styles.historialDoctorIcon} />
-                          Dr. {cita.doctor_nombre}
-                        </div>
-                        {cita.motivo && (
-                          <div style={styles.historialMotivo}>
-                            <strong>Motivo:</strong> {cita.motivo}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <span style={styles.historialCount}>
+                {historialCitas.length} citas
+              </span>
             </div>
+            
+            {historialCitas.length === 0 ? (
+              <div style={styles.emptyState}>
+                <FaHistory style={styles.emptyIcon} />
+                <p style={styles.emptyText}>No hay citas en el historial</p>
+                <p style={styles.emptySubtext}>Las citas completadas aparecerán aquí</p>
+              </div>
+            ) : (
+              <div style={styles.historialList}>
+                {historialCitas.map((cita) => (
+                  <div key={cita.id} style={styles.historialItem}>
+                    <div style={styles.historialHeader}>
+                      <span style={styles.historialDate}>
+                        <FaHistory style={styles.historialDateIcon} />
+                        {formatFecha(cita.fecha)} - {cita.hora}
+                      </span>
+                      <span style={{
+                        ...styles.historialBadge,
+                        backgroundColor: cita.estado === 'completada' ? '#27ae60' : 
+                                       cita.estado === 'cancelada' ? '#e74c3c' : '#f39c12'
+                      }}>
+                        {cita.estado}
+                      </span>
+                    </div>
+                    <div style={styles.historialBody}>
+                      <div style={styles.historialDoctor}>
+                        <FaUserMd style={styles.historialDoctorIcon} />
+                        Dr. {cita.doctor_nombre || 'No especificado'}
+                      </div>
+                      {cita.motivo && (
+                        <div style={styles.historialMotivo}>
+                          <strong>Motivo:</strong> {cita.motivo}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   )
 }
 
-// Estilos 
+// Estilos (se mantienen igual, solo actualizados los colores de los badges)
 const styles = {
   container: {
     padding: '20px',
@@ -1090,7 +1187,7 @@ const styles = {
     alignItems: 'center',
     marginBottom: '10px',
     paddingBottom: '8px',
-        borderBottom: '1px dashed var(--border-color)'
+    borderBottom: '1px dashed var(--border-color)'
   },
   historialDate: {
     fontSize: '14px',

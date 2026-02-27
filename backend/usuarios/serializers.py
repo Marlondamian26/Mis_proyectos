@@ -1,14 +1,13 @@
 from rest_framework import serializers
 from .models import Usuario, Doctor, Enfermera, Paciente, Especialidad, Horario, Cita
 
-# Serializer para Usuario (básico, sin contraseña)
 class UsuarioSerializer(serializers.ModelSerializer):
     class Meta:
         model = Usuario
-        fields = ['id', 'username', 'first_name', 'last_name', 'email', 'rol', 'telefono']
+        fields = ['id', 'username', 'first_name', 'last_name', 'email', 'rol', 'telefono', 'foto_perfil', 'fecha_nacimiento']
         read_only_fields = ['id']
 
-# Serializer para registro de nuevos usuarios (con contraseña)
+
 class RegistroUsuarioSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
@@ -17,7 +16,6 @@ class RegistroUsuarioSerializer(serializers.ModelSerializer):
         fields = ['username', 'password', 'first_name', 'last_name', 'email', 'rol', 'telefono']
 
     def create(self, validated_data):
-        # Encripta la contraseña antes de guardar
         usuario = Usuario.objects.create_user(
             username=validated_data['username'],
             password=validated_data['password'],
@@ -29,7 +27,14 @@ class RegistroUsuarioSerializer(serializers.ModelSerializer):
         )
         return usuario
 
-# Serializer para Doctor
+
+class EspecialidadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Especialidad
+        fields = ['id', 'nombre', 'descripcion', 'tipo', 'activo']
+        read_only_fields = ['id']
+
+
 class DoctorSerializer(serializers.ModelSerializer):
     usuario = UsuarioSerializer(read_only=True)
     usuario_id = serializers.PrimaryKeyRelatedField(
@@ -37,13 +42,25 @@ class DoctorSerializer(serializers.ModelSerializer):
         source='usuario',
         write_only=True
     )
+    especialidad_nombre = serializers.CharField(source='especialidad.nombre', read_only=True)
+    especialidad_detalle = EspecialidadSerializer(source='especialidad', read_only=True)
 
     class Meta:
         model = Doctor
-        fields = ['id', 'usuario', 'usuario_id', 'especialidad', 'numero_colegiado', 'biografia']
+        fields = [
+            'id', 'usuario', 'usuario_id', 
+            'especialidad', 'especialidad_nombre', 'especialidad_detalle',
+            'otra_especialidad', 'biografia'
+        ]
         read_only_fields = ['id']
 
-# Serializer para Enfermera
+    def validate(self, data):
+        """Validar que al menos una especialidad esté presente"""
+        if not data.get('especialidad') and not data.get('otra_especialidad'):
+            raise serializers.ValidationError("Debes seleccionar una especialidad o especificar 'otra especialidad'")
+        return data
+
+
 class EnfermeraSerializer(serializers.ModelSerializer):
     usuario = UsuarioSerializer(read_only=True)
     usuario_id = serializers.PrimaryKeyRelatedField(
@@ -51,13 +68,19 @@ class EnfermeraSerializer(serializers.ModelSerializer):
         source='usuario',
         write_only=True
     )
+    especialidad_nombre = serializers.CharField(source='especialidad.nombre', read_only=True)
+    especialidad_detalle = EspecialidadSerializer(source='especialidad', read_only=True)
 
     class Meta:
         model = Enfermera
-        fields = ['id', 'usuario', 'usuario_id', 'especialidad_enfermeria', 'numero_licencia']
+        fields = [
+            'id', 'usuario', 'usuario_id',
+            'especialidad', 'especialidad_nombre', 'especialidad_detalle',
+            'otra_especialidad', 'numero_licencia'
+        ]
         read_only_fields = ['id']
 
-# Serializer para Paciente
+
 class PacienteSerializer(serializers.ModelSerializer):
     usuario = UsuarioSerializer(read_only=True)
     usuario_id = serializers.PrimaryKeyRelatedField(
@@ -68,18 +91,14 @@ class PacienteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Paciente
-        fields = ['id', 'usuario', 'usuario_id', 'alergias', 'grupo_sanguineo', 
-                  'contacto_emergencia', 'telefono_emergencia']
+        fields = [
+            'id', 'usuario', 'usuario_id',
+            'alergias', 'grupo_sanguineo',
+            'contacto_emergencia', 'telefono_emergencia'
+        ]
         read_only_fields = ['id']
 
-# Serializer para Especialidad
-class EspecialidadSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Especialidad
-        fields = ['id', 'nombre', 'descripcion']
-        read_only_fields = ['id']
 
-# Serializer para Horario
 class HorarioSerializer(serializers.ModelSerializer):
     doctor_nombre = serializers.CharField(source='doctor.usuario.get_full_name', read_only=True)
     
@@ -89,29 +108,30 @@ class HorarioSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
 
     def validate(self, data):
-        """Validar que hora_fin sea después de hora_inicio"""
         if data['hora_fin'] <= data['hora_inicio']:
             raise serializers.ValidationError("La hora de fin debe ser después de la hora de inicio")
         return data
 
-# Serializer para Cita (el más importante)
+
 class CitaSerializer(serializers.ModelSerializer):
     paciente_nombre = serializers.CharField(source='paciente.usuario.get_full_name', read_only=True)
     doctor_nombre = serializers.CharField(source='doctor.usuario.get_full_name', read_only=True)
     
     class Meta:
         model = Cita
-        fields = ['id', 'paciente', 'paciente_nombre', 'doctor', 'doctor_nombre', 
-                  'fecha', 'hora', 'estado', 'motivo', 'notas_adicionales']
+        fields = [
+            'id', 'paciente', 'paciente_nombre', 
+            'doctor', 'doctor_nombre',
+            'fecha', 'hora', 'estado', 'motivo', 'notas_adicionales',
+            'fecha_creacion', 'fecha_actualizacion'
+        ]
         read_only_fields = ['id', 'fecha_creacion', 'fecha_actualizacion']
 
     def validate(self, data):
-        """Validar que no haya otra cita para el mismo doctor en la misma fecha y hora"""
         doctor = data.get('doctor')
         fecha = data.get('fecha')
         hora = data.get('hora')
         
-        # Si es una cita existente (update), excluirla de la validación
         instance_id = self.instance.id if self.instance else None
         
         citas_existentes = Cita.objects.filter(
