@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useNavigate, Link } from 'react-router-dom'
+import { APP_NAME, APP_SLOGAN } from '../config/constants'  
 
 function Login() {
   const [formData, setFormData] = useState({
