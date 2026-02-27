@@ -359,6 +359,9 @@ function Dashboard() {
 
 // Estilos 
 const styles = {
+  // ============================================
+  // CONTENEDORES PRINCIPALES
+  // ============================================
   container: {
     padding: '20px',
     maxWidth: '1200px',
@@ -367,6 +370,15 @@ const styles = {
     minHeight: '100vh',
     fontFamily: 'system-ui, -apple-system, sans-serif'
   },
+  content: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '25px'
+  },
+
+  // ============================================
+  // LOADING (PANTALLA DE CARGA)
+  // ============================================
   loadingContainer: {
     display: 'flex',
     flexDirection: 'column',
@@ -390,6 +402,10 @@ const styles = {
     fontSize: '14px',
     color: 'var(--text-muted)'
   },
+
+  // ============================================
+  // ERROR (PANTALLA DE ERROR)
+  // ============================================
   errorContainer: {
     display: 'flex',
     flexDirection: 'column',
@@ -416,6 +432,16 @@ const styles = {
     marginBottom: '30px',
     maxWidth: '400px'
   },
+  errorButton: {
+    backgroundColor: 'var(--color-patient)',
+    color: 'white',
+    padding: '12px 30px',
+    border: 'none',
+    borderRadius: '8px',
+    fontSize: '16px',
+    cursor: 'pointer',
+    marginBottom: '10px'
+  },
   retryButton: {
     backgroundColor: 'var(--color-patient)',
     color: 'white',
@@ -426,6 +452,10 @@ const styles = {
     cursor: 'pointer',
     marginBottom: '10px'
   },
+
+  // ============================================
+  // HEADER (CABECERA DEL DASHBOARD)
+  // ============================================
   header: {
     display: 'flex',
     justifyContent: 'space-between',
@@ -468,11 +498,13 @@ const styles = {
     alignItems: 'center',
     gap: '8px'
   },
-  content: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '25px'
+  logoutIcon: {
+    fontSize: '18px'
   },
+
+  // ============================================
+  // TARJETAS (CARD) GENÉRICAS
+  // ============================================
   card: {
     backgroundColor: 'var(--bg-secondary)',
     padding: '25px',
@@ -505,6 +537,10 @@ const styles = {
     fontSize: '24px',
     color: 'var(--color-patient)'
   },
+
+  // ============================================
+  // INFORMACIÓN DE USUARIO (GRID)
+  // ============================================
   infoGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
@@ -526,6 +562,10 @@ const styles = {
     color: 'var(--text-primary)',
     fontWeight: '500'
   },
+
+  // ============================================
+  // MENÚ DE NAVEGACIÓN (GRID DE OPCIONES)
+  // ============================================
   menuGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
@@ -541,10 +581,14 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     gap: '10px',
-    color: 'var(--text-primary)'
+    color: 'var(--text-primary)',
+    ':hover': {
+      transform: 'translateY(-2px)',
+      boxShadow: 'var(--box-shadow-hover)'
+    }
   },
   adminMenuItem: {
-    borderLeft: `4px solid var(--color-admin)`
+    borderLeft: '4px solid var(--color-admin)'
   },
   menuIcon: {
     fontSize: '32px',
@@ -561,12 +605,10 @@ const styles = {
     color: 'var(--text-secondary)',
     lineHeight: '1.4'
   },
-  infoText: {
-    fontSize: '15px',
-    color: 'var(--text-secondary)',
-    lineHeight: '1.6',
-    margin: 0
-  },
+
+  // ============================================
+  // ENLACES RÁPIDOS (ADMIN)
+  // ============================================
   adminQuickLinks: {
     display: 'flex',
     gap: '15px',
@@ -583,8 +625,26 @@ const styles = {
     fontSize: '14px',
     fontWeight: '500',
     transition: 'all 0.3s',
-    
+    ':hover': {
+      backgroundColor: 'var(--color-admin)',
+      color: 'white',
+      borderColor: 'var(--color-admin)'
+    }
   },
+
+  // ============================================
+  // TEXTO INFORMATIVO
+  // ============================================
+  infoText: {
+    fontSize: '15px',
+    color: 'var(--text-secondary)',
+    lineHeight: '1.6',
+    margin: 0
+  },
+
+  // ============================================
+  // NOTIFICACIONES (BANNER)
+  // ============================================
   notificacionBanner: {
     backgroundColor: 'var(--color-admin)',
     color: 'white',
@@ -594,43 +654,47 @@ const styles = {
     alignItems: 'center',
     gap: '8px',
     marginTop: '10px',
-    fontSize: '14px',
+    fontSize: '14px'
   },
   notificacionIcon: {
-    fontSize: '16px',
+    fontSize: '16px'
   },
   notificacionTexto: {
-    color: 'white',
+    color: 'white'
   },
+
+  // ============================================
+  // NOTIFICACIONES (TARJETA)
+  // ============================================
   notificacionCard: {
     backgroundColor: 'var(--bg-secondary)',
     border: '1px solid var(--color-admin)',
     borderRadius: '10px',
     padding: '15px',
-    marginTop: '10px',
+    marginTop: '10px'
   },
   notificacionCardHeader: {
     display: 'flex',
     alignItems: 'center',
     gap: '10px',
-    marginBottom: '10px',
+    marginBottom: '10px'
   },
   notificacionCardIcon: {
-    fontSize: '24px',
+    fontSize: '24px'
   },
   notificacionCardTitle: {
     margin: 0,
     fontSize: '16px',
-    color: 'var(--text-primary)',
+    color: 'var(--text-primary)'
   },
   notificacionCardText: {
     margin: '0 0 15px 0',
     fontSize: '14px',
-    color: 'var(--text-secondary)',
+    color: 'var(--text-secondary)'
   },
   notificacionCardActions: {
     display: 'flex',
-    justifyContent: 'flex-end',
+    justifyContent: 'flex-end'
   },
   notificacionCardButton: {
     backgroundColor: 'var(--color-admin)',
@@ -641,8 +705,11 @@ const styles = {
     cursor: 'pointer',
     fontSize: '13px',
     transition: 'all 0.3s',
-  },
-
+    ':hover': {
+      backgroundColor: 'var(--color-admin-soft)',
+      transform: 'translateY(-2px)'
+    }
+  }
 }
 
 // Añadir animación de spin para el loader
