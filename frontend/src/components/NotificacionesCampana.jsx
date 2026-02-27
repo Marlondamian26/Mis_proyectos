@@ -31,20 +31,9 @@ const NotificacionesCampana = () => {
     return iconos[tipo] || '📋';
   };
 
-  const getColorTipo = (tipo) => {
-    const colores = {
-      recordatorio_cita: '#f39c12',
-      confirmacion_cita: '#27ae60',
-      cancelacion_cita: '#e74c3c',
-      nueva_cita: '#3498db',
-      modificacion_cita: '#f1c40f',
-    };
-    return colores[tipo] || '#95a5a6';
-  };
-
   return (
     <div style={styles.container} ref={dropdownRef}>
-      {/* Campana con contador */}
+      {/* Botón circular con campana */}
       <button 
         onClick={() => setIsOpen(!isOpen)} 
         style={styles.bellButton}
@@ -152,17 +141,27 @@ const styles = {
     background: 'var(--bg-secondary)',
     border: '1px solid var(--border-color)',
     borderRadius: '50%',
-    width: '40px',
-    height: '40px',
+    width: '55px',
+    height: '55px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     cursor: 'pointer',
     color: 'var(--text-primary)',
-    transition: 'all 0.3s',
+    transition: 'all 0.3s ease',
+    boxShadow: 'var(--box-shadow)',
+    ':hover': {
+      transform: 'scale(1.05)',
+      boxShadow: 'var(--box-shadow-hover)',
+      backgroundColor: 'var(--bg-tertiary)',
+    },
+    ':active': {
+      transform: 'scale(0.95)',
+    },
   },
   bellIcon: {
-    fontSize: '18px',
+    fontSize: '20px',
+    color: 'var(--color-admin)',
   },
   badge: {
     position: 'absolute',
@@ -178,10 +177,11 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     fontWeight: 'bold',
+    border: '2px solid var(--bg-primary)',
   },
   dropdown: {
     position: 'absolute',
-    top: '50px',
+    top: '55px',
     right: '0',
     width: '350px',
     maxHeight: '500px',
@@ -216,6 +216,10 @@ const styles = {
     alignItems: 'center',
     gap: '5px',
     transition: 'all 0.3s',
+    ':hover': {
+      background: 'var(--color-admin)',
+      color: 'white',
+    },
   },
   notificacionesList: {
     maxHeight: '400px',
@@ -233,6 +237,9 @@ const styles = {
     gap: '15px',
     transition: 'background 0.3s',
     cursor: 'pointer',
+    ':hover': {
+      backgroundColor: 'var(--bg-tertiary)',
+    },
   },
   noLeida: {
     background: 'var(--bg-tertiary)',
@@ -297,10 +304,17 @@ const styles = {
     alignItems: 'center',
     gap: '5px',
     transition: 'all 0.3s',
+    ':hover': {
+      backgroundColor: 'var(--bg-primary)',
+    },
   },
   deleteButton: {
     color: '#e74c3c',
     borderColor: '#e74c3c',
+    ':hover': {
+      backgroundColor: '#e74c3c',
+      color: 'white',
+    },
   },
   dropdownFooter: {
     padding: '10px',
@@ -314,6 +328,9 @@ const styles = {
     cursor: 'pointer',
     fontSize: '13px',
     fontWeight: '500',
+    ':hover': {
+      textDecoration: 'underline',
+    },
   },
 };
 

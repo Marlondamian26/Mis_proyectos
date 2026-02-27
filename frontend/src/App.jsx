@@ -57,8 +57,9 @@ const styles = {
     right: '20px',
     zIndex: 1000,
     display: 'flex',
-    gap: '10px',
-    alignItems: 'center',
+    flexDirection: 'column',  // Apilados verticalmente
+    gap: '10px',              // Espacio entre botones
+    alignItems: 'flex-end',   // Alineados a la derecha
   },
 };
 
