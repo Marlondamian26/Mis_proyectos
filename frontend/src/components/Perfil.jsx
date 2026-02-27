@@ -728,12 +728,13 @@ function Perfil() {
   )
 }
 
+// Estilos 
 const styles = {
   container: {
     padding: '20px',
     maxWidth: '1200px',
     margin: '0 auto',
-    backgroundColor: '#f5f7fa',
+    backgroundColor: 'var(--bg-primary)',
     minHeight: '100vh',
     fontFamily: 'system-ui, -apple-system, sans-serif'
   },
@@ -743,32 +744,33 @@ const styles = {
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: '100vh',
-    backgroundColor: '#f5f7fa'
+    backgroundColor: 'var(--bg-primary)'
   },
   loadingSpinner: {
     fontSize: '48px',
-    color: '#3498db',
+    color: 'var(--color-patient)',
     animation: 'spin 1s linear infinite',
     marginBottom: '20px'
   },
   loadingText: {
     fontSize: '18px',
-    color: '#2c3e50',
+    color: 'var(--text-primary)',
     marginBottom: '5px'
   },
   loadingSubtext: {
     fontSize: '14px',
-    color: '#7f8c8d'
+    color: 'var(--text-muted)'
   },
   header: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: '30px',
-    backgroundColor: 'white',
+    backgroundColor: 'var(--bg-secondary)',
     padding: '25px',
     borderRadius: '15px',
-    boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+    boxShadow: 'var(--box-shadow)',
+    border: '1px solid var(--border-color)'
   },
   headerLeft: {
     display: 'flex',
@@ -777,32 +779,28 @@ const styles = {
   },
   title: {
     fontSize: '28px',
-    color: '#2c3e50',
+    color: 'var(--text-primary)',
     margin: 0,
     display: 'flex',
     alignItems: 'center',
     gap: '10px'
   },
   titleIcon: {
-    color: '#3498db'
+    color: 'var(--color-patient)'
   },
   subtitle: {
     fontSize: '14px',
-    color: '#7f8c8d',
+    color: 'var(--text-muted)',
     margin: 0
   },
   backButton: {
-    backgroundColor: '#6c757d',
+    backgroundColor: 'var(--text-muted)',
     color: 'white',
     padding: '10px 20px',
     border: 'none',
     borderRadius: '8px',
     cursor: 'pointer',
-    fontSize: '14px',
-    transition: 'background-color 0.3s',
-    ':hover': {
-      backgroundColor: '#5a6268'
-    }
+    fontSize: '14px'
   },
   successMessage: {
     backgroundColor: '#d4edda',
@@ -828,7 +826,7 @@ const styles = {
   },
   messageText: {
     fontSize: '14px',
-    whiteSpace: 'pre-line'
+    flex: 1
   },
   content: {
     display: 'grid',
@@ -846,35 +844,32 @@ const styles = {
     gap: '20px'
   },
   card: {
-    backgroundColor: 'white',
+    backgroundColor: 'var(--bg-secondary)',
     borderRadius: '15px',
     padding: '25px',
-    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-    transition: 'transform 0.3s',
-    ':hover': {
-      transform: 'translateY(-2px)',
-      boxShadow: '0 6px 12px rgba(0,0,0,0.15)'
-    }
+    boxShadow: 'var(--box-shadow)',
+    border: '1px solid var(--border-color)'
   },
   cardHeader: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: '20px',
-    borderBottom: '1px solid #ecf0f1',
+    borderBottom: '1px solid var(--border-color)',
     paddingBottom: '15px'
   },
   cardTitle: {
     display: 'flex',
     alignItems: 'center',
-    gap: '10px'
+    gap: '10px',
+    color: 'var(--text-primary)'
   },
   cardIcon: {
     fontSize: '20px',
-    color: '#3498db'
+    color: 'var(--color-patient)'
   },
   editButton: {
-    backgroundColor: '#3498db',
+    backgroundColor: 'var(--color-patient)',
     color: 'white',
     padding: '8px 15px',
     border: 'none',
@@ -883,11 +878,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '5px',
-    fontSize: '13px',
-    transition: 'background-color 0.3s',
-    ':hover': {
-      backgroundColor: '#2980b9'
-    }
+    fontSize: '13px'
   },
   infoDisplay: {
     display: 'flex',
@@ -906,13 +897,13 @@ const styles = {
   },
   infoLabel: {
     fontSize: '12px',
-    color: '#7f8c8d',
+    color: 'var(--text-muted)',
     textTransform: 'uppercase',
     letterSpacing: '0.5px'
   },
   infoValue: {
     fontSize: '15px',
-    color: '#2c3e50',
+    color: 'var(--text-primary)',
     fontWeight: '500'
   },
   rolBadge: {
@@ -927,11 +918,11 @@ const styles = {
   medicalInfo: {
     marginTop: '15px',
     paddingTop: '15px',
-    borderTop: '1px dashed #ecf0f1'
+    borderTop: '1px dashed var(--border-color)'
   },
   medicalTitle: {
     fontSize: '16px',
-    color: '#2c3e50',
+    color: 'var(--text-primary)',
     marginBottom: '15px',
     display: 'flex',
     alignItems: 'center',
@@ -965,43 +956,39 @@ const styles = {
   label: {
     fontSize: '13px',
     fontWeight: '600',
-    color: '#2c3e50',
+    color: 'var(--text-primary)',
     display: 'flex',
     alignItems: 'center',
     gap: '5px'
   },
   input: {
     padding: '10px',
-    border: '1px solid #ddd',
+    border: '1px solid var(--border-color)',
     borderRadius: '8px',
     fontSize: '14px',
-    transition: 'border-color 0.3s',
-    outline: 'none',
-    ':focus': {
-      borderColor: '#3498db'
-    }
+    backgroundColor: 'var(--bg-primary)',
+    color: 'var(--text-primary)',
+    outline: 'none'
   },
   textarea: {
     padding: '10px',
-    border: '1px solid #ddd',
+    border: '1px solid var(--border-color)',
     borderRadius: '8px',
     fontSize: '14px',
     resize: 'vertical',
     minHeight: '80px',
-    outline: 'none',
-    ':focus': {
-      borderColor: '#3498db'
-    }
+    backgroundColor: 'var(--bg-primary)',
+    color: 'var(--text-primary)',
+    outline: 'none'
   },
   select: {
     padding: '10px',
-    border: '1px solid #ddd',
+    border: '1px solid var(--border-color)',
     borderRadius: '8px',
     fontSize: '14px',
-    outline: 'none',
-    ':focus': {
-      borderColor: '#3498db'
-    }
+    backgroundColor: 'var(--bg-primary)',
+    color: 'var(--text-primary)',
+    outline: 'none'
   },
   editButtons: {
     display: 'flex',
@@ -1021,15 +1008,7 @@ const styles = {
     justifyContent: 'center',
     gap: '8px',
     fontSize: '14px',
-    fontWeight: '500',
-    transition: 'background-color 0.3s',
-    ':hover': {
-      backgroundColor: '#219a52'
-    },
-    ':disabled': {
-      backgroundColor: '#95a5a6',
-      cursor: 'not-allowed'
-    }
+    fontWeight: '500'
   },
   cancelButton: {
     backgroundColor: '#e74c3c',
@@ -1044,15 +1023,7 @@ const styles = {
     justifyContent: 'center',
     gap: '8px',
     fontSize: '14px',
-    fontWeight: '500',
-    transition: 'background-color 0.3s',
-    ':hover': {
-      backgroundColor: '#c0392b'
-    },
-    ':disabled': {
-      backgroundColor: '#95a5a6',
-      cursor: 'not-allowed'
-    }
+    fontWeight: '500'
   },
   fieldError: {
     color: '#e74c3c',
@@ -1063,7 +1034,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '10px',
-    color: '#7f8c8d'
+    color: 'var(--text-muted)'
   },
   passwordIcon: {
     fontSize: '20px'
@@ -1074,15 +1045,15 @@ const styles = {
   },
   passwordHint: {
     fontSize: '12px',
-    color: '#95a5a6',
+    color: 'var(--text-muted)',
     marginTop: '3px'
   },
   historialCount: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: 'var(--bg-tertiary)',
     padding: '4px 10px',
     borderRadius: '15px',
     fontSize: '12px',
-    color: '#7f8c8d'
+    color: 'var(--text-secondary)'
   },
   emptyState: {
     textAlign: 'center',
@@ -1090,17 +1061,17 @@ const styles = {
   },
   emptyIcon: {
     fontSize: '48px',
-    color: '#bdc3c7',
-        marginBottom: '15px'
+    color: 'var(--text-muted)',
+    marginBottom: '15px'
   },
   emptyText: {
     fontSize: '16px',
-    color: '#7f8c8d',
+    color: 'var(--text-secondary)',
     marginBottom: '5px'
   },
   emptySubtext: {
     fontSize: '14px',
-    color: '#95a5a6'
+    color: 'var(--text-muted)'
   },
   historialList: {
     display: 'flex',
@@ -1108,15 +1079,10 @@ const styles = {
     gap: '15px'
   },
   historialItem: {
-    backgroundColor: '#f8f9fa',
+    backgroundColor: 'var(--bg-tertiary)',
     padding: '15px',
     borderRadius: '10px',
-    border: '1px solid #e9ecef',
-    transition: 'transform 0.2s',
-    ':hover': {
-      transform: 'translateX(5px)',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-    }
+    border: '1px solid var(--border-color)'
   },
   historialHeader: {
     display: 'flex',
@@ -1124,19 +1090,19 @@ const styles = {
     alignItems: 'center',
     marginBottom: '10px',
     paddingBottom: '8px',
-    borderBottom: '1px dashed #dee2e6'
+        borderBottom: '1px dashed var(--border-color)'
   },
   historialDate: {
     fontSize: '14px',
     fontWeight: '600',
-    color: '#2c3e50',
+    color: 'var(--text-primary)',
     display: 'flex',
     alignItems: 'center',
     gap: '5px'
   },
   historialDateIcon: {
     fontSize: '12px',
-    color: '#3498db'
+    color: 'var(--color-patient)'
   },
   historialBadge: {
     padding: '3px 8px',
@@ -1153,7 +1119,7 @@ const styles = {
   },
   historialDoctor: {
     fontSize: '14px',
-    color: '#34495e',
+    color: 'var(--text-secondary)',
     display: 'flex',
     alignItems: 'center',
     gap: '5px'
@@ -1164,12 +1130,12 @@ const styles = {
   },
   historialMotivo: {
     fontSize: '13px',
-    color: '#7f8c8d',
+    color: 'var(--text-muted)',
     lineHeight: '1.5',
-    backgroundColor: '#fff',
+    backgroundColor: 'var(--bg-secondary)',
     padding: '8px',
     borderRadius: '6px',
-    border: '1px solid #e9ecef'
+    border: '1px solid var(--border-color)'
   },
   spinner: {
     animation: 'spin 1s linear infinite'

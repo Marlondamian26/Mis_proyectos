@@ -348,12 +348,13 @@ function Citas() {
   )
 }
 
+// Estilos 
 const styles = {
   container: {
     padding: '20px',
     maxWidth: '1200px',
     margin: '0 auto',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: 'var(--bg-primary)',
     minHeight: '100vh'
   },
   header: {
@@ -361,13 +362,14 @@ const styles = {
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: '30px',
-    backgroundColor: 'white',
+    backgroundColor: 'var(--bg-secondary)',
     padding: '20px',
     borderRadius: '10px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+    boxShadow: 'var(--box-shadow)',
+    border: '1px solid var(--border-color)'
   },
   backButton: {
-    backgroundColor: '#6c757d',
+    backgroundColor: 'var(--text-muted)',
     color: 'white',
     padding: '10px 20px',
     border: 'none',
@@ -377,7 +379,7 @@ const styles = {
     marginRight: '10px'
   },
   newButton: {
-    backgroundColor: '#27ae60',
+    backgroundColor: 'var(--color-patient)',
     color: 'white',
     padding: '10px 20px',
     border: 'none',
@@ -388,25 +390,32 @@ const styles = {
   successMessage: {
     backgroundColor: '#d4edda',
     color: '#155724',
-    padding: '15px',
-    borderRadius: '5px',
+    padding: '15px 20px',
+    borderRadius: '10px',
     marginBottom: '20px',
-    textAlign: 'center'
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    border: '1px solid #c3e6cb'
   },
   errorMessage: {
     backgroundColor: '#f8d7da',
     color: '#721c24',
-    padding: '15px',
-    borderRadius: '5px',
+    padding: '15px 20px',
+    borderRadius: '10px',
     marginBottom: '20px',
-    textAlign: 'center'
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    border: '1px solid #f5c6cb'
   },
   formContainer: {
-    backgroundColor: 'white',
+    backgroundColor: 'var(--bg-secondary)',
     padding: '30px',
     borderRadius: '10px',
     marginBottom: '30px',
-    boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+    boxShadow: 'var(--box-shadow)',
+    border: '1px solid var(--border-color)'
   },
   form: {
     display: 'flex',
@@ -415,31 +424,37 @@ const styles = {
   },
   formGroup: {
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    gap: '5px'
   },
   label: {
     fontWeight: 'bold',
-    marginBottom: '5px',
-    color: '#2c3e50'
+    color: 'var(--text-primary)'
   },
   input: {
     padding: '10px',
-    border: '1px solid #ddd',
+    border: '1px solid var(--border-color)',
     borderRadius: '5px',
-    fontSize: '16px'
+    fontSize: '16px',
+    backgroundColor: 'var(--bg-primary)',
+    color: 'var(--text-primary)'
   },
   select: {
     padding: '10px',
-    border: '1px solid #ddd',
+    border: '1px solid var(--border-color)',
     borderRadius: '5px',
-    fontSize: '16px'
+    fontSize: '16px',
+    backgroundColor: 'var(--bg-primary)',
+    color: 'var(--text-primary)'
   },
   textarea: {
     padding: '10px',
-    border: '1px solid #ddd',
+    border: '1px solid var(--border-color)',
     borderRadius: '5px',
     fontSize: '16px',
-    resize: 'vertical'
+    resize: 'vertical',
+    backgroundColor: 'var(--bg-primary)',
+    color: 'var(--text-primary)'
   },
   horariosGrid: {
     display: 'grid',
@@ -449,24 +464,25 @@ const styles = {
   },
   horaButton: {
     padding: '10px',
-    backgroundColor: '#f8f9fa',
-    border: '1px solid #ddd',
+    backgroundColor: 'var(--bg-tertiary)',
+    border: '1px solid var(--border-color)',
     borderRadius: '5px',
     cursor: 'pointer',
-    textAlign: 'center'
+    textAlign: 'center',
+    color: 'var(--text-primary)'
   },
   horaButtonSelected: {
-    backgroundColor: '#3498db',
+    backgroundColor: 'var(--color-patient)',
     color: 'white',
     border: 'none'
   },
   noHorarios: {
-    color: '#7f8c8d',
+    color: 'var(--text-muted)',
     fontStyle: 'italic',
     marginTop: '10px'
   },
   submitButton: {
-    backgroundColor: '#27ae60',
+    backgroundColor: 'var(--color-patient)',
     color: 'white',
     padding: '15px',
     border: 'none',
@@ -482,35 +498,37 @@ const styles = {
     gap: '20px'
   },
   section: {
-    backgroundColor: 'white',
+    backgroundColor: 'var(--bg-secondary)',
     padding: '20px',
     borderRadius: '10px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+    boxShadow: 'var(--box-shadow)',
+    border: '1px solid var(--border-color)'
   },
   emptyState: {
     textAlign: 'center',
-    color: '#7f8c8d',
+    color: 'var(--text-muted)',
     padding: '40px',
     fontStyle: 'italic'
   },
   citaCard: {
-    border: '1px solid #e0e0e0',
+    border: '1px solid var(--border-color)',
     borderRadius: '8px',
     marginBottom: '15px',
-    overflow: 'hidden'
+    overflow: 'hidden',
+    backgroundColor: 'var(--bg-tertiary)'
   },
   citaCardHistorial: {
-    border: '1px solid #e0e0e0',
+    border: '1px solid var(--border-color)',
     borderRadius: '8px',
     marginBottom: '15px',
     overflow: 'hidden',
     opacity: 0.8,
-    backgroundColor: '#f8f9fa'
+    backgroundColor: 'var(--bg-tertiary)'
   },
   citaHeader: {
-    backgroundColor: '#f8f9fa',
+    backgroundColor: 'var(--bg-secondary)',
     padding: '10px 15px',
-    borderBottom: '1px solid #e0e0e0',
+    borderBottom: '1px solid var(--border-color)',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center'
@@ -519,20 +537,23 @@ const styles = {
     fontWeight: 'bold',
     display: 'flex',
     alignItems: 'center',
-    gap: '5px'
+    gap: '5px',
+    color: 'var(--text-primary)'
   },
   badge: {
     padding: '3px 8px',
     borderRadius: '3px',
     fontSize: '12px',
-    textTransform: 'capitalize'
+    textTransform: 'capitalize',
+    color: 'white'
   },
   citaBody: {
-    padding: '15px'
+    padding: '15px',
+    color: 'var(--text-primary)'
   },
   citaFooter: {
     padding: '10px 15px',
-    borderTop: '1px solid #e0e0e0',
+    borderTop: '1px solid var(--border-color)',
     display: 'flex',
     justifyContent: 'flex-end'
   },
@@ -552,12 +573,12 @@ const styles = {
     textAlign: 'center',
     fontSize: '20px',
     marginTop: '50px',
-    color: '#3498db'
+    color: 'var(--color-patient)'
   },
   loadingSmall: {
     textAlign: 'center',
     padding: '10px',
-    color: '#7f8c8d'
+    color: 'var(--text-muted)'
   }
 }
 

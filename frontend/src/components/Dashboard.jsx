@@ -333,13 +333,13 @@ function Dashboard() {
   )
 }
 
-// Estilos mejorados
+// Estilos 
 const styles = {
   container: {
     padding: '20px',
     maxWidth: '1200px',
     margin: '0 auto',
-    backgroundColor: '#f8f9fa',
+    backgroundColor: 'var(--bg-primary)',
     minHeight: '100vh',
     fontFamily: 'system-ui, -apple-system, sans-serif'
   },
@@ -349,25 +349,22 @@ const styles = {
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: '100vh',
-    backgroundColor: '#f8f9fa'
+    backgroundColor: 'var(--bg-primary)'
   },
   loadingSpinner: {
-    width: '50px',
-    height: '50px',
-    border: '5px solid #f3f3f3',
-    borderTop: '5px solid #3498db',
-    borderRadius: '50%',
+    fontSize: '48px',
+    color: 'var(--color-patient)',
     animation: 'spin 1s linear infinite',
     marginBottom: '20px'
   },
   loadingText: {
     fontSize: '18px',
-    color: '#2c3e50',
+    color: 'var(--text-primary)',
     marginBottom: '5px'
   },
   loadingSubtext: {
     fontSize: '14px',
-    color: '#7f8c8d'
+    color: 'var(--text-muted)'
   },
   errorContainer: {
     display: 'flex',
@@ -375,47 +372,46 @@ const styles = {
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: '100vh',
-    backgroundColor: '#f8f9fa',
+    backgroundColor: 'var(--bg-primary)',
     padding: '20px',
     textAlign: 'center'
   },
   errorIcon: {
     fontSize: '48px',
+    color: '#e74c3c',
     marginBottom: '20px'
   },
   errorTitle: {
     fontSize: '24px',
-    color: '#e74c3c',
+    color: 'var(--text-primary)',
     marginBottom: '10px'
   },
   errorMessage: {
     fontSize: '16px',
-    color: '#7f8c8d',
+    color: 'var(--text-secondary)',
     marginBottom: '30px',
     maxWidth: '400px'
   },
-  errorButton: {
-    backgroundColor: '#3498db',
+  retryButton: {
+    backgroundColor: 'var(--color-patient)',
     color: 'white',
     padding: '12px 30px',
     border: 'none',
     borderRadius: '8px',
     fontSize: '16px',
     cursor: 'pointer',
-    transition: 'background-color 0.3s',
-    ':hover': {
-      backgroundColor: '#2980b9'
-    }
+    marginBottom: '10px'
   },
   header: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: '30px',
+    backgroundColor: 'var(--bg-secondary)',
     padding: '25px',
-    backgroundColor: 'white',
     borderRadius: '15px',
-    boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+    boxShadow: 'var(--box-shadow)',
+    border: '1px solid var(--border-color)'
   },
   welcomeSection: {
     display: 'flex',
@@ -424,12 +420,12 @@ const styles = {
   },
   welcomeTitle: {
     fontSize: '24px',
-    color: '#2c3e50',
+    color: 'var(--text-primary)',
     margin: 0
   },
   userRole: {
     fontSize: '14px',
-    color: '#7f8c8d',
+    color: 'var(--text-muted)',
     margin: 0,
     display: 'flex',
     alignItems: 'center',
@@ -446,14 +442,7 @@ const styles = {
     fontWeight: '500',
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
-    transition: 'background-color 0.3s',
-    ':hover': {
-      backgroundColor: '#c0392b'
-    }
-  },
-  logoutIcon: {
-    fontSize: '18px'
+    gap: '8px'
   },
   content: {
     display: 'flex',
@@ -461,33 +450,36 @@ const styles = {
     gap: '25px'
   },
   card: {
-    backgroundColor: 'white',
+    backgroundColor: 'var(--bg-secondary)',
     padding: '25px',
     borderRadius: '15px',
-    boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+    boxShadow: 'var(--box-shadow)',
+    border: '1px solid var(--border-color)'
   },
   menuCard: {
-    backgroundColor: 'white',
+    backgroundColor: 'var(--bg-secondary)',
     padding: '25px',
     borderRadius: '15px',
-    boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+    boxShadow: 'var(--box-shadow)',
+    border: '1px solid var(--border-color)'
   },
   infoCard: {
-    backgroundColor: '#e8f4fd',
+    backgroundColor: 'var(--bg-tertiary)',
     padding: '25px',
     borderRadius: '15px',
-    border: '1px solid #bde0fe'
+    border: '1px solid var(--border-color)'
   },
   cardTitle: {
     fontSize: '20px',
-    color: '#2c3e50',
+    color: 'var(--text-primary)',
     margin: '0 0 20px 0',
     display: 'flex',
     alignItems: 'center',
     gap: '10px'
   },
   cardIcon: {
-    fontSize: '24px'
+    fontSize: '24px',
+    color: 'var(--color-patient)'
   },
   infoGrid: {
     display: 'grid',
@@ -501,13 +493,13 @@ const styles = {
   },
   infoLabel: {
     fontSize: '13px',
-    color: '#7f8c8d',
+    color: 'var(--text-muted)',
     textTransform: 'uppercase',
     letterSpacing: '0.5px'
   },
   infoValue: {
     fontSize: '16px',
-    color: '#2c3e50',
+    color: 'var(--text-primary)',
     fontWeight: '500'
   },
   menuGrid: {
@@ -516,42 +508,38 @@ const styles = {
     gap: '20px'
   },
   menuItem: {
-    backgroundColor: '#f8f9fa',
+    backgroundColor: 'var(--bg-tertiary)',
     padding: '20px',
     borderRadius: '12px',
     cursor: 'pointer',
     transition: 'all 0.3s',
-    border: '1px solid #e9ecef',
+    border: '1px solid var(--border-color)',
     display: 'flex',
     flexDirection: 'column',
     gap: '10px',
-    ':hover': {
-      transform: 'translateY(-3px)',
-      boxShadow: '0 6px 12px rgba(0,0,0,0.1)',
-      backgroundColor: '#ffffff'
-    }
+    color: 'var(--text-primary)'
   },
   adminMenuItem: {
-    backgroundColor: '#fff3e0',
-    border: '1px solid #ffb74d'
+    borderLeft: `4px solid var(--color-admin)`
   },
   menuIcon: {
     fontSize: '32px',
+    color: 'var(--color-patient)',
     marginBottom: '5px'
   },
   menuLabel: {
     fontSize: '18px',
     fontWeight: '600',
-    color: '#2c3e50'
+    color: 'var(--text-primary)'
   },
   menuDescription: {
     fontSize: '14px',
-    color: '#7f8c8d',
+    color: 'var(--text-secondary)',
     lineHeight: '1.4'
   },
   infoText: {
     fontSize: '15px',
-    color: '#2c3e50',
+    color: 'var(--text-secondary)',
     lineHeight: '1.6',
     margin: 0
   },
@@ -562,20 +550,15 @@ const styles = {
     marginTop: '15px'
   },
   quickLink: {
-    backgroundColor: 'white',
-    color: '#2c3e50',
+    backgroundColor: 'var(--bg-secondary)',
+    color: 'var(--text-primary)',
     padding: '12px 20px',
-    border: '1px solid #bde0fe',
+    border: '1px solid var(--border-color)',
     borderRadius: '8px',
     cursor: 'pointer',
     fontSize: '14px',
     fontWeight: '500',
-    transition: 'all 0.3s',
-    ':hover': {
-      backgroundColor: '#3498db',
-      color: 'white',
-      borderColor: '#3498db'
-    }
+    transition: 'all 0.3s'
   }
 }
 

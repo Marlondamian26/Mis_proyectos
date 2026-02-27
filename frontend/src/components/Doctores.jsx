@@ -209,12 +209,14 @@ function Doctores() {
   )
 }
 
+
+// Estilos 
 const styles = {
   container: {
     padding: '20px',
     maxWidth: '1200px',
     margin: '0 auto',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: 'var(--bg-primary)',
     minHeight: '100vh'
   },
   header: {
@@ -222,13 +224,14 @@ const styles = {
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: '30px',
-    backgroundColor: 'white',
+    backgroundColor: 'var(--bg-secondary)',
     padding: '20px',
     borderRadius: '10px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+    boxShadow: 'var(--box-shadow)',
+    border: '1px solid var(--border-color)'
   },
   backButton: {
-    backgroundColor: '#6c757d',
+    backgroundColor: 'var(--text-muted)',
     color: 'white',
     padding: '10px 20px',
     border: 'none',
@@ -237,23 +240,26 @@ const styles = {
     fontSize: '14px'
   },
   filtros: {
-    backgroundColor: 'white',
+    backgroundColor: 'var(--bg-secondary)',
     padding: '20px',
     borderRadius: '10px',
     marginBottom: '30px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+    boxShadow: 'var(--box-shadow)',
+    border: '1px solid var(--border-color)'
   },
   filtroLabel: {
     marginRight: '10px',
     fontWeight: 'bold',
-    color: '#2c3e50'
+    color: 'var(--text-primary)'
   },
   filtroSelect: {
     padding: '8px',
     borderRadius: '5px',
-    border: '1px solid #ddd',
+    border: '1px solid var(--border-color)',
     fontSize: '14px',
-    minWidth: '200px'
+    minWidth: '200px',
+    backgroundColor: 'var(--bg-primary)',
+    color: 'var(--text-primary)'
   },
   grid: {
     display: 'grid',
@@ -261,18 +267,15 @@ const styles = {
     gap: '20px'
   },
   card: {
-    backgroundColor: 'white',
+    backgroundColor: 'var(--bg-secondary)',
     borderRadius: '10px',
     overflow: 'hidden',
-    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-    transition: 'transform 0.3s',
-    ':hover': {
-      transform: 'translateY(-5px)',
-      boxShadow: '0 6px 12px rgba(0,0,0,0.15)'
-    }
+    boxShadow: 'var(--box-shadow)',
+    border: '1px solid var(--border-color)',
+    transition: 'transform 0.3s'
   },
   cardHeader: {
-    backgroundColor: '#3498db',
+    backgroundColor: 'var(--color-doctor)',
     color: 'white',
     padding: '20px',
     textAlign: 'center'
@@ -286,42 +289,41 @@ const styles = {
   },
   doctorName: {
     margin: '0',
-    fontSize: '18px'
+    fontSize: '18px',
+    color: 'white'
   },
   cardBody: {
-    padding: '20px'
+    padding: '20px',
+    color: 'var(--text-primary)'
   },
   especialidad: {
-    color: '#3498db',
+    color: 'var(--color-doctor)',
     marginBottom: '10px'
   },
   colegiado: {
-    color: '#7f8c8d',
+    color: 'var(--text-secondary)',
     fontSize: '14px',
     marginBottom: '10px'
   },
   biografia: {
-    color: '#34495e',
+    color: 'var(--text-primary)',
     fontSize: '14px',
     lineHeight: '1.5'
   },
   cardFooter: {
     padding: '20px',
-    borderTop: '1px solid #ecf0f1',
+    borderTop: '1px solid var(--border-color)',
     textAlign: 'center'
   },
   verMasButton: {
-    backgroundColor: '#3498db',
+    backgroundColor: 'var(--color-doctor)',
     color: 'white',
     padding: '10px 20px',
     border: 'none',
     borderRadius: '5px',
     cursor: 'pointer',
     width: '100%',
-    fontSize: '14px',
-    ':hover': {
-      backgroundColor: '#2980b9'
-    }
+    fontSize: '14px'
   },
   modalOverlay: {
     position: 'fixed',
@@ -336,14 +338,15 @@ const styles = {
     zIndex: 1000
   },
   modal: {
-    backgroundColor: 'white',
+    backgroundColor: 'var(--bg-secondary)',
     borderRadius: '10px',
     padding: '30px',
     maxWidth: '600px',
     width: '90%',
     maxHeight: '80vh',
     overflowY: 'auto',
-    position: 'relative'
+    position: 'relative',
+    border: '1px solid var(--border-color)'
   },
   modalClose: {
     position: 'absolute',
@@ -353,7 +356,7 @@ const styles = {
     border: 'none',
     fontSize: '24px',
     cursor: 'pointer',
-    color: '#7f8c8d'
+    color: 'var(--text-muted)'
   },
   modalHeader: {
     display: 'flex',
@@ -365,20 +368,22 @@ const styles = {
     width: '100px',
     height: '100px',
     borderRadius: '50%',
-    objectFit: 'cover'
+    objectFit: 'cover',
+    border: '3px solid var(--color-doctor)'
   },
   modalEspecialidad: {
-    color: '#3498db',
+    color: 'var(--color-doctor)',
     fontSize: '16px',
     marginTop: '5px'
   },
   modalBody: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '20px'
+    gap: '20px',
+    color: 'var(--text-primary)'
   },
   modalSection: {
-    borderBottom: '1px solid #ecf0f1',
+    borderBottom: '1px solid var(--border-color)',
     paddingBottom: '20px'
   },
   horariosGrid: {
@@ -388,15 +393,17 @@ const styles = {
     marginTop: '10px'
   },
   horarioItem: {
-    backgroundColor: '#f8f9fa',
+    backgroundColor: 'var(--bg-tertiary)',
     padding: '8px',
     borderRadius: '5px',
     display: 'flex',
     flexDirection: 'column',
-    fontSize: '14px'
+    fontSize: '14px',
+    color: 'var(--text-primary)',
+    border: '1px solid var(--border-color)'
   },
   reservarButton: {
-    backgroundColor: '#27ae60',
+    backgroundColor: 'var(--color-doctor)',
     color: 'white',
     padding: '15px',
     border: 'none',
@@ -408,23 +415,21 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     gap: '10px',
-    marginTop: '20px',
-    ':hover': {
-      backgroundColor: '#219a52'
-    }
+    marginTop: '20px'
   },
   loading: {
     textAlign: 'center',
     fontSize: '20px',
     marginTop: '50px',
-    color: '#3498db'
+    color: 'var(--color-doctor)'
   },
   noResults: {
     textAlign: 'center',
     padding: '40px',
-    backgroundColor: 'white',
+    backgroundColor: 'var(--bg-secondary)',
     borderRadius: '10px',
-    color: '#7f8c8d'
+    color: 'var(--text-muted)',
+    border: '1px solid var(--border-color)'
   }
 }
 

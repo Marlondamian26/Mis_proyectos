@@ -908,12 +908,13 @@ function AdminDashboard() {
   )
 }
 
+// Estilos 
 const styles = {
   container: {
     padding: '20px',
     maxWidth: '1400px',
     margin: '0 auto',
-    backgroundColor: '#f5f7fa',
+    backgroundColor: 'var(--bg-primary)',
     minHeight: '100vh',
     fontFamily: 'system-ui, -apple-system, sans-serif'
   },
@@ -923,22 +924,22 @@ const styles = {
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: '100vh',
-    backgroundColor: '#f5f7fa'
+    backgroundColor: 'var(--bg-primary)'
   },
   loadingSpinner: {
     fontSize: '48px',
-    color: '#3498db',
+    color: 'var(--color-admin)',
     animation: 'spin 1s linear infinite',
     marginBottom: '20px'
   },
   loadingText: {
     fontSize: '18px',
-    color: '#2c3e50',
+    color: 'var(--text-primary)',
     marginBottom: '5px'
   },
   loadingSubtext: {
     fontSize: '14px',
-    color: '#7f8c8d'
+    color: 'var(--text-muted)'
   },
   errorContainer: {
     display: 'flex',
@@ -946,7 +947,7 @@ const styles = {
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: '100vh',
-    backgroundColor: '#f5f7fa',
+    backgroundColor: 'var(--bg-primary)',
     padding: '20px',
     textAlign: 'center'
   },
@@ -957,17 +958,17 @@ const styles = {
   },
   errorTitle: {
     fontSize: '24px',
-    color: '#2c3e50',
+    color: 'var(--text-primary)',
     marginBottom: '10px'
   },
   errorMessage: {
     fontSize: '16px',
-    color: '#7f8c8d',
+    color: 'var(--text-secondary)',
     marginBottom: '30px',
     maxWidth: '400px'
   },
   retryButton: {
-    backgroundColor: '#3498db',
+    backgroundColor: 'var(--color-admin)',
     color: 'white',
     padding: '12px 30px',
     border: 'none',
@@ -976,34 +977,29 @@ const styles = {
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
-        gap: '10px',
-    marginBottom: '10px',
-    ':hover': {
-      backgroundColor: '#2980b9'
-    }
+    gap: '10px',
+    marginBottom: '10px'
   },
   backButton: {
-    backgroundColor: '#6c757d',
+    backgroundColor: 'var(--text-muted)',
     color: 'white',
     padding: '10px 20px',
     border: 'none',
     borderRadius: '8px',
     cursor: 'pointer',
     fontSize: '14px',
-    marginTop: '10px',
-    ':hover': {
-      backgroundColor: '#5a6268'
-    }
+    marginTop: '10px'
   },
   header: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: '30px',
-    backgroundColor: 'white',
+    backgroundColor: 'var(--bg-secondary)',
     padding: '25px',
     borderRadius: '15px',
-    boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+    boxShadow: 'var(--box-shadow)',
+    border: '1px solid var(--border-color)'
   },
   headerLeft: {
     display: 'flex',
@@ -1012,12 +1008,12 @@ const styles = {
   },
   title: {
     fontSize: '28px',
-    color: '#2c3e50',
+    color: 'var(--text-primary)',
     margin: 0
   },
   subtitle: {
     fontSize: '14px',
-    color: '#7f8c8d',
+    color: 'var(--text-muted)',
     margin: 0
   },
   successMessage: {
@@ -1053,22 +1049,20 @@ const styles = {
     marginBottom: '30px'
   },
   statCard: {
-    backgroundColor: 'white',
+    backgroundColor: 'var(--bg-secondary)',
     padding: '20px',
     borderRadius: '12px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    boxShadow: 'var(--box-shadow)',
+    border: '1px solid var(--border-color)',
     display: 'flex',
     alignItems: 'center',
     gap: '15px',
     transition: 'transform 0.2s',
-    ':hover': {
-      transform: 'translateY(-2px)',
-      boxShadow: '0 4px 8px rgba(0,0,0,0.15)'
-    }
+    color: 'var(--text-primary)'
   },
   statIcon: {
     fontSize: '32px',
-    color: '#3498db'
+    color: 'var(--color-admin)'
   },
   tabs: {
     display: 'flex',
@@ -1078,8 +1072,8 @@ const styles = {
   },
   tab: {
     padding: '12px 20px',
-    backgroundColor: 'white',
-    border: '1px solid #ddd',
+    backgroundColor: 'var(--bg-secondary)',
+    border: '1px solid var(--border-color)',
     borderRadius: '8px',
     cursor: 'pointer',
     display: 'flex',
@@ -1087,29 +1081,25 @@ const styles = {
     gap: '8px',
     fontSize: '14px',
     fontWeight: '500',
-    transition: 'all 0.3s',
-    ':hover': {
-      backgroundColor: '#f8f9fa'
-    }
+    color: 'var(--text-primary)',
+    transition: 'all 0.3s'
   },
   activeTab: {
-    backgroundColor: '#3498db',
+    backgroundColor: 'var(--color-admin)',
     color: 'white',
-    borderColor: '#3498db',
-    ':hover': {
-      backgroundColor: '#2980b9'
-    }
+    borderColor: 'var(--color-admin)'
   },
   content: {
-    backgroundColor: 'white',
+    backgroundColor: 'var(--bg-secondary)',
     padding: '25px',
     borderRadius: '15px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    boxShadow: 'var(--box-shadow)',
+    border: '1px solid var(--border-color)',
     minHeight: '400px'
   },
   sectionTitle: {
     fontSize: '20px',
-    color: '#2c3e50',
+    color: 'var(--text-primary)',
     margin: '0 0 20px 0'
   },
   dashboardGrid: {
@@ -1118,10 +1108,11 @@ const styles = {
     gap: '20px'
   },
   dashboardCard: {
-    backgroundColor: '#f8f9fa',
+    backgroundColor: 'var(--bg-tertiary)',
     padding: '20px',
     borderRadius: '10px',
-    border: '1px solid #e9ecef'
+    border: '1px solid var(--border-color)',
+    color: 'var(--text-primary)'
   },
   statsList: {
     display: 'flex',
@@ -1136,7 +1127,7 @@ const styles = {
     marginBottom: '20px'
   },
   createButton: {
-    backgroundColor: '#27ae60',
+    backgroundColor: 'var(--color-admin)',
     color: 'white',
     padding: '10px 20px',
     border: 'none',
@@ -1146,11 +1137,7 @@ const styles = {
     alignItems: 'center',
     gap: '8px',
     fontSize: '14px',
-    fontWeight: '500',
-    transition: 'background-color 0.3s',
-    ':hover': {
-      backgroundColor: '#219a52'
-    }
+    fontWeight: '500'
   },
   tableContainer: {
     overflowX: 'auto'
@@ -1158,7 +1145,8 @@ const styles = {
   table: {
     width: '100%',
     borderCollapse: 'collapse',
-    fontSize: '14px'
+    fontSize: '14px',
+    color: 'var(--text-primary)'
   },
   actions: {
     display: 'flex',
@@ -1166,16 +1154,13 @@ const styles = {
     justifyContent: 'center'
   },
   viewButton: {
-    backgroundColor: '#3498db',
+    backgroundColor: 'var(--color-patient)',
     color: 'white',
     padding: '5px 8px',
     border: 'none',
     borderRadius: '4px',
     cursor: 'pointer',
-    fontSize: '12px',
-    ':hover': {
-      backgroundColor: '#2980b9'
-    }
+    fontSize: '12px'
   },
   editButton: {
     backgroundColor: '#f39c12',
@@ -1184,10 +1169,7 @@ const styles = {
     border: 'none',
     borderRadius: '4px',
     cursor: 'pointer',
-    fontSize: '12px',
-    ':hover': {
-      backgroundColor: '#e67e22'
-    }
+    fontSize: '12px'
   },
   deleteButton: {
     backgroundColor: '#e74c3c',
@@ -1196,17 +1178,15 @@ const styles = {
     border: 'none',
     borderRadius: '4px',
     cursor: 'pointer',
-    fontSize: '12px',
-    ':hover': {
-      backgroundColor: '#c0392b'
-    }
+    fontSize: '12px'
   },
   badge: {
     padding: '3px 8px',
     borderRadius: '12px',
     fontSize: '11px',
     fontWeight: '500',
-    display: 'inline-block'
+    display: 'inline-block',
+    color: 'white'
   },
   rolBadge: {
     padding: '3px 8px',
@@ -1220,9 +1200,10 @@ const styles = {
   emptyState: {
     textAlign: 'center',
     padding: '40px',
-    color: '#7f8c8d',
-    backgroundColor: '#f8f9fa',
-    borderRadius: '8px'
+    color: 'var(--text-muted)',
+    backgroundColor: 'var(--bg-tertiary)',
+    borderRadius: '8px',
+    border: '1px solid var(--border-color)'
   },
   modalOverlay: {
     position: 'fixed',
@@ -1237,20 +1218,21 @@ const styles = {
     zIndex: 1000
   },
   modal: {
-    backgroundColor: 'white',
+    backgroundColor: 'var(--bg-secondary)',
     padding: '30px',
     borderRadius: '15px',
     maxWidth: '500px',
     width: '90%',
     maxHeight: '80vh',
-    overflowY: 'auto'
+    overflowY: 'auto',
+    border: '1px solid var(--border-color)'
   },
   modalTitle: {
     fontSize: '20px',
-    color: '#2c3e50',
+    color: 'var(--text-primary)',
     marginBottom: '20px',
     paddingBottom: '10px',
-    borderBottom: '1px solid #ecf0f1'
+    borderBottom: '1px solid var(--border-color)'
   },
   formGroup: {
     marginBottom: '15px',
@@ -1261,27 +1243,23 @@ const styles = {
   label: {
     fontSize: '13px',
     fontWeight: '600',
-    color: '#2c3e50'
+    color: 'var(--text-primary)'
   },
   input: {
     padding: '10px',
-    border: '1px solid #ddd',
+    border: '1px solid var(--border-color)',
     borderRadius: '6px',
     fontSize: '14px',
-    ':focus': {
-      borderColor: '#3498db',
-      outline: 'none'
-    }
+    backgroundColor: 'var(--bg-primary)',
+    color: 'var(--text-primary)'
   },
   select: {
     padding: '10px',
-    border: '1px solid #ddd',
+    border: '1px solid var(--border-color)',
     borderRadius: '6px',
     fontSize: '14px',
-    ':focus': {
-      borderColor: '#3498db',
-      outline: 'none'
-    }
+    backgroundColor: 'var(--bg-primary)',
+    color: 'var(--text-primary)'
   },
   modalButtons: {
     display: 'flex',
@@ -1301,14 +1279,7 @@ const styles = {
     justifyContent: 'center',
     gap: '5px',
     fontSize: '14px',
-    fontWeight: '500',
-    ':hover': {
-      backgroundColor: '#219a52'
-    },
-    ':disabled': {
-      backgroundColor: '#95a5a6',
-      cursor: 'not-allowed'
-    }
+    fontWeight: '500'
   },
   cancelButton: {
     backgroundColor: '#e74c3c',
@@ -1323,17 +1294,10 @@ const styles = {
     justifyContent: 'center',
     gap: '5px',
     fontSize: '14px',
-    fontWeight: '500',
-    ':hover': {
-      backgroundColor: '#c0392b'
-    },
-    ':disabled': {
-      backgroundColor: '#95a5a6',
-      cursor: 'not-allowed'
-    }
+    fontWeight: '500'
   },
   closeButton: {
-    backgroundColor: '#6c757d',
+    backgroundColor: 'var(--text-muted)',
     color: 'white',
     padding: '12px',
     border: 'none',
@@ -1341,10 +1305,7 @@ const styles = {
     cursor: 'pointer',
     width: '100%',
     fontSize: '14px',
-    fontWeight: '500',
-    ':hover': {
-      backgroundColor: '#5a6268'
-    }
+    fontWeight: '500'
   },
   spinner: {
     animation: 'spin 1s linear infinite'

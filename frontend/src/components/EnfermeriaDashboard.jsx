@@ -623,12 +623,13 @@ function EnfermeriaDashboard() {
   )
 }
 
+// Estilos
 const styles = {
   container: {
     padding: '20px',
     maxWidth: '1200px',
     margin: '0 auto',
-    backgroundColor: '#f5f7fa',
+    backgroundColor: 'var(--bg-primary)',
     minHeight: '100vh',
     fontFamily: 'system-ui, -apple-system, sans-serif'
   },
@@ -638,27 +639,33 @@ const styles = {
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: '100vh',
-    backgroundColor: '#f5f7fa'
+    backgroundColor: 'var(--bg-primary)'
   },
   loadingSpinner: {
     fontSize: '48px',
-    color: '#27ae60',
+    color: 'var(--color-nurse)',
     animation: 'spin 1s linear infinite',
     marginBottom: '20px'
   },
   loadingText: {
     fontSize: '18px',
-    color: '#2c3e50'
+    color: 'var(--text-primary)',
+    marginBottom: '5px'
+  },
+  loadingSubtext: {
+    fontSize: '14px',
+    color: 'var(--text-muted)'
   },
   header: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: '30px',
-    backgroundColor: 'white',
+    backgroundColor: 'var(--bg-secondary)',
     padding: '25px',
     borderRadius: '15px',
-    boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+    boxShadow: 'var(--box-shadow)',
+    border: '1px solid var(--border-color)'
   },
   headerLeft: {
     display: 'flex',
@@ -667,32 +674,28 @@ const styles = {
   },
   title: {
     fontSize: '28px',
-    color: '#2c3e50',
+    color: 'var(--text-primary)',
     margin: 0,
     display: 'flex',
     alignItems: 'center',
     gap: '10px'
   },
   titleIcon: {
-    color: '#27ae60'
+    color: 'var(--color-nurse)'
   },
   subtitle: {
     fontSize: '14px',
-    color: '#7f8c8d',
+    color: 'var(--text-muted)',
     margin: 0
   },
   backButton: {
-    backgroundColor: '#6c757d',
+    backgroundColor: 'var(--text-muted)',
     color: 'white',
     padding: '10px 20px',
     border: 'none',
     borderRadius: '8px',
     cursor: 'pointer',
-    fontSize: '14px',
-    transition: 'background-color 0.3s',
-    ':hover': {
-      backgroundColor: '#5a6268'
-    }
+    fontSize: '14px'
   },
   successMessage: {
     backgroundColor: '#d4edda',
@@ -727,22 +730,19 @@ const styles = {
     marginBottom: '30px'
   },
   statCard: {
-    backgroundColor: 'white',
+    backgroundColor: 'var(--bg-secondary)',
     padding: '20px',
     borderRadius: '12px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    boxShadow: 'var(--box-shadow)',
+    border: '1px solid var(--border-color)',
     display: 'flex',
     alignItems: 'center',
     gap: '15px',
-    transition: 'transform 0.2s',
-    ':hover': {
-      transform: 'translateY(-2px)',
-      boxShadow: '0 4px 8px rgba(0,0,0,0.15)'
-    }
+    color: 'var(--text-primary)'
   },
   statIcon: {
     fontSize: '32px',
-    color: '#27ae60'
+    color: 'var(--color-nurse)'
   },
   tabs: {
     display: 'flex',
@@ -752,8 +752,8 @@ const styles = {
   },
   tab: {
     padding: '12px 20px',
-    backgroundColor: 'white',
-    border: '1px solid #ddd',
+    backgroundColor: 'var(--bg-secondary)',
+    border: '1px solid var(--border-color)',
     borderRadius: '8px',
     cursor: 'pointer',
     display: 'flex',
@@ -761,24 +761,20 @@ const styles = {
     gap: '8px',
     fontSize: '14px',
     fontWeight: '500',
-    transition: 'all 0.3s',
-    ':hover': {
-      backgroundColor: '#f8f9fa'
-    }
+    color: 'var(--text-primary)',
+    transition: 'all 0.3s'
   },
   activeTab: {
-    backgroundColor: '#27ae60',
+    backgroundColor: 'var(--color-nurse)',
     color: 'white',
-    borderColor: '#27ae60',
-    ':hover': {
-      backgroundColor: '#219a52'
-    }
+    borderColor: 'var(--color-nurse)'
   },
   content: {
-    backgroundColor: 'white',
+    backgroundColor: 'var(--bg-secondary)',
     padding: '25px',
     borderRadius: '15px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    boxShadow: 'var(--box-shadow)',
+    border: '1px solid var(--border-color)',
     minHeight: '400px'
   },
   pacientesContainer: {
@@ -792,11 +788,11 @@ const styles = {
     gap: '15px'
   },
   pacienteCard: {
-    backgroundColor: '#f8f9fa',
+    backgroundColor: 'var(--bg-tertiary)',
     padding: '20px',
     borderRadius: '12px',
-    border: '1px solid #e9ecef',
-    position: 'relative'
+    border: '1px solid var(--border-color)',
+    color: 'var(--text-primary)'
   },
   pacienteHeader: {
     display: 'flex',
@@ -806,12 +802,12 @@ const styles = {
   },
   pacienteHora: {
     fontSize: '12px',
-    color: '#7f8c8d',
+    color: 'var(--text-muted)',
     marginTop: '5px'
   },
   pacienteEstado: {
     padding: '4px 8px',
-    backgroundColor: '#27ae60',
+    backgroundColor: 'var(--color-nurse)',
     color: 'white',
     borderRadius: '12px',
     fontSize: '11px',
@@ -819,12 +815,12 @@ const styles = {
   },
   pacienteMotivo: {
     fontSize: '13px',
-    color: '#34495e',
+    color: 'var(--text-secondary)',
     marginBottom: '15px',
     display: 'flex',
     alignItems: 'center',
     gap: '5px',
-    backgroundColor: 'white',
+    backgroundColor: 'var(--bg-secondary)',
     padding: '8px',
     borderRadius: '6px'
   },
@@ -834,21 +830,16 @@ const styles = {
     flexWrap: 'wrap'
   },
   actionButton: {
-    backgroundColor: 'white',
-    color: '#2c3e50',
+    backgroundColor: 'var(--bg-secondary)',
+    color: 'var(--text-primary)',
     padding: '8px 12px',
-    border: '1px solid #27ae60',
+    border: '1px solid var(--color-nurse)',
     borderRadius: '6px',
     cursor: 'pointer',
     fontSize: '12px',
     display: 'flex',
     alignItems: 'center',
-    gap: '5px',
-    transition: 'all 0.3s',
-    ':hover': {
-      backgroundColor: '#27ae60',
-      color: 'white'
-    }
+    gap: '5px'
   },
   modalOverlay: {
     position: 'fixed',
@@ -863,17 +854,18 @@ const styles = {
     zIndex: 1000
   },
   modal: {
-    backgroundColor: 'white',
+    backgroundColor: 'var(--bg-secondary)',
     padding: '30px',
     borderRadius: '15px',
     maxWidth: '600px',
     width: '90%',
     maxHeight: '80vh',
-    overflowY: 'auto'
+    overflowY: 'auto',
+    border: '1px solid var(--border-color)'
   },
   modalPaciente: {
     fontSize: '14px',
-    color: '#7f8c8d',
+    color: 'var(--text-muted)',
     marginBottom: '20px'
   },
   signosForm: {
@@ -893,17 +885,21 @@ const styles = {
   },
   input: {
     padding: '8px',
-    border: '1px solid #ddd',
+    border: '1px solid var(--border-color)',
     borderRadius: '6px',
-    fontSize: '14px'
+    fontSize: '14px',
+    backgroundColor: 'var(--bg-primary)',
+    color: 'var(--text-primary)'
   },
   inputSmall: {
     width: '70px',
     padding: '8px',
-    border: '1px solid #ddd',
+    border: '1px solid var(--border-color)',
     borderRadius: '6px',
     fontSize: '14px',
-    textAlign: 'center'
+    textAlign: 'center',
+    backgroundColor: 'var(--bg-primary)',
+    color: 'var(--text-primary)'
   },
   presionGroup: {
     display: 'flex',
@@ -912,16 +908,20 @@ const styles = {
   },
   textarea: {
     padding: '8px',
-    border: '1px solid #ddd',
+    border: '1px solid var(--border-color)',
     borderRadius: '6px',
     fontSize: '14px',
-    resize: 'vertical'
+    resize: 'vertical',
+    backgroundColor: 'var(--bg-primary)',
+    color: 'var(--text-primary)'
   },
   select: {
     padding: '8px',
-    border: '1px solid #ddd',
+    border: '1px solid var(--border-color)',
     borderRadius: '6px',
-    fontSize: '14px'
+    fontSize: '14px',
+    backgroundColor: 'var(--bg-primary)',
+    color: 'var(--text-primary)'
   },
   modalButtons: {
     display: 'flex',
@@ -939,14 +939,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: '5px',
-    ':hover': {
-      backgroundColor: '#219a52'
-    },
-    ':disabled': {
-      backgroundColor: '#95a5a6',
-      cursor: 'not-allowed'
-    }
+    gap: '5px'
   },
   cancelButton: {
     backgroundColor: '#e74c3c',
@@ -955,10 +948,7 @@ const styles = {
     border: 'none',
     borderRadius: '6px',
     cursor: 'pointer',
-    flex: 1,
-    ':hover': {
-      backgroundColor: '#c0392b'
-    }
+    flex: 1
   },
   procedimientosContainer: {
     display: 'flex',
@@ -971,10 +961,11 @@ const styles = {
     gap: '15px'
   },
   procedimientoCard: {
-    backgroundColor: '#f8f9fa',
+    backgroundColor: 'var(--bg-tertiary)',
     padding: '15px',
     borderRadius: '10px',
-    border: '1px solid #e9ecef'
+    border: '1px solid var(--border-color)',
+    color: 'var(--text-primary)'
   },
   procedimientoHeader: {
     display: 'flex',
@@ -987,7 +978,7 @@ const styles = {
     alignItems: 'center',
     gap: '5px',
     fontWeight: '600',
-    color: '#2c3e50'
+    color: 'var(--text-primary)'
   },
   prioridadBadge: {
     padding: '3px 8px',
@@ -1003,11 +994,11 @@ const styles = {
   },
   procedimientoDescripcion: {
     fontSize: '12px',
-    color: '#7f8c8d',
+    color: 'var(--text-muted)',
     marginBottom: '10px'
   },
   realizarButton: {
-    backgroundColor: '#27ae60',
+    backgroundColor: 'var(--color-nurse)',
     color: 'white',
     padding: '8px',
     border: 'none',
@@ -1017,10 +1008,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: '5px',
-    ':hover': {
-      backgroundColor: '#219a52'
-    }
+    gap: '5px'
   },
   registrarContainer: {
     maxWidth: '600px',
@@ -1034,12 +1022,12 @@ const styles = {
   emptyState: {
     textAlign: 'center',
     padding: '40px',
-    color: '#7f8c8d'
+    color: 'var(--text-muted)'
   },
   emptyIcon: {
     fontSize: '48px',
     marginBottom: '10px',
-    color: '#bdc3c7'
+    color: 'var(--text-muted)'
   },
   spinner: {
     animation: 'spin 1s linear infinite'

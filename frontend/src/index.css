@@ -1,68 +1,126 @@
+/* src/index.css - Estilos base mejorados */
+
+/* Importar primero nuestras variables de tema */
+@import './styles/theme.css';
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  /* Mantenemos lo útil de Vite pero adaptado a nuestro sistema */
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 
+               Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
+  /* Delegamos los colores a nuestro sistema de temas */
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Enlaces - adaptados a nuestro tema */
 a {
   font-weight: 500;
-  color: #646cff;
+  color: var(--color-patient);
   text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+  transition: color 0.25s ease;
 }
 
+a:hover {
+  color: var(--color-patient-soft);
+}
+
+/* Body - ahora usa nuestras variables y no fuerza centrado */
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.25s ease, color 0.25s ease;
+  display: block; /* Cambiamos de 'flex' a 'block' para mejor control */
 }
 
+/* Headings */
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
+  color: var(--text-primary);
 }
 
+h2, h3, h4, h5, h6 {
+  color: var(--text-primary);
+}
+
+/* Botones base - mejorados con nuestro sistema */
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--border-color);
   padding: 0.6em 1.2em;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
   cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  transition: all 0.25s ease;
 }
 
+button:hover {
+  border-color: var(--color-patient);
+  transform: translateY(-2px);
+  box-shadow: var(--box-shadow-hover);
+}
+
+button:focus,
+button:focus-visible {
+  outline: 2px solid var(--color-patient-soft);
+  outline-offset: 2px;
+}
+
+/* Root element - ya no forzamos centrado */
+#root {
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+  transition: background-color 0.25s ease;
+}
+
+/* Animación de entrada para la app */
+#root {
+  animation: fadeIn 0.5s ease;
+}
+
+/* Scrollbar personalizado (ya definido en App.css, pero lo reforzamos) */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-tertiary);
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-patient-soft);
+  border-radius: 8px;
+  border: 2px solid var(--bg-tertiary);
+  transition: background 0.25s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-patient);
+}
+
+/* Media queries - ahora solo ajustan si no hay tema guardado */
 @media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+  /* Estos estilos solo se aplican si no tenemos un tema explícito */
+  :root:not([data-theme]) {
+    color-scheme: light;
   }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
   }
 }

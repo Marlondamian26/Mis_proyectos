@@ -504,27 +504,26 @@ function Registro() {
   )
 }
 
+// Estilos
 const styles = {
   container: {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: '100vh',
-    backgroundColor: '#f5f7fa',
+    backgroundColor: 'var(--bg-primary)',
     padding: '20px',
     fontFamily: 'system-ui, -apple-system, sans-serif'
   },
   card: {
-    backgroundColor: 'white',
+    backgroundColor: 'var(--bg-secondary)',
     padding: '40px',
     borderRadius: '20px',
-    boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
+    boxShadow: 'var(--box-shadow)',
     width: '100%',
     maxWidth: '500px',
-    transition: 'transform 0.3s',
-    ':hover': {
-      transform: 'translateY(-5px)'
-    }
+    border: '1px solid var(--border-color)',
+    transition: 'transform 0.3s'
   },
   header: {
     textAlign: 'center',
@@ -532,17 +531,17 @@ const styles = {
   },
   headerIcon: {
     fontSize: '48px',
-    color: '#27ae60',
+    color: 'var(--color-patient)',
     marginBottom: '10px'
   },
   title: {
-    color: '#2c3e50',
+    color: 'var(--text-primary)',
     fontSize: '28px',
     margin: '0 0 5px 0',
     fontWeight: '700'
   },
   subtitle: {
-    color: '#7f8c8d',
+    color: 'var(--text-secondary)',
     fontSize: '14px',
     margin: 0
   },
@@ -599,27 +598,29 @@ const styles = {
   label: {
     fontSize: '13px',
     fontWeight: '600',
-    color: '#2c3e50',
+    color: 'var(--text-primary)',
     display: 'flex',
     alignItems: 'center',
     gap: '5px'
   },
   inputIcon: {
     fontSize: '12px',
-    color: '#7f8c8d'
+    color: 'var(--text-muted)'
   },
   input: {
     padding: '12px',
-    border: '2px solid #e0e0e0',
+    border: '2px solid var(--border-color)',
     borderRadius: '8px',
     fontSize: '14px',
     transition: 'border-color 0.3s',
+    backgroundColor: 'var(--bg-primary)',
+    color: 'var(--text-primary)',
     outline: 'none',
     ':focus': {
-      borderColor: '#3498db'
+      borderColor: 'var(--color-patient)'
     },
     ':disabled': {
-      backgroundColor: '#f5f5f5',
+      backgroundColor: 'var(--bg-tertiary)',
       cursor: 'not-allowed'
     }
   },
@@ -635,13 +636,15 @@ const styles = {
     flex: 1,
     padding: '12px',
     paddingRight: '40px',
-    border: '2px solid #e0e0e0',
+    border: '2px solid var(--border-color)',
     borderRadius: '8px',
     fontSize: '14px',
     transition: 'border-color 0.3s',
+    backgroundColor: 'var(--bg-primary)',
+    color: 'var(--text-primary)',
     outline: 'none',
     ':focus': {
-      borderColor: '#3498db'
+      borderColor: 'var(--color-patient)'
     }
   },
   passwordToggle: {
@@ -651,10 +654,10 @@ const styles = {
     border: 'none',
     fontSize: '16px',
     cursor: 'pointer',
-    color: '#95a5a6',
+    color: 'var(--text-muted)',
     padding: '0',
     ':hover': {
-      color: '#34495e'
+      color: 'var(--text-primary)'
     }
   },
   fieldError: {
@@ -664,7 +667,7 @@ const styles = {
   },
   inputHint: {
     fontSize: '11px',
-    color: '#95a5a6',
+    color: 'var(--text-muted)',
     marginTop: '2px'
   },
   strengthContainer: {
@@ -672,7 +675,7 @@ const styles = {
   },
   strengthBar: {
     height: '4px',
-    backgroundColor: '#ecf0f1',
+    backgroundColor: 'var(--border-color)',
     borderRadius: '2px',
     overflow: 'hidden',
     marginBottom: '4px'
@@ -686,7 +689,7 @@ const styles = {
     fontWeight: '500'
   },
   submitButton: {
-    backgroundColor: '#27ae60',
+    backgroundColor: 'var(--color-patient)',
     color: 'white',
     padding: '14px',
     fontSize: '16px',
@@ -698,26 +701,23 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     gap: '8px',
-    transition: 'background-color 0.3s, transform 0.1s',
+    transition: 'all 0.3s',
     marginTop: '10px',
     ':hover': {
-      backgroundColor: '#219a52',
+      opacity: 0.9,
       transform: 'translateY(-2px)'
-    },
-    ':active': {
-      transform: 'translateY(0)'
     }
   },
   submitButtonDisabled: {
-    backgroundColor: '#95a5a6',
+    backgroundColor: 'var(--text-muted)',
     cursor: 'not-allowed',
     ':hover': {
-      backgroundColor: '#95a5a6',
+      backgroundColor: 'var(--text-muted)',
       transform: 'none'
     }
   },
   demoButton: {
-    backgroundColor: '#3498db',
+    backgroundColor: 'var(--color-admin)',
     color: 'white',
     padding: '12px',
     fontSize: '14px',
@@ -730,7 +730,7 @@ const styles = {
     gap: '8px',
     transition: 'background-color 0.3s',
     ':hover': {
-      backgroundColor: '#2980b9'
+      backgroundColor: 'var(--color-admin-soft)'
     }
   },
   spinner: {
@@ -740,15 +740,15 @@ const styles = {
     marginTop: '25px',
     textAlign: 'center',
     paddingTop: '20px',
-    borderTop: '1px solid #ecf0f1'
+    borderTop: '1px solid var(--border-color)'
   },
   loginText: {
-    color: '#7f8c8d',
+    color: 'var(--text-muted)',
     fontSize: '14px',
     margin: 0
   },
   loginLink: {
-    color: '#3498db',
+    color: 'var(--color-patient)',
     textDecoration: 'none',
     fontWeight: '600',
     ':hover': {
@@ -760,17 +760,17 @@ const styles = {
     textAlign: 'center'
   },
   termsText: {
-    color: '#95a5a6',
+    color: 'var(--text-muted)',
     fontSize: '12px',
     margin: 0,
     lineHeight: '1.5'
   },
   termsLink: {
-    color: '#7f8c8d',
+    color: 'var(--text-secondary)',
     textDecoration: 'none',
     ':hover': {
       textDecoration: 'underline',
-      color: '#3498db'
+      color: 'var(--color-patient)'
     }
   }
 }

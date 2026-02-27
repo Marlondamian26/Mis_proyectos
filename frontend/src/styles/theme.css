@@ -1,0 +1,72 @@
+/* src/styles/theme.css - Sistema de Temas Profesional v2.0 */
+
+:root {
+  /* --- Tema Claro (por defecto) --- */
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f1f5f9;
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
+  --shadow-color: rgba(0, 0, 0, 0.05);
+  --shadow-color-hover: rgba(0, 0, 0, 0.1);
+  --card-bg: #ffffff;
+
+  /* Colores de acento por rol (Nueva paleta médica) */
+  --color-admin: #6c5ce7;
+  --color-admin-soft: #a29bfe;
+  --color-admin-bg: #f0eefe;
+  --color-doctor: #00b894;
+  --color-doctor-soft: #6ab04c;
+  --color-doctor-bg: #e0f7f0;
+  --color-nurse: #fdcb6e;
+  --color-nurse-soft: #ffeaa7;
+  --color-nurse-bg: #fff3db;
+  --color-patient: #3498db;
+  --color-patient-soft: #6ab5f5;
+  --color-patient-bg: #e8f0fe;
+
+  /* Gradientes por rol (suaves y modernos) */
+  --gradient-admin: linear-gradient(135deg, #6c5ce7 0%, #a463f5 100%);
+  --gradient-doctor: linear-gradient(135deg, #00b894 0%, #55efc4 100%);
+  --gradient-nurse: linear-gradient(135deg, #fdcb6e 0%, #ffe083 100%);
+  --gradient-patient: linear-gradient(135deg, #3498db 0%, #6ab5f5 100%);
+
+  /* Efectos y animaciones */
+  --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --border-radius-sm: 8px;
+  --border-radius-md: 12px;
+  --border-radius-lg: 16px;
+  --border-radius-xl: 24px;
+  --box-shadow: 0 4px 12px var(--shadow-color);
+  --box-shadow-hover: 0 12px 24px var(--shadow-color-hover);
+  --box-shadow-glow: 0 0 0 2px var(--color-patient-soft);
+}
+
+/* Tema Oscuro */
+[data-theme="dark"] {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-tertiary: #334155;
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --border-color: #334155;
+  --shadow-color: rgba(0, 0, 0, 0.5);
+  --shadow-color-hover: rgba(0, 0, 0, 0.7);
+  --card-bg: #1e293b;
+
+  --color-admin: #a29bfe;
+  --color-admin-soft: #6c5ce7;
+  --color-admin-bg: #2d2740;
+  --color-doctor: #55efc4;
+  --color-doctor-soft: #00b894;
+  --color-doctor-bg: #1e3a3a;
+  --color-nurse: #ffeaa7;
+  --color-nurse-soft: #fdcb6e;
+  --color-nurse-bg: #3e3a2e;
+  --color-patient: #6ab5f5;
+  --color-patient-soft: #3498db;
+  --color-patient-bg: #1e3347;
+}
