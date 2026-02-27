@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import axiosInstance from '../services/auth'
 import { useNavigate } from 'react-router-dom'
+import { useNotificaciones } from '../context/NotificacionesContext';
 
 function Dashboard() {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const navigate = useNavigate()
+  const { noLeidas } = useNotificaciones();  // ⬅️ ESTO YA LO TENÍAS
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -136,6 +138,15 @@ function Dashboard() {
             {user?.rol === 'nurse' && '👩‍⚕️ Enfermería'}
             {user?.rol === 'patient' && '🩺 Paciente'}
           </p>
+          {/* ⬇️ NOTIFICACIONES AÑADIDAS AQUÍ (OPCIÓN 1) ⬇️ */}
+          {noLeidas > 0 && (
+            <div style={styles.notificacionBanner}>
+              <span style={styles.notificacionIcon}>🔔</span>
+              <span style={styles.notificacionTexto}>
+                Tienes <strong>{noLeidas}</strong> notificación{noLeidas !== 1 ? 'es' : ''} sin leer
+              </span>
+            </div>
+          )}
         </div>
         <button onClick={handleLogout} style={styles.logoutButton}>
           <span style={styles.logoutIcon}>🚪</span>
@@ -236,20 +247,33 @@ function Dashboard() {
           </div>
         </div>
 
-        {/* Información adicional según el rol */}
-        {user?.rol === 'patient' && (
-          <div style={styles.infoCard}>
-            <h3 style={styles.cardTitle}>
-              <span style={styles.cardIcon}>💡</span>
-              Recordatorios
-            </h3>
-            <p style={styles.infoText}>
-              Puedes reservar citas con nuestros especialistas desde la sección "Doctores" o "Mis Citas".
+        {/* ⬇️ NOTIFICACIONES AÑADIDAS AQUÍ (OPCIÓN 2 - dentro de la tarjeta de info) ⬇️ */}
+        {noLeidas > 0 && (
+          <div style={styles.notificacionCard}>
+            <div style={styles.notificacionCardHeader}>
+              <span style={styles.notificacionCardIcon}>🔔</span>
+              <h3 style={styles.notificacionCardTitle}>Notificaciones pendientes</h3>
+            </div>
+            <p style={styles.notificacionCardText}>
+              Tienes <strong>{noLeidas}</strong> notificación{noLeidas !== 1 ? 'es' : ''} sin leer.
+              Haz clic en la campana 🔔 para verlas.
             </p>
+            <div style={styles.notificacionCardActions}>
+              <button 
+                onClick={() => {
+                  // Opcional: abrir el dropdown de notificaciones
+                  // Esto requeriría una referencia al componente NotificacionesCampana
+                  console.log('Abrir notificaciones');
+                }}
+                style={styles.notificacionCardButton}
+              >
+                Ver notificaciones
+              </button>
+            </div>
           </div>
         )}
 
-                {/* Información adicional según el rol */}
+        {/* Información adicional según el rol */}
         {user?.rol === 'patient' && (
           <div style={styles.infoCard}>
             <h3 style={styles.cardTitle}>
@@ -558,8 +582,67 @@ const styles = {
     cursor: 'pointer',
     fontSize: '14px',
     fontWeight: '500',
-    transition: 'all 0.3s'
-  }
+    transition: 'all 0.3s',
+    
+  },
+  notificacionBanner: {
+    backgroundColor: 'var(--color-admin)',
+    color: 'white',
+    padding: '8px 15px',
+    borderRadius: '20px',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '8px',
+    marginTop: '10px',
+    fontSize: '14px',
+  },
+  notificacionIcon: {
+    fontSize: '16px',
+  },
+  notificacionTexto: {
+    color: 'white',
+  },
+  notificacionCard: {
+    backgroundColor: 'var(--bg-secondary)',
+    border: '1px solid var(--color-admin)',
+    borderRadius: '10px',
+    padding: '15px',
+    marginTop: '10px',
+  },
+  notificacionCardHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    marginBottom: '10px',
+  },
+  notificacionCardIcon: {
+    fontSize: '24px',
+  },
+  notificacionCardTitle: {
+    margin: 0,
+    fontSize: '16px',
+    color: 'var(--text-primary)',
+  },
+  notificacionCardText: {
+    margin: '0 0 15px 0',
+    fontSize: '14px',
+    color: 'var(--text-secondary)',
+  },
+  notificacionCardActions: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+  },
+  notificacionCardButton: {
+    backgroundColor: 'var(--color-admin)',
+    color: 'white',
+    padding: '8px 15px',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    fontSize: '13px',
+    transition: 'all 0.3s',
+  },
+
 }
 
 // Añadir animación de spin para el loader
