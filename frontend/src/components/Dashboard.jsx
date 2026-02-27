@@ -341,7 +341,7 @@ function Dashboard() {
                 onClick={() => handleNavigation('/admin?tab=enfermeras')}
                 style={styles.quickLink}
               >
-                👩‍⚕️ Gestionar Enfermeras
+                👩‍⚕️ Gestionar Enfermería
               </button>
               <button 
                 onClick={() => handleNavigation('/admin?tab=citas')}

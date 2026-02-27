@@ -427,7 +427,7 @@ function AdminDashboard() {
           }
           
           response = await axiosInstance.post('enfermeras/', enfermeraData)
-          mostrarMensaje('✅ Enfermera creada correctamente', 'success')
+          mostrarMensaje('✅ Enfermera(o) creada correctamente', 'success')
         }
         // Caso normal: crear directamente
         else {
@@ -475,7 +475,7 @@ function AdminDashboard() {
             especialidad_enfermeria: formData.especialidad_enfermeria,
             numero_licencia: formData.numero_licencia
           })
-          mostrarMensaje('✅ Enfermera actualizada correctamente', 'success')
+          mostrarMensaje('✅ Enfermera(o) actualizada correctamente', 'success')
         }
         // Caso normal
         else {
@@ -619,7 +619,7 @@ function AdminDashboard() {
         <div style={styles.statCard}>
           <FaUserNurse style={styles.statIcon} />
           <div>
-            <h3>Enfermeras</h3>
+            <h3>Enfermería</h3>
             <p>{stats.totalEnfermeras}</p>
           </div>
         </div>
@@ -656,7 +656,7 @@ function AdminDashboard() {
           style={{...styles.tab, ...(activeTab === 'enfermeras' && styles.activeTab)}}
           onClick={() => setActiveTab('enfermeras')}
         >
-          <FaUserNurse /> Enfermeras ({stats.totalEnfermeras})
+          <FaUserNurse /> Enfermería ({stats.totalEnfermeras})
         </button>
         <button
           style={{...styles.tab, ...(activeTab === 'citas' && styles.activeTab)}}
@@ -690,7 +690,7 @@ function AdminDashboard() {
                 <div style={styles.statsList}>
                   <div><span>Administradores:</span> <strong>{usuarios.filter(u => u.rol === 'admin').length}</strong></div>
                   <div><span>Doctores:</span> <strong>{stats.totalDoctores}</strong></div>
-                  <div><span>Enfermeras:</span> <strong>{stats.totalEnfermeras}</strong></div>
+                  <div><span>Enfermeria:</span> <strong>{stats.totalEnfermeras}</strong></div>
                   <div><span>Pacientes:</span> <strong>{stats.totalPacientes}</strong></div>
                 </div>
               </div>
@@ -822,14 +822,14 @@ function AdminDashboard() {
         {activeTab === 'enfermeras' && (
           <div>
             <div style={styles.tableHeader}>
-              <h2 style={styles.sectionTitle}>Gestión de Enfermeras</h2>
+              <h2 style={styles.sectionTitle}>Gestión de Enfermería</h2>
               <button onClick={() => handleCreate('enfermeras')} style={styles.createButton}>
-                <FaPlus /> Nueva Enfermera
+                <FaPlus /> Nueva(o) Enfermera(o)
               </button>
             </div>
             {enfermeras.length === 0 ? (
               <div style={styles.emptyState}>
-                <p>No hay enfermeras registradas</p>
+                <p>No hay enfermera(o)s registrada(o)s</p>
               </div>
             ) : (
               <div style={styles.tableContainer}>
@@ -1181,7 +1181,7 @@ function AdminDashboard() {
                 </>
               )}
 
-              {/* Modal para crear ENFERMERA (usuario + perfil) */}
+              {/* Modal para crear ENFERMER@ (usuario + perfil) */}
               {formData.tipo === 'enfermeras' && (
                 <>
                   <h3 style={styles.modalSubtitle}>Datos de Usuario</h3>

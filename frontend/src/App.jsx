@@ -19,6 +19,28 @@ import AdminDashboard from './components/AdminDashboard';
 import EnfermeriaDashboard from './components/EnfermeriaDashboard';
 import NotificacionesCampana from './components/NotificacionesCampana';
 import ThemeToggle from './components/ThemeToggle';
+import Footer from './components/Footer';  // <-- IMPORTAR FOOTER
+
+const styles = {
+  appContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    minHeight: '100vh',  // Importante para que el footer se pegue abajo
+  },
+  contentContainer: {
+    flex: 1,  // El contenido ocupa todo el espacio disponible
+  },
+  headerBar: {
+    position: 'fixed',
+    top: '20px',
+    right: '20px',
+    zIndex: 1000,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '15px',
+    alignItems: 'flex-end',
+  },
+};
 
 function App() {
   return (
@@ -26,22 +48,27 @@ function App() {
       <AuthProvider>
         <NotificacionesProvider>
           <Router>
-            <div style={styles.headerBar}>
-              <ThemeToggle />
-              <NotificacionesCampana />
-            </div>
-            <div className="App">
-              <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route path="/registro" element={<Registro />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/citas" element={<Citas />} />
-                <Route path="/doctores" element={<Doctores />} />
-                <Route path="/perfil" element={<Perfil />} />
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/enfermeria" element={<EnfermeriaDashboard />} />
-                <Route path="/" element={<Navigate to="/login" />} />
-              </Routes>
+            <div style={styles.appContainer}>
+              <div style={styles.headerBar}>
+                <ThemeToggle />
+                <NotificacionesCampana />
+              </div>
+              
+              <div style={styles.contentContainer}>
+                <Routes>
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/registro" element={<Registro />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/citas" element={<Citas />} />
+                  <Route path="/doctores" element={<Doctores />} />
+                  <Route path="/perfil" element={<Perfil />} />
+                  <Route path="/admin" element={<AdminDashboard />} />
+                  <Route path="/enfermeria" element={<EnfermeriaDashboard />} />
+                  <Route path="/" element={<Navigate to="/login" />} />
+                </Routes>
+              </div>
+
+              <Footer />  {/* <-- FOOTER SIEMPRE VISIBLE */}
             </div>
           </Router>
         </NotificacionesProvider>
@@ -49,18 +76,5 @@ function App() {
     </ThemeProvider>
   );
 }
-
-const styles = {
-  headerBar: {
-    position: 'fixed',
-    top: '20px',
-    right: '20px',
-    zIndex: 1000,
-    display: 'flex',
-    flexDirection: 'column',  // Apilados verticalmente
-    gap: '10px',              // Espacio entre botones
-    alignItems: 'flex-end',   // Alineados a la derecha
-  },
-};
 
 export default App;
