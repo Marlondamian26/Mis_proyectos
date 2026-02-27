@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import axiosInstance from '../services/auth';
-import { useAuth } from './AuthContext'; // Asumiendo que tienes un contexto de autenticación
+import { useAuth } from './AuthContext';
+import { APP_NAME } from '../config/constants';
 
 const NotificacionesContext = createContext();
 
@@ -35,9 +36,9 @@ export const NotificacionesProvider = ({ children }) => {
       
       // Actualizar el título del documento con el contador
       if (noLeidasCount > 0) {
-        document.title = `(${noLeidasCount}) Belkis-saúde`;
+       document.title = `(${noLeidasCount}) ${APP_NAME}`;
       } else {
-        document.title = 'Belkis-saúde';
+       document.title = APP_NAME;
       }
       
     } catch (err) {

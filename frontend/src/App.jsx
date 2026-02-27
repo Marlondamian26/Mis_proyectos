@@ -19,7 +19,8 @@ import AdminDashboard from './components/AdminDashboard';
 import EnfermeriaDashboard from './components/EnfermeriaDashboard';
 import NotificacionesCampana from './components/NotificacionesCampana';
 import ThemeToggle from './components/ThemeToggle';
-import Footer from './components/Footer';  // <-- IMPORTAR FOOTER
+import Footer from './components/Footer'; 
+import { APP_NAME } from './config/constants';
 
 const styles = {
   appContainer: {

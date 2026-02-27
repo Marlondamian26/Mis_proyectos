@@ -247,7 +247,7 @@ function Registro() {
         {/* Logo y título */}
         <div style={styles.header}>
           <FaUserPlus style={styles.headerIcon} />
-          <h1 style={styles.title}>Belkis-saúde</h1>
+          <h1 style={styles.title}>{APP_NAME}</h1>
           <p style={styles.subtitle}>Crear nueva cuenta</p>
         </div>
 

@@ -99,8 +99,8 @@ function Login() {
     <div style={styles.container}>
       <div style={styles.card}>
         <div style={styles.logoContainer}>
-          <h1 style={styles.title}>Belkis-saúde</h1>
-          <p style={styles.subtitle}>Sistema de Gestión de Consultorio</p>
+          <h1 style={styles.title}>{APP_NAME}</h1>
+          <p style={styles.subtitle}>{APP_SLOGAN}</p>
         </div>
 
         {error && (

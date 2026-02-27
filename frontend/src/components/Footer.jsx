@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { FaHeart, FaCode } from 'react-icons/fa';
+import { APP_NAME, APP_VERSION } from '../config/constants';
 
 const Footer = () => {
   const { theme } = useTheme();
@@ -66,8 +67,11 @@ const Footer = () => {
     <footer style={styles.footer}>
       <div style={styles.container}>
         <div style={styles.content}>
+          <p style={styles.text}>
+          © {currentYear} <strong style={{ color: 'var(--text-primary)' }}>{APP_NAME}</strong>.
+          </p>
           <p style={styles.small}>
-            Versión 1.0.0 | Sistema de gestión médica para consultorios y clínicas.
+           Versión {APP_VERSION} | Sistema de gestión médica
           </p>
         </div>
       </div>
