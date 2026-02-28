@@ -1,25 +1,118 @@
 # Belkis-saúde 🏥
 
-**Rama:** belkis-saude  
-**Proyecto:** Sistema de Gestión para Consultorio Médico en Luanda, Angola
+> Sistema de Gestión para Consultorio Médico (Dra. Belkis)
 
-## 📋 Descripción
-Este proyecto es un sistema completo de gestión para el consultorio de la Dra. Belkis. 
-Incluye modelos para pacientes, doctores, enfermeras, citas y horarios.
+Este repositorio contiene la versión activa de la aplicación web que permite
+administrar pacientes, doctores, enfermeras, notificaciones y agendamiento de
+citas en un consultorio médico en Luanda, Angola. El proyecto se compone de un
+backend Django/DRF y un frontend React/Vite.
 
-## 🛠️ Tecnologías
-- Backend: Django 6.0.2, Django REST Framework
-- Base de datos: SQLite (desarrollo)
-- Frontend: React (próximamente)
+---
+## 🧩 Arquitectura
 
-## 🚀 Cómo usar esta rama
-```bash
-git clone https://github.com/MarlonDamian26/mis-proyectos.git
-cd mis-proyectos
-git checkout belkis-saude
+- **backend/** – aplicación Django 6.0 con autenticación JWT, modelos
+dependientes de un usuario personalizado (`usuarios.models.Usuario`), y API
+expuesta vía Django REST Framework. La base de datos de desarrollo es SQLite.
+- **frontend/** – interfaz React (JSX) que consume los endpoints del backend. Usa
+Vite para el bundling; los componentes están en `src/components`.
+- `Notas` – guía de mantenimiento y comandos útiles (reinicio de base, creación
+de superusuario, etc.).
+- `test_*` – scripts Python de prueba que automatizan flujos de usuario (doctor,
+enfermera) contra el API.
+
+---
+## 🚀 Configuración inicial
+
+1. **Clona el repositorio** y cambia a la rama correspondiente:
+   ```bash
+   git clone https://github.com/MarlonDamian26/mis-proyectos.git
+   cd mis-proyectos
+   git checkout belkis-saude
+   ```
+2. **Backend**
+   ```bash
+   cd backend
+   python -m venv venv           # crear entorno virtual
+   .\venv\Scripts\activate     # Windows PowerShell
+   pip install -r requirements.txt
+   python manage.py migrate      # crea tablas en db.sqlite3
+   ```
+3. **Superusuario**
+   ```bash
+   python manage.py createsuperuser
+   # username: belkis_admin   (o usar la comprobación/creación automática)
+   ```
+4. **Frontend** (desde la raíz o carpeta frontend):
+   ```bash
+   cd frontend
+   npm install
+   npm run dev                  # servidor de desarrollo en http://localhost:5173
+   ```
+5. Accede al frontend en el navegador y loguea con el usuario `belkis_admin`.
+
+---
+## 🔄 Reiniciar la plataforma
+
+Si deseas borrar todos los datos y migraciones para comenzar desde cero,
+delegar el proceso al documento `Notas`. Ahí encontrarás comandos paso a paso
+para vaciar la base de datos, regenerar migraciones y recrear el superusuario.
+
+Resumen rápido:
+```powershell
 cd backend
-python -m venv venv
-.\venv\Scripts\activate
-pip install -r requirements.txt
+Remove-Item .\db.sqlite3 -ErrorAction SilentlyContinue
+Remove-Item .\usuarios\migrations\*.py -Exclude __init__.py -ErrorAction SilentlyContinue
+Remove-Item .\notificaciones\migrations\*.py -Exclude __init__.py -ErrorAction SilentlyContinue
+python manage.py makemigrations usuarios notificaciones
 python manage.py migrate
-python manage.py runserver
+python manage.py createsuperuser
+```
+
+---
+## 🧪 Pruebas automatizadas
+
+Hay scripts independientes (`test_doctor_workflow.py`) que ejecutan las siguientes
+tareas contra un servidor en marcha:
+1. crear un doctor/ enfermera desde el administrador REST
+2. iniciar sesión con sus credenciales
+3. acceder y modificar su propio perfil
+4. verificar restricciones de acceso a datos ajenos
+
+Puedes ejecutarlos con:
+```bash
+python test_doctor_workflow.py
+``` 
+
+---
+## 📦 Actualizaciones y dependencias
+
+- Actualiza `requirements.txt` con `pip freeze > requirements.txt` cuando se
+instalen paquetes nuevos.
+- Usa `npm update` o edita `package.json`/`package-lock.json` para el frontend.
+
+---
+## 🌱 Futuro: inteligencia artificial para reservas
+
+Próximamente se planea integrar funciones de IA que ayuden a los pacientes a
+reservar citas de forma inteligente:
+
+- Un asistente conversacional (chatbot) podría sugerir horarios libres según
+  preferencias y urgencia.
+- Un modelo de recomendaciones podría priorizar turnos en base a la especialidad
+del médico y al historial del paciente.
+- Esto requerirá exponer algoritmos/servicios nuevos en el backend y quizá un
+  componente de voz/Texto en el frontend.
+
+Mientras planificamos, considera cómo estructuraremos los datos (por ejemplo,
+almacenar tags de síntomas en las citas) y qué endpoints adicionales necesitaremos
+para entrenar y consultar los modelos.
+
+---
+## 📝 Notas adicionales
+
+El proyecto está en constante evolución; si clonas en otro equipo, sigue las
+instrucciones de la sección **Restauración completa** en `Notas` para dejar el
+entorno listo rápidamente.
+
+¡Gracias por colaborar! cualquier contribución a la documentación o al código es
+bienvenida.

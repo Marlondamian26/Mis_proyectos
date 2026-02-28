@@ -1,152 +1,131 @@
-# Activa el entorno virtual
-# En Windows:
-# .\venv\Scripts\Activate.ps1    o     \venv\Scripts\activate      ----- para activar el entorno
-#deactivate    ----  para salir del entorno
+# # Guía de mantenimiento y reinicio 🧹
+#
+# Este archivo concentra un conjunto de comandos útiles para administrar el proyecto Django y, en particular, para **vaciar la base de datos y volver a partir de cero mientras se conserva al superusuario principal**.
+#
+# ---
+# ## 1. Preparar el entorno
+#
+# 1. Activa el virtualenv (Windows PowerShell):
+#    ```powershell
+#    .\venv\Scripts\Activate.ps1   # o .\venv\Scripts\activate
+#    ```
+# 2. Para salir del entorno:
+#    ```powershell
+#    deactivate
+#    ```
+# 3. Comprueba el servidor/ frontend:
+#    ```powershell
+#    python manage.py runserver     # iniciar backend
+#    Control+C                       # detenerlo
+#    npm run dev                    # arrancar frontend desde `frontend/`
+#    ```
+#
+# ---
+# ## 2. Copias de seguridad opcionales
+#
+# > Antes de hacer cambios drásticos puedes copiar las migraciones:
+#
+# ```powershell
+# Copy-Item -Recurse .\usuarios\migrations .\usuarios\migrations_backup
+# Copy-Item -Recurse .\notificaciones\migrations .\notificaciones\migrations_backup
+# ``` 
+#
+# ---
+# ## 3. Reiniciar la base de datos (borrar todo el contenido)
+#
+# Los siguientes pasos se ejecutan desde la carpeta `backend` con el entorno activado:
+#
+# ```powershell
+# cd C:\Users\Marlon Damián\Belkis-saude\backend
+#
+# # 1. elimina el fichero sqlite
+# Remove-Item .\db.sqlite3 -ErrorAction SilentlyContinue
+#
+# # 2. borra las migraciones generadas de las apps (conservando __init__.py)
+# Remove-Item .\usuarios\migrations\*.py -Exclude __init__.py -ErrorAction SilentlyContinue
+# Remove-Item .\notificaciones\migrations\*.py -Exclude __init__.py -ErrorAction SilentlyContinue
+# # (añade otras apps aquí si las tienes)
+#
+# # 3. asegúrate de que los paquetes de migración existen
+# New-Item -Path .\usuarios\migrations\__init__.py -ItemType File -Force
+# New-Item -Path .\notificaciones\migrations\__init__.py -ItemType File -Force
+#
+# # 4. crea las migraciones desde cero
+# python manage.py makemigrations usuarios notificaciones
+# # repetir para cualquier otra app
+#
+# # 5. aplica todas las migraciones
+# python manage.py migrate
+# ```
+#
+# > Tras estos pasos la base de datos estará completamente limpia, sólo con las tablas vacías.
+#
+# ---
+# ## 4. Superusuario
+#
+# Para conservar a la misma administradora (`belkis_admin`), crea el superusuario si no existe:
+#
+# ```powershell
+# python manage.py shell -c "from django.contrib.auth import get_user_model; User=get_user_model();
+# if not User.objects.filter(username='belkis_admin').exists():
+#     User.objects.create_superuser('belkis_admin', 'belkis@example.com', 'admin123')
+# print('superuser ok')"
+# ```
+#
+# O bien, usa el comando interactivo habitual:
+#
+# ```powershell
+# python manage.py createsuperuser
+# # username: belkis_admin
+# # password: admin123
+# ```
+#
+# ---
+# ## 5. Comprobaciones y tareas recurrentes
+#
+# - Verificar la integridad del proyecto:
+#   ```powershell
+#   python manage.py check
+#   ```
+#
+# - ¿Está el superusuario presente?
+#   ```powershell
+#   python manage.py shell -c "from django.contrib.auth import get_user_model; U=get_user_model();
+#print(U.objects.filter(username='belkis_admin',is_superuser=True).exists())"
+#   ```
+#
+# - Crear migraciones cuando modifiques modelos:
+#   ```powershell
+#   python manage.py makemigrations
+#   python manage.py migrate
+#   ```
+#
+# - Ver rol de un usuario o modificarlo desde shell utilizando el modelo `usuarios.models.Usuario`.
+#
+# ---
+# ## 6. Restauración completa (si cambia de equipo)
+#
+# Si vuelves a clonar el repositorio desde cero:
+#
+# ```powershell
+# git clone <url>
+# cd belkis-saude
+# python -m venv venv
+# .\venv\Scripts\activate
+# pip install -r requirements.txt
+# cd backend
+# python manage.py migrate
+# ```
+#
+# ¡tendrás un entorno idéntico al anterior!
+#
+# ---
+# ## 7. Tips adicionales
+#
+# - Actualiza `requirements.txt` con `pip freeze > requirements.txt` tras instalar nuevas librerías.
+# - El archivo `Notas` se puede referir cada vez que necesites reiniciar la base o revisar comandos comunes.
+#
+# ---
+#
+# ¡Listo! Mantén a mano esta guía y edítala según evolucione el proyecto.
 
-# Asegúrate de que el servidor esté corriendo
-#python manage.py runserver      ------ correr el servidor
-#Ctrl+C      ------ para detener el servidor
-
-#npm run dev   ------ para iniciar el frontend
-
-# 1. Abre la shell
-#python manage.py shell   entrar al shell
-
-#Mantener un archivo requirements.txt
-# Después de instalar todo, guarda las dependencias
-#pip freeze > requirements.txt    ----- actualizar después de instalar cada nueva dependencia
-
-# Para restaurar después:
-#pip install -r requirements.txt
-
-# 3. Verificas que ahora aparece
-#cat requirements.txt
-
-
-
-
-
-#Migraciones:
-# Antes de cambios importantes, copia las migraciones
-#Copy-Item -Recurse .\usuarios\migrations .\usuarios\migrations_backup    ---- copia de migraciones
-
-#PASOS:
-# 1. Asegúrate de estar en la carpeta backend con el entorno virtual activado
-#cd C:\Users\Marlon Damián\Belkis-saude\backend
-
-# 2. Borrar la base de datos actual (opcional - si quieres empezar completamente limpio)
-#Remove-Item .\db.sqlite3 -ErrorAction SilentlyContinue
-
-# 3. Borrar TODAS las migraciones de todas las apps (PERO conserva __init__.py)
-#Remove-Item .\usuarios\migrations\*.py -Exclude __init__.py -ErrorAction SilentlyContinue
-#Remove-Item .\notificaciones\migrations\*.py -Exclude __init__.py -ErrorAction SilentlyContinue
-# Si tienes otras apps, agrégalas aquí
-
-# 4. Asegurar que los __init__.py existen
-#New-Item -Path .\usuarios\migrations\__init__.py -ItemType File -Force
-#New-Item -Path .\notificaciones\migrations\__init__.py -ItemType File -Force
-
-# 5. Crear TODAS las migraciones desde cero
-#python manage.py makemigrations usuarios
-#python manage.py makemigrations notificaciones
-# Si tienes otras apps, haz makemigrations para cada una
-
-# 6. Ver las migraciones pendientes (opcional)
-#python manage.py showmigrations
-
-# 7. Aplicar TODAS las migraciones
-#python manage.py migrate
-
-# 8. Crear superusuario (tu tía)
-#python manage.py createsuperuser
-# Username: belkis_admin
-# Email: (opcional)
-# Password: admin123
-# Password (again): admin123
-
-# 9. Verificar que todo está bien
-#python manage.py check
-
-
-# 10. Verifica si existe el superusuario 'belkis_admin'
-#python manage.py shell -c "from django.contrib.auth import get_user_model; User = get_user_model(); print('Existe' if User.objects.filter(username='belkis_admin', is_superuser=True).exists() else 'No existe')"
-
-
-
-
-
-#Cuando hacer migraciones: Al hacer cambios en código o añadir nuevas librerías,al clonar el repositorio.
-#python manage.py makemigrations  ----- Después de cambiar models.py
-#python manage.py migrate         ----- Después de makemigrations
-
-
-
-
-#Si mañana tu PC explota:
-# 1. Instalar Python
-# 2. Clonar proyecto
-# 3. Crear venv
-#python -m venv venv
-#.\venv\Scripts\activate
-
-# 4. ¡MAGIA! Un comando y todo igual:
-#pip install -r requirements.txt
-
-# 5. Aplicar migraciones
-#python manage.py migrate
-
-# 6. Listo, igual que antes
-
-
-
-
-# ------ Comprobar el rol de ususarios --------
-#python manage.py shell -c "from usuarios.models import Usuario; u=Usuario.objects.get(username='belkis_admin'); print(f'Username: {u.username}, Rol: {u.rol}, Superuser: {u.is_superuser}')"
-
-
-
-# ------ Cambiar el rol a un usuario: ------
-#from usuarios.models import Usuario
-
-# Buscar al usuario
-#usuario = Usuario.objects.get(username='belkis_admin')
-
-# Ver datos actuales
-#print(f"Usuario: {usuario.username}")
-#print(f"Rol actual: {usuario.rol}")
-#print(f"Es superusuario: {usuario.is_superuser}")
-#print(f"Es staff: {usuario.is_staff}")
-
-# Cambiar el rol a admin
-#usuario.rol = 'admin'
-#usuario.save()
-
-#print(f"✅ Nuevo rol: {usuario.rol}")
-
-# Verificar el cambio
-#usuario.refresh_from_db()
-#print(f"Rol verificado: {usuario.rol}")
-
-#exit()
-
-
-
-
-
-
-
-
-
-
-
-#Comandos completos para migraciones limpuas desde cero:
-#cd backend
-#Remove-Item .\db.sqlite3 -ErrorAction SilentlyContinue
-#Remove-Item .\usuarios\migrations\*.py -Exclude __init__.py -ErrorAction SilentlyContinue
-#Remove-Item .\notificaciones\migrations\*.py -Exclude __init__.py -ErrorAction SilentlyContinue
-#New-Item -Path .\usuarios\migrations\__init__.py -ItemType File -Force
-#New-Item -Path .\notificaciones\migrations\__init__.py -ItemType File -Force
-#python manage.py makemigrations usuarios
-#python manage.py makemigrations notificaciones
-#python manage.py migrate
-#python manage.py createsuperuser
