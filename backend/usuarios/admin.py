@@ -123,14 +123,14 @@ class PacienteAdmin(admin.ModelAdmin):
 
 @admin.register(Especialidad)
 class EspecialidadAdmin(admin.ModelAdmin):
-    list_display = ('id', 'nombre', 'tipo', 'activo', 'total_doctores', 'total_enfermeras')
-    list_filter = ('tipo', 'activo')
+    list_display = ('id', 'nombre', 'tipo_especialidad', 'activo', 'total_doctores', 'total_enfermeras')
+    list_filter = ('tipo_especialidad', 'activo')
     search_fields = ('nombre', 'descripcion')
     list_editable = ('activo',)
     
     fieldsets = (
         (None, {
-            'fields': ('nombre', 'descripcion', 'tipo', 'activo')
+            'fields': ('nombre', 'descripcion', 'tipo_especialidad', 'activo')
         }),
     )
     

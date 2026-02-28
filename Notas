@@ -100,10 +100,34 @@
 
 
 
-#Crear super ususarios
+# ------ Comprobar el rol de ususarios --------
 #python manage.py shell -c "from usuarios.models import Usuario; u=Usuario.objects.get(username='belkis_admin'); print(f'Username: {u.username}, Rol: {u.rol}, Superuser: {u.is_superuser}')"
 
 
+
+# ------ Cambiar el rol a un usuario: ------
+#from usuarios.models import Usuario
+
+# Buscar al usuario
+#usuario = Usuario.objects.get(username='belkis_admin')
+
+# Ver datos actuales
+#print(f"Usuario: {usuario.username}")
+#print(f"Rol actual: {usuario.rol}")
+#print(f"Es superusuario: {usuario.is_superuser}")
+#print(f"Es staff: {usuario.is_staff}")
+
+# Cambiar el rol a admin
+#usuario.rol = 'admin'
+#usuario.save()
+
+#print(f"✅ Nuevo rol: {usuario.rol}")
+
+# Verificar el cambio
+#usuario.refresh_from_db()
+#print(f"Rol verificado: {usuario.rol}")
+
+#exit()
 
 
 

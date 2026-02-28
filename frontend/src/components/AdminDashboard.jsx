@@ -75,95 +75,96 @@ function AdminDashboard() {
 
   // Cargar todos los datos
   const loadAllData = async () => {
-    setLoading(true)
-    setLoadingError(null)
-    
-    try {
-      const [
-        usuariosRes,
-        doctoresRes,
-        enfermerasRes,
-        citasRes,
-        especialidadesRes,
-        horariosRes
-      ] = await Promise.allSettled([
-        axiosInstance.get('usuarios/'),
-        axiosInstance.get('doctores/'),
-        axiosInstance.get('enfermeras/'),
-        axiosInstance.get('citas/'),
-        axiosInstance.get('especialidades/'),
-        axiosInstance.get('horarios/')
-      ])
+  setLoading(true)
+  setLoadingError(null)
+  
+  try {
+    const [
+      usuariosRes,
+      doctoresRes,
+      enfermerasRes,
+      citasRes,
+      especialidadesRes,
+      horariosRes
+    ] = await Promise.allSettled([
+      axiosInstance.get('usuarios/'),
+      axiosInstance.get('doctores/'),
+      axiosInstance.get('enfermeras/'),
+      axiosInstance.get('citas/'),
+      axiosInstance.get('especialidades/'),
+      axiosInstance.get('horarios/')
+    ])
 
-      // Procesar usuarios
-      if (usuariosRes.status === 'fulfilled') {
-        const data = Array.isArray(usuariosRes.value.data) ? usuariosRes.value.data : []
-        setUsuarios(data)
-      } else {
-        console.error('Error cargando usuarios:', usuariosRes.reason)
-        setUsuarios([])
-      }
-
-      // Procesar doctores
-      if (doctoresRes.status === 'fulfilled') {
-        const data = Array.isArray(doctoresRes.value.data) ? doctoresRes.value.data : []
-        setDoctores(data)
-      } else {
-        console.error('Error cargando doctores:', doctoresRes.reason)
-        setDoctores([])
-      }
-
-      // Procesar enfermeras
-      if (enfermerasRes.status === 'fulfilled') {
-        const data = Array.isArray(enfermerasRes.value.data) ? enfermerasRes.value.data : []
-        setEnfermeras(data)
-      } else {
-        console.error('Error cargando enfermeras:', enfermerasRes.reason)
-        setEnfermeras([])
-      }
-
-      // Procesar citas
-      if (citasRes.status === 'fulfilled') {
-        const data = Array.isArray(citasRes.value.data) ? citasRes.value.data : []
-        setCitas(data)
-      } else {
-        console.error('Error cargando citas:', citasRes.reason)
-        setCitas([])
-      }
-
-      // Procesar especialidades
-      if (especialidadesRes.status === 'fulfilled') {
-        const data = Array.isArray(especialidadesRes.value.data) ? especialidadesRes.value.data : []
-        setEspecialidades(data)
-      } else {
-        console.error('Error cargando especialidades:', especialidadesRes.reason)
-        setEspecialidades([])
-      }
-
-      // Procesar horarios
-      if (horariosRes.status === 'fulfilled') {
-        const data = Array.isArray(horariosRes.value.data) ? horariosRes.value.data : []
-        setHorarios(data)
-      } else {
-        console.error('Error cargando horarios:', horariosRes.reason)
-        setHorarios([])
-      }
-
-      // Calcular estadísticas
-      calcularEstadisticas(
-        usuariosRes.status === 'fulfilled' ? usuariosRes.value.data : [],
-        doctoresRes.status === 'fulfilled' ? doctoresRes.value.data : [],
-        enfermerasRes.status === 'fulfilled' ? enfermerasRes.value.data : [],
-        citasRes.status === 'fulfilled' ? citasRes.value.data : []
-      )
-
-    } catch (error) {
-      console.error('Error general cargando datos:', error)
-      setLoadingError('Error al cargar los datos. Intenta recargar la página.')
-    } finally {
-      setLoading(false)
+    // ✅ Usuarios (con paginación)
+    if (usuariosRes.status === 'fulfilled') {
+      const responseData = usuariosRes.value.data
+      const data = responseData.results || responseData || []
+      console.log('👥 Usuarios cargados:', data.length)
+      setUsuarios(data)
+    } else {
+      setUsuarios([])
     }
+
+    // ✅ Doctores (con paginación)
+    if (doctoresRes.status === 'fulfilled') {
+      const responseData = doctoresRes.value.data
+      const data = responseData.results || responseData || []
+      console.log('👨‍⚕️ Doctores cargados:', data.length)
+      setDoctores(data)
+    } else {
+      setDoctores([])
+    }
+
+    // ✅ Enfermeras (con paginación)
+    if (enfermerasRes.status === 'fulfilled') {
+      const responseData = enfermerasRes.value.data
+      const data = responseData.results || responseData || []
+      console.log('👩‍⚕️ Enfermeras cargadas:', data.length)
+      setEnfermeras(data)
+    } else {
+      setEnfermeras([])
+    }
+
+    // ✅ Citas (con paginación)
+    if (citasRes.status === 'fulfilled') {
+      const responseData = citasRes.value.data
+      const data = responseData.results || responseData || []
+      console.log('📅 Citas cargadas:', data.length)
+      setCitas(data)
+    } else {
+      setCitas([])
+    }
+
+    // ✅ Especialidades (con paginación) - YA CORREGIDO
+    if (especialidadesRes.status === 'fulfilled') {
+      const responseData = especialidadesRes.value.data
+      const data = responseData.results || responseData || []
+      console.log('🔬 Especialidades cargadas:', data.length)
+      setEspecialidades(data)
+    } else {
+      setEspecialidades([])
+    }
+
+    // ✅ Horarios (con paginación)
+    if (horariosRes.status === 'fulfilled') {
+      const responseData = horariosRes.value.data
+      const data = responseData.results || responseData || []
+      console.log('⏰ Horarios cargados:', data.length)
+      setHorarios(data)
+    } else {
+      setHorarios([])
+    }
+
+    // Calcular estadísticas
+    calcularEstadisticas(usuarios, doctores, enfermeras, citas)
+
+  } catch (error) {
+    console.error('Error general:', error)
+    setLoadingError('Error al cargar los datos')
+  } finally {
+    setLoading(false)
   }
+}
 
   // Calcular estadísticas
   const calcularEstadisticas = (usuarios, doctores, enfermeras, citas) => {

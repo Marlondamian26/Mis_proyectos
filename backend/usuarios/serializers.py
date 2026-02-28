@@ -31,7 +31,7 @@ class RegistroUsuarioSerializer(serializers.ModelSerializer):
 class EspecialidadSerializer(serializers.ModelSerializer):
     class Meta:
         model = Especialidad
-        fields = ['id', 'nombre', 'descripcion', 'tipo', 'activo']
+        fields = ['id', 'nombre', 'descripcion', 'tipo_especialidad', 'activo']
         read_only_fields = ['id']
 
 

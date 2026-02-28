@@ -79,7 +79,7 @@ class Especialidad(models.Model):
     
     nombre = models.CharField(max_length=100, unique=True)
     descripcion = models.TextField(blank=True)
-    tipo = models.CharField(
+    tipo_especialidad = models.CharField(
         max_length=20,
         choices=TIPO_ESPECIALIDAD,
         default='medica',

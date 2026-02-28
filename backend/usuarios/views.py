@@ -102,7 +102,7 @@ class EspecialidadViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def medicas(self, request):
         """Filtrar solo especialidades médicas"""
-        especialidades = self.queryset.filter(tipo__in=['medica', 'ambas'], activo=True)
+        especialidades = self.queryset.filter(tipo_especialidad='medica', activo=True)  
         serializer = self.get_serializer(especialidades, many=True)
         return Response(serializer.data)
     
