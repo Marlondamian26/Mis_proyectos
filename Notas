@@ -96,3 +96,33 @@
 #python manage.py migrate
 
 # 6. Listo, igual que antes
+
+
+
+
+#Crear super ususarios
+#python manage.py shell -c "from usuarios.models import Usuario; u=Usuario.objects.get(username='belkis_admin'); print(f'Username: {u.username}, Rol: {u.rol}, Superuser: {u.is_superuser}')"
+
+
+
+
+
+
+
+
+
+
+
+
+
+#Comandos completos para migraciones limpuas desde cero:
+#cd backend
+#Remove-Item .\db.sqlite3 -ErrorAction SilentlyContinue
+#Remove-Item .\usuarios\migrations\*.py -Exclude __init__.py -ErrorAction SilentlyContinue
+#Remove-Item .\notificaciones\migrations\*.py -Exclude __init__.py -ErrorAction SilentlyContinue
+#New-Item -Path .\usuarios\migrations\__init__.py -ItemType File -Force
+#New-Item -Path .\notificaciones\migrations\__init__.py -ItemType File -Force
+#python manage.py makemigrations usuarios
+#python manage.py makemigrations notificaciones
+#python manage.py migrate
+#python manage.py createsuperuser

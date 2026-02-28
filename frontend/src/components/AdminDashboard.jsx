@@ -247,10 +247,10 @@ function AdminDashboard() {
       })
     } else if (tipo === 'especialidades') {
       setFormData({
-        ...baseForm,
+        tipo: 'especialidades', 
         nombre: '',
         descripcion: '',
-        tipo: 'medica',
+        tipo_especialidad: 'medica',
         activo: true
       })
     } else if (tipo === 'horarios') {
@@ -369,165 +369,167 @@ function AdminDashboard() {
 
   // Guardar (crear o actualizar)
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setSaving(true)
-    setErrorBackend('')
-    
-    console.log('📤 Enviando formulario:', formData)
+  e.preventDefault()
+  setSaving(true)
+  setErrorBackend('')
+  
+  console.log('📤 Enviando formulario:', formData)
 
-    try {
-      const tipo = formData.tipo
+  try {
+    const tipo = formData.tipo
 
-      if (modalMode === 'create') {
-        if (tipo === 'doctores') {
-          // Crear usuario primero
-          const usuarioData = {
-            username: formData.username,
-            password: formData.password,
-            first_name: formData.first_name,
-            last_name: formData.last_name,
-            email: formData.email || '',
-            telefono: formData.telefono || '',
-            rol: 'doctor'
-          }
-          console.log('👉 Creando usuario:', usuarioData)
-          
-          const usuarioRes = await axiosInstance.post('usuarios/', usuarioData)
-          const nuevoUsuario = usuarioRes.data
-          console.log('✅ Usuario creado:', nuevoUsuario)
-          
-          // Crear perfil de doctor
-          const doctorData = {
-            usuario: nuevoUsuario.id,
-            especialidad: formData.especialidad || null,
-            otra_especialidad: formData.otra_especialidad || '',
-            biografia: formData.biografia || ''
-          }
-          console.log('👉 Creando doctor:', doctorData)
-          
-          const doctorRes = await axiosInstance.post('doctores/', doctorData)
-          console.log('✅ Doctor creado:', doctorRes.data)
-          mostrarMensaje('✅ Doctor creado correctamente', 'success')
+    if (modalMode === 'create') {
+      if (tipo === 'doctores') {
+        // Crear usuario primero
+        const usuarioData = {
+          username: formData.username,
+          password: formData.password,
+          first_name: formData.first_name,
+          last_name: formData.last_name,
+          email: formData.email || '',
+          telefono: formData.telefono || '',
+          rol: 'doctor'
         }
-        else if (tipo === 'enfermeras') {
-          // Crear usuario primero
-          const usuarioData = {
-            username: formData.username,
-            password: formData.password,
-            first_name: formData.first_name,
-            last_name: formData.last_name,
-            email: formData.email || '',
-            telefono: formData.telefono || '',
-            rol: 'nurse'
-          }
-          console.log('👉 Creando usuario:', usuarioData)
-          
-          const usuarioRes = await axiosInstance.post('usuarios/', usuarioData)
-          const nuevoUsuario = usuarioRes.data
-          console.log('✅ Usuario creado:', nuevoUsuario)
-          
-          // Crear perfil de enfermera
-          const enfermeraData = {
-            usuario: nuevoUsuario.id,
-            especialidad: formData.especialidad || null,
-            otra_especialidad: formData.otra_especialidad || '',
-            numero_licencia: formData.numero_licencia || ''
-          }
-          console.log('👉 Creando enfermera:', enfermeraData)
-          
-          const enfermeraRes = await axiosInstance.post('enfermeras/', enfermeraData)
-          console.log('✅ Enfermera creada:', enfermeraRes.data)
-          mostrarMensaje('✅ Enfermera creada correctamente', 'success')
-        }
-        else {
-          const response = await axiosInstance.post(`${tipo}/`, formData)
-          console.log('✅ Creado:', response.data)
-          mostrarMensaje(`✅ ${tipo} creado correctamente`, 'success')
-        }
-      }
-      else if (modalMode === 'edit') {
-        if (tipo === 'doctores') {
-          // Actualizar usuario
-          if (selectedItem.usuario) {
-            const usuarioData = {
-              first_name: formData.first_name,
-              last_name: formData.last_name,
-              email: formData.email || '',
-              telefono: formData.telefono || ''
-            }
-            await axiosInstance.patch(`usuarios/${selectedItem.usuario.id}/`, usuarioData)
-          }
-          
-          // Actualizar perfil de doctor
-          const doctorData = {
-            especialidad: formData.especialidad || null,
-            otra_especialidad: formData.otra_especialidad || '',
-            biografia: formData.biografia || ''
-          }
-          const response = await axiosInstance.patch(`${tipo}/${selectedItem.id}/`, doctorData)
-          console.log('✅ Doctor actualizado:', response.data)
-          mostrarMensaje('✅ Doctor actualizado correctamente', 'success')
-        }
-        else if (tipo === 'enfermeras') {
-          // Actualizar usuario
-          if (selectedItem.usuario) {
-            const usuarioData = {
-              first_name: formData.first_name,
-              last_name: formData.last_name,
-              email: formData.email || '',
-              telefono: formData.telefono || ''
-            }
-            await axiosInstance.patch(`usuarios/${selectedItem.usuario.id}/`, usuarioData)
-          }
-          
-          // Actualizar perfil de enfermera
-          const enfermeraData = {
-            especialidad: formData.especialidad || null,
-            otra_especialidad: formData.otra_especialidad || '',
-            numero_licencia: formData.numero_licencia || ''
-          }
-          const response = await axiosInstance.patch(`${tipo}/${selectedItem.id}/`, enfermeraData)
-          console.log('✅ Enfermera actualizada:', response.data)
-          mostrarMensaje('✅ Enfermera actualizada correctamente', 'success')
-        }
-        else {
-          const response = await axiosInstance.patch(`${tipo}/${selectedItem.id}/`, formData)
-          console.log('✅ Actualizado:', response.data)
-          mostrarMensaje(`✅ ${tipo} actualizado correctamente`, 'success')
-        }
-      }
-      
-      setShowModal(false)
-      await loadAllData()
-    } catch (error) {
-      console.error('❌ Error en handleSubmit:', error)
-      
-      if (error.response) {
-        console.error('Detalles del error:', error.response.data)
-        console.error('Status:', error.response.status)
+        console.log('👉 Creando usuario:', usuarioData)
         
-        let errorMsg = ''
-        if (typeof error.response.data === 'object') {
-          errorMsg = Object.entries(error.response.data)
-            .map(([campo, msg]) => `${campo}: ${Array.isArray(msg) ? msg.join(', ') : msg}`)
-            .join('\n')
-        } else {
-          errorMsg = error.response.data
-        }
+        const usuarioRes = await axiosInstance.post('usuarios/', usuarioData)
+        const nuevoUsuario = usuarioRes.data
+        console.log('✅ Usuario creado:', nuevoUsuario)
         
-        setErrorBackend(errorMsg)
-        mostrarMensaje(`Error ${error.response.status}: ${errorMsg}`, 'error')
-      } else if (error.request) {
-        setErrorBackend('No hubo respuesta del servidor')
-        mostrarMensaje('No se pudo conectar con el servidor', 'error')
-      } else {
-        setErrorBackend('Error al enviar los datos')
-        mostrarMensaje('Error al enviar los datos', 'error')
+        // Crear perfil de doctor
+        const doctorData = {
+          usuario_id: nuevoUsuario.id,
+          especialidad: formData.especialidad || null,
+          otra_especialidad: formData.otra_especialidad || '',
+          biografia: formData.biografia || ''
+        }
+        console.log('👉 Creando doctor:', doctorData)
+        
+        const doctorRes = await axiosInstance.post('doctores/', doctorData)
+        console.log('✅ Doctor creado:', doctorRes.data)
+        mostrarMensaje('✅ Doctor creado correctamente', 'success')
       }
-    } finally {
-      setSaving(false)
+      else if (tipo === 'enfermeras') {
+        // Crear usuario primero
+        const usuarioData = {
+          username: formData.username,
+          password: formData.password,
+          first_name: formData.first_name,
+          last_name: formData.last_name,
+          email: formData.email || '',
+          telefono: formData.telefono || '',
+          rol: 'nurse'
+        }
+        console.log('👉 Creando usuario:', usuarioData)
+        
+        const usuarioRes = await axiosInstance.post('usuarios/', usuarioData)
+        const nuevoUsuario = usuarioRes.data
+        console.log('✅ Usuario creado:', nuevoUsuario)
+        
+        // Crear perfil de enfermera
+        const enfermeraData = {
+          usuario_id: nuevoUsuario.id,
+          especialidad: formData.especialidad || null,
+          otra_especialidad: formData.otra_especialidad || '',
+          numero_licencia: formData.numero_licencia || ''
+        }
+        console.log('👉 Creando enfermera:', enfermeraData)
+        
+        const enfermeraRes = await axiosInstance.post('enfermeras/', enfermeraData)
+        console.log('✅ Enfermera creada:', enfermeraRes.data)
+        mostrarMensaje('✅ Enfermera creada correctamente', 'success')
+      }
+      else {
+        // ✅ ESTA ES LA PARTE QUE SE EJECUTA PARA especialidades, usuarios, citas, horarios
+        // ✅ Usa formData.tipo que DEBE ser 'especialidades', 'usuarios', 'citas', 'horarios'
+        const response = await axiosInstance.post(`${tipo}/`, formData)
+        console.log('✅ Creado:', response.data)
+        mostrarMensaje(`✅ ${tipo} creado correctamente`, 'success')
+      }
     }
+    else if (modalMode === 'edit') {
+      if (tipo === 'doctores') {
+        // Actualizar usuario
+        if (selectedItem.usuario) {
+          const usuarioData = {
+            first_name: formData.first_name,
+            last_name: formData.last_name,
+            email: formData.email || '',
+            telefono: formData.telefono || ''
+          }
+          await axiosInstance.patch(`usuarios/${selectedItem.usuario.id}/`, usuarioData)
+        }
+        
+        // Actualizar perfil de doctor
+        const doctorData = {
+          especialidad: formData.especialidad || null,
+          otra_especialidad: formData.otra_especialidad || '',
+          biografia: formData.biografia || ''
+        }
+        const response = await axiosInstance.patch(`${tipo}/${selectedItem.id}/`, doctorData)
+        console.log('✅ Doctor actualizado:', response.data)
+        mostrarMensaje('✅ Doctor actualizado correctamente', 'success')
+      }
+      else if (tipo === 'enfermeras') {
+        // Actualizar usuario
+        if (selectedItem.usuario) {
+          const usuarioData = {
+            first_name: formData.first_name,
+            last_name: formData.last_name,
+            email: formData.email || '',
+            telefono: formData.telefono || ''
+          }
+          await axiosInstance.patch(`usuarios/${selectedItem.usuario.id}/`, usuarioData)
+        }
+        
+        // Actualizar perfil de enfermera
+        const enfermeraData = {
+          especialidad: formData.especialidad || null,
+          otra_especialidad: formData.otra_especialidad || '',
+          numero_licencia: formData.numero_licencia || ''
+        }
+        const response = await axiosInstance.patch(`${tipo}/${selectedItem.id}/`, enfermeraData)
+        console.log('✅ Enfermera actualizada:', response.data)
+        mostrarMensaje('✅ Enfermera actualizada correctamente', 'success')
+      }
+      else {
+        const response = await axiosInstance.patch(`${tipo}/${selectedItem.id}/`, formData)
+        console.log('✅ Actualizado:', response.data)
+        mostrarMensaje(`✅ ${tipo} actualizado correctamente`, 'success')
+      }
+    }
+    
+    setShowModal(false)
+    await loadAllData()
+  } catch (error) {
+    console.error('❌ Error en handleSubmit:', error)
+    
+    if (error.response) {
+      console.error('Detalles del error:', error.response.data)
+      console.error('Status:', error.response.status)
+      
+      let errorMsg = ''
+      if (typeof error.response.data === 'object') {
+        errorMsg = Object.entries(error.response.data)
+          .map(([campo, msg]) => `${campo}: ${Array.isArray(msg) ? msg.join(', ') : msg}`)
+          .join('\n')
+      } else {
+        errorMsg = error.response.data
+      }
+      
+      setErrorBackend(errorMsg)
+      mostrarMensaje(`Error ${error.response.status}: ${errorMsg}`, 'error')
+    } else if (error.request) {
+      setErrorBackend('No hubo respuesta del servidor')
+      mostrarMensaje('No se pudo conectar con el servidor', 'error')
+    } else {
+      setErrorBackend('Error al enviar los datos')
+      mostrarMensaje('Error al enviar los datos', 'error')
+    }
+  } finally {
+    setSaving(false)
   }
+}
 
   // Cerrar modal
   const handleCloseModal = () => {
@@ -822,7 +824,7 @@ function AdminDashboard() {
                         <td>Dr. {doctor.usuario?.first_name} {doctor.usuario?.last_name}</td>
                         <td>
                           {doctor.especialidad_nombre || doctor.otra_especialidad || '-'}
-                          {doctor.otra_especialidad && ' (nueva)'}
+                          {doctor.otra_especialidad && !doctor.especialidad_nombre && ' ✏️'}
                         </td>
                         <td>{doctor.usuario?.email || '-'}</td>
                         <td>{doctor.usuario?.telefono || '-'}</td>
@@ -880,7 +882,7 @@ function AdminDashboard() {
                         <td>Enf. {enfermera.usuario?.first_name} {enfermera.usuario?.last_name}</td>
                         <td>
                           {enfermera.especialidad_nombre || enfermera.otra_especialidad || 'General'}
-                          {enfermera.otra_especialidad && ' (nueva)'}
+                          {enfermera.otra_especialidad && !enfermera.especialidad_nombre && ' ✏️'}
                         </td>
                         <td>{enfermera.numero_licencia || '-'}</td>
                         <td>{enfermera.usuario?.email || '-'}</td>
@@ -1116,7 +1118,109 @@ function AdminDashboard() {
             )}
             
             <form onSubmit={handleSubmit}>
-              {/* Modal para crear DOCTOR */}
+              {/* Modal para USUARIOS */}
+              {formData.tipo === 'usuarios' && (
+                <>
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>Username *</label>
+                    <input
+                      type="text"
+                      name="username"
+                      value={formData.username || ''}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={styles.input}
+                      required
+                    />
+                  </div>
+
+                  {modalMode === 'create' && (
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>Contraseña *</label>
+                      <input
+                        type="password"
+                        name="password"
+                        value={formData.password || ''}
+                        onChange={handleInputChange}
+                        style={styles.input}
+                        required
+                        minLength="4"
+                      />
+                    </div>
+                  )}
+
+                  <div style={styles.formRow}>
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>Nombre *</label>
+                      <input
+                        type="text"
+                        name="first_name"
+                        value={formData.first_name || ''}
+                        onChange={handleInputChange}
+                        disabled={modalMode === 'view'}
+                        style={styles.input}
+                        required
+                      />
+                    </div>
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>Apellido *</label>
+                      <input
+                        type="text"
+                        name="last_name"
+                        value={formData.last_name || ''}
+                        onChange={handleInputChange}
+                        disabled={modalMode === 'view'}
+                        style={styles.input}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>Email (opcional)</label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email || ''}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={styles.input}
+                    />
+                  </div>
+
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>Teléfono (opcional)</label>
+                    <input
+                      type="text"
+                      name="telefono"
+                      value={formData.telefono || ''}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={styles.input}
+                      placeholder="+244 XXX XXX XXX"
+                    />
+                  </div>
+
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>Rol *</label>
+                    <select
+                      name="rol"
+                      value={formData.rol || 'patient'}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={styles.select}
+                      required
+                    >
+                      <option value="patient">Paciente</option>
+                      <option value="doctor">Doctor</option>
+                      <option value="nurse">Enfermera</option>
+                      <option value="admin">Administrador</option>
+                    </select>
+                  </div>
+                </>
+              )}
+
+              {/* Modal para DOCTOR */}
               {formData.tipo === 'doctores' && (
                 <>
                   <h3 style={styles.modalSubtitle}>Datos de Usuario</h3>
@@ -1250,7 +1354,7 @@ function AdminDashboard() {
                 </>
               )}
 
-              {/* Modal para crear ENFERMERA */}
+              {/* Modal para ENFERMERA */}
               {formData.tipo === 'enfermeras' && (
                 <>
                   <h3 style={styles.modalSubtitle}>Datos de Usuario</h3>
@@ -1382,6 +1486,117 @@ function AdminDashboard() {
                 </>
               )}
 
+              {/* Modal para CITAS */}
+              {formData.tipo === 'citas' && (
+                <>
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>Paciente *</label>
+                    <select
+                      name="paciente"
+                      value={formData.paciente || ''}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={styles.select}
+                      required
+                    >
+                      <option value="">Seleccionar paciente</option>
+                      {usuarios.filter(u => u.rol === 'patient').map(u => (
+                        <option key={u.id} value={u.id}>
+                          {u.first_name} {u.last_name} - {u.username}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>Doctor *</label>
+                    <select
+                      name="doctor"
+                      value={formData.doctor || ''}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={styles.select}
+                      required
+                    >
+                      <option value="">Seleccionar doctor</option>
+                      {doctores.map(d => (
+                        <option key={d.id} value={d.id}>
+                          Dr. {d.usuario?.first_name} {d.usuario?.last_name} - {d.especialidad_nombre || d.otra_especialidad || 'Especialidad no especificada'}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div style={styles.formRow}>
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>Fecha *</label>
+                      <input
+                        type="date"
+                        name="fecha"
+                        value={formData.fecha || ''}
+                        onChange={handleInputChange}
+                        disabled={modalMode === 'view'}
+                        style={styles.input}
+                        min={new Date().toISOString().split('T')[0]}
+                        required
+                      />
+                    </div>
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>Hora *</label>
+                      <input
+                        type="time"
+                        name="hora"
+                        value={formData.hora || ''}
+                        onChange={handleInputChange}
+                        disabled={modalMode === 'view'}
+                        style={styles.input}
+                        required
+                      />
+                    </div>
+                  </div>
+                  
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>Estado *</label>
+                    <select
+                      name="estado"
+                      value={formData.estado || 'pendiente'}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={styles.select}
+                    >
+                      <option value="pendiente">🟡 Pendiente</option>
+                      <option value="confirmada">🟢 Confirmada</option>
+                      <option value="completada">🔵 Completada</option>
+                      <option value="cancelada">🔴 Cancelada</option>
+                      <option value="no_asistio">⚫ No Asistió</option>
+                    </select>
+                  </div>
+                  
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>Motivo de la consulta (opcional)</label>
+                    <textarea
+                      name="motivo"
+                      value={formData.motivo || ''}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={styles.textarea}
+                      rows="3"
+                      placeholder="Describe el motivo de la consulta..."
+                    />
+                  </div>
+                  
+                  {modalMode === 'view' && selectedItem && (
+                    <div style={styles.infoCard}>
+                      <p><strong>📋 Historial de la cita:</strong></p>
+                      <p>📅 Creada: {new Date(selectedItem?.fecha_creacion).toLocaleString()}</p>
+                      {selectedItem?.fecha_actualizacion && (
+                        <p>🔄 Última actualización: {new Date(selectedItem.fecha_actualizacion).toLocaleString()}</p>
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
+
               {/* Modal para ESPECIALIDADES */}
               {formData.tipo === 'especialidades' && (
                 <>
@@ -1401,15 +1616,15 @@ function AdminDashboard() {
                   <div style={styles.formGroup}>
                     <label style={styles.label}>Tipo *</label>
                     <select
-                      name="tipo"
+                      name="tipo_especialidad"
                       value={formData.tipo || 'medica'}
                       onChange={handleInputChange}
                       disabled={modalMode === 'view'}
                       style={styles.select}
                     >
-                      <option value="medica">🔬 Especialidad Médica</option>
-                      <option value="enfermeria">💉 Especialidad de Enfermería</option>
-                      <option value="ambas">🔄 Ambos tipos</option>
+                      <option value="medica">🔬 Médica</option>
+                      <option value="enfermeria">💉 Enfermería</option>
+                      <option value="ambas">🔄 Ambas</option>
                     </select>
                   </div>
                   
@@ -1422,6 +1637,7 @@ function AdminDashboard() {
                       disabled={modalMode === 'view'}
                       style={styles.textarea}
                       rows="3"
+                      placeholder="Describe la especialidad..."
                     />
                   </div>
                   
@@ -1439,8 +1655,85 @@ function AdminDashboard() {
                 </>
               )}
 
-              {/* Resto de modales (Usuarios, Citas, Horarios) se mantienen igual */}
-              {/* ... */}
+              {/* Modal para HORARIOS */}
+              {formData.tipo === 'horarios' && (
+                <>
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>Doctor *</label>
+                    <select
+                      name="doctor"
+                      value={formData.doctor || ''}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={styles.select}
+                      required
+                    >
+                      <option value="">Seleccionar doctor</option>
+                      {doctores.map(d => (
+                        <option key={d.id} value={d.id}>
+                          Dr. {d.usuario?.first_name} {d.usuario?.last_name} - {d.especialidad_nombre || d.otra_especialidad || 'Especialidad no especificada'}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>Día de la semana *</label>
+                    <select
+                      name="dia_semana"
+                      value={formData.dia_semana || 0}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={styles.select}
+                    >
+                      <option value="0">Lunes</option>
+                      <option value="1">Martes</option>
+                      <option value="2">Miércoles</option>
+                      <option value="3">Jueves</option>
+                      <option value="4">Viernes</option>
+                      <option value="5">Sábado</option>
+                      <option value="6">Domingo</option>
+                    </select>
+                  </div>
+                  
+                  <div style={styles.formRow}>
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>Hora inicio *</label>
+                      <input
+                        type="time"
+                        name="hora_inicio"
+                        value={formData.hora_inicio || '09:00'}
+                        onChange={handleInputChange}
+                        disabled={modalMode === 'view'}
+                        style={styles.input}
+                      />
+                    </div>
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>Hora fin *</label>
+                      <input
+                        type="time"
+                        name="hora_fin"
+                        value={formData.hora_fin || '17:00'}
+                        onChange={handleInputChange}
+                        disabled={modalMode === 'view'}
+                        style={styles.input}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div style={styles.formGroup}>
+                    <label style={styles.checkboxLabel}>
+                      <input
+                        type="checkbox"
+                        name="activo"
+                        checked={formData.activo || false}
+                        onChange={handleInputChange}
+                        disabled={modalMode === 'view'}
+                      /> Activo
+                    </label>
+                  </div>
+                </>
+              )}
 
               {modalMode !== 'view' && (
                 <div style={styles.modalButtons}>
