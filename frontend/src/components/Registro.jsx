@@ -5,6 +5,7 @@ import {
   FaUser, FaEnvelope, FaPhone, FaLock, FaEye, FaEyeSlash,
   FaCheckCircle, FaExclamationTriangle, FaSpinner, FaUserPlus
 } from 'react-icons/fa'
+import { APP_NAME, APP_SLOGAN } from '../config/constants'
 
 function Registro() {
   const [formData, setFormData] = useState({
