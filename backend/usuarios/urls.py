@@ -20,5 +20,14 @@ urlpatterns = [
     path('registro/', views.registro_usuario, name='registro'),
     path('usuario-actual/', views.usuario_actual, name='usuario_actual'),
     path('cambiar-contrasena/', views.cambiar_contrasena, name='cambiar_contrasena'),
+    
+    # Rutas públicas (que todos los usuarios autenticados pueden ver)
+    path('especialidades-publicas/', views.especialidades_publicas, name='especialidades_publicas'),
+    path('doctores-publicos/', views.doctores_publicos, name='doctores_publicos'),
+    path('mis-citas/', views.mis_citas, name='mis_citas'),
+    
+    # Rutas de perfil personal para doctores y enfermeras
+    path('mi-perfil-doctor/', views.mi_perfil_doctor, name='mi_perfil_doctor'),
+    path('mi-perfil-enfermera/', views.mi_perfil_enfermera, name='mi_perfil_enfermera'),
 
 ]

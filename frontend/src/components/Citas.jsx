@@ -37,9 +37,9 @@ function Citas() {
 
   const fetchCitas = async () => {
     try {
-      const response = await axiosInstance.get('citas/')
+      const response = await axiosInstance.get('mis-citas/')
       // Asegurar que siempre sea un array
-      const citasData = Array.isArray(response.data) ? response.data : []
+      const citasData = Array.isArray(response.data) ? response.data : response.data.results || []
       setCitas(citasData)
     } catch (error) {
       console.error('Error cargando citas:', error)
@@ -52,8 +52,8 @@ function Citas() {
 
   const fetchDoctores = async () => {
     try {
-      const response = await axiosInstance.get('doctores/')
-      const doctoresData = Array.isArray(response.data) ? response.data : []
+      const response = await axiosInstance.get('doctores-publicos/')
+      const doctoresData = Array.isArray(response.data) ? response.data : response.data.results || []
       setDoctores(doctoresData)
     } catch (error) {
       console.error('Error cargando doctores:', error)

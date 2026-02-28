@@ -7,14 +7,19 @@ function Dashboard() {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [stats, setStats] = useState({
+    totalCitas: 0,
+    citasProximas: 0,
+    especialidades: 0,
+    doctores: 0
+  })
   const navigate = useNavigate()
-  const { noLeidas } = useNotificaciones();  // ⬅️ ESTO YA LO TENÍAS
+  const { noLeidas } = useNotificaciones();
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchData = async () => {
       const token = localStorage.getItem('access_token')
       
-      // Verificar si hay token
       if (!token) {
         console.log('No hay token, redirigiendo a login')
         navigate('/login')
@@ -24,12 +29,13 @@ function Dashboard() {
       try {
         console.log('Obteniendo datos del usuario...')
         const response = await axiosInstance.get('usuario-actual/')
-        console.log('Respuesta del servidor:', response.data)
         
-        // Verificar que response.data existe y tiene los campos esperados
         if (response.data && response.data.username) {
           setUser(response.data)
           setError('')
+          
+          // Cargar datos adicionales según el rol
+          await loadAdditionalData(response.data.rol)
         } else {
           console.error('Respuesta inválida del servidor:', response.data)
           setError('Error al cargar los datos del usuario')
@@ -37,14 +43,11 @@ function Dashboard() {
       } catch (err) {
         console.error('Error detallado:', err)
         
-        // Manejar diferentes tipos de error
         if (err.response) {
-          // El servidor respondió con un error
           console.error('Respuesta de error:', err.response.data)
           console.error('Status:', err.response.status)
           
           if (err.response.status === 401) {
-            // Token inválido o expirado
             console.log('Token inválido, eliminando...')
             localStorage.removeItem('access_token')
             localStorage.removeItem('refresh_token')
@@ -54,11 +57,9 @@ function Dashboard() {
             setError(`Error del servidor: ${err.response.status}`)
           }
         } else if (err.request) {
-          // No se recibió respuesta
           console.error('No hubo respuesta del servidor')
           setError('No se pudo conectar con el servidor. Verifica que el backend esté corriendo.')
         } else {
-          // Error en la configuración de la petición
           console.error('Error en la petición:', err.message)
           setError('Error al conectar con el servidor')
         }
@@ -67,8 +68,48 @@ function Dashboard() {
       }
     }
 
-    fetchUser()
+    fetchData()
   }, [navigate])
+
+  // Cargar datos adicionales según el rol
+  const loadAdditionalData = async (rol) => {
+    try {
+      const [citasRes, especialidadesRes, doctoresRes] = await Promise.allSettled([
+        axiosInstance.get('mis-citas/'),
+        axiosInstance.get('especialidades-publicas/'),
+        axiosInstance.get('doctores-publicos/')
+      ])
+
+      let citasData = []
+      let especialidadesData = []
+      let doctoresData = []
+
+      if (citasRes.status === 'fulfilled') {
+        citasData = Array.isArray(citasRes.value.data) ? citasRes.value.data : citasRes.value.data.results || []
+      }
+
+      if (especialidadesRes.status === 'fulfilled') {
+        especialidadesData = Array.isArray(especialidadesRes.value.data) ? especialidadesRes.value.data : especialidadesRes.value.data.results || []
+      }
+
+      if (doctoresRes.status === 'fulfilled') {
+        doctoresData = Array.isArray(doctoresRes.value.data) ? doctoresRes.value.data : doctoresRes.value.data.results || []
+      }
+
+      // Calcular estadísticas
+      const hoy = new Date().toISOString().split('T')[0]
+      const citasProximas = citasData.filter(c => c.fecha >= hoy && c.estado !== 'cancelada').length
+
+      setStats({
+        totalCitas: citasData.length,
+        citasProximas,
+        especialidades: especialidadesData.length,
+        doctores: doctoresData.length
+      })
+    } catch (err) {
+      console.error('Error cargando datos adicionales:', err)
+    }
+  }
 
   const handleLogout = () => {
     console.log('Cerrando sesión...')
@@ -180,6 +221,34 @@ function Dashboard() {
             <div style={styles.infoItem}>
               <span style={styles.infoLabel}>Teléfono:</span>
               <span style={styles.infoValue}>{user?.telefono || 'No disponible'}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Estadísticas */}
+        <div style={styles.statsCard}>
+          <h3 style={styles.cardTitle}>
+            <span style={styles.cardIcon}>📊</span>
+            Estadísticas Rápidas
+          </h3>
+          <div style={styles.statsGrid}>
+            <div style={styles.statItem}>
+              <div style={styles.statNumber}>{stats.totalCitas}</div>
+              <div style={styles.statLabel}>
+                {user?.rol === 'patient' ? 'Mis Citas' : 'Total Citas'}
+              </div>
+            </div>
+            <div style={styles.statItem}>
+              <div style={styles.statNumber}>{stats.citasProximas}</div>
+              <div style={styles.statLabel}>Citas Próximas</div>
+            </div>
+            <div style={styles.statItem}>
+              <div style={styles.statNumber}>{stats.especialidades}</div>
+              <div style={styles.statLabel}>Especialidades</div>
+            </div>
+            <div style={styles.statItem}>
+              <div style={styles.statNumber}>{stats.doctores}</div>
+              <div style={styles.statLabel}>Doctores</div>
             </div>
           </div>
         </div>
@@ -709,6 +778,46 @@ const styles = {
       backgroundColor: 'var(--color-admin-soft)',
       transform: 'translateY(-2px)'
     }
+  },
+
+  // ============================================
+  // ESTADÍSTICAS (STATS)
+  // ============================================
+  statsCard: {
+    backgroundColor: 'var(--bg-secondary)',
+    padding: '25px',
+    borderRadius: '15px',
+    boxShadow: 'var(--box-shadow)',
+    border: '1px solid var(--border-color)'
+  },
+  statsGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+    gap: '20px'
+  },
+  statItem: {
+    backgroundColor: 'var(--bg-tertiary)',
+    padding: '20px',
+    borderRadius: '12px',
+    textAlign: 'center',
+    border: '1px solid var(--border-color)',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '10px',
+    transition: 'all 0.3s'
+  },
+  statNumber: {
+    fontSize: '32px',
+    fontWeight: '700',
+    color: 'var(--color-patient)',
+    margin: 0
+  },
+  statLabel: {
+    fontSize: '14px',
+    color: 'var(--text-secondary)',
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
+    margin: 0
   }
 }
 

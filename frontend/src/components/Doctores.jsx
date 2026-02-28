@@ -19,8 +19,8 @@ function Doctores() {
 
   const fetchDoctores = async () => {
     try {
-      const response = await axiosInstance.get('doctores/')
-      const doctoresData = Array.isArray(response.data) ? response.data : []
+      const response = await axiosInstance.get('doctores-publicos/')
+      const doctoresData = Array.isArray(response.data) ? response.data : response.data.results || []
       setDoctores(doctoresData)
     } catch (error) {
       console.error('Error cargando doctores:', error)
@@ -32,8 +32,8 @@ function Doctores() {
 
   const fetchEspecialidades = async () => {
     try {
-      const response = await axiosInstance.get('especialidades/')
-      const especialidadesData = Array.isArray(response.data) ? response.data : []
+      const response = await axiosInstance.get('especialidades-publicas/')
+      const especialidadesData = Array.isArray(response.data) ? response.data : response.data.results || []
       setEspecialidades(especialidadesData)
     } catch (error) {
       console.error('Error cargando especialidades:', error)

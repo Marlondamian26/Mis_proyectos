@@ -310,3 +310,21 @@ class Cita(models.Model):
     
     def __str__(self):
         return f"{self.paciente} con {self.doctor} - {self.fecha} {self.hora}"
+
+
+# señales automáticas para perfiles
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+@receiver(post_save, sender=Usuario)
+def crear_perfil_relacionado(sender, instance, created, **kwargs):
+    """Genera un perfil Doctor/Enfermera/Paciente al crearse un usuario según su rol."""
+    if not created:
+        return
+    if instance.rol == 'doctor':
+        Doctor.objects.get_or_create(usuario=instance)
+    elif instance.rol == 'nurse':
+        Enfermera.objects.get_or_create(usuario=instance)
+    elif instance.rol == 'patient':
+        Paciente.objects.get_or_create(usuario=instance)
+

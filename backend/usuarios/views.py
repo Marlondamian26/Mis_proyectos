@@ -68,6 +68,155 @@ def cambiar_contrasena(request):
 # =========================
 
 
+# ===== VISTAS PÚBLICAS (para que otros roles vean datos) =====
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def especialidades_publicas(request):
+    """Endpoint público para ver especialidades activas"""
+    especialidades = Especialidad.objects.filter(activo=True)
+    serializer = EspecialidadSerializer(especialidades, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def doctores_publicos(request):
+    """Endpoint público para ver doctores activos"""
+    # Obtener solo los doctores (no admin ni enfermeras ni pacientes)
+    doctores = Doctor.objects.select_related('usuario').all()
+    serializer = DoctorSerializer(doctores, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def mis_citas(request):
+    """Obtener solo las citas del usuario actual"""
+    user = request.user
+    if user.rol == 'patient':
+        # Los pacientes ven sus propias citas
+        paciente = Paciente.objects.filter(usuario=user).first()
+        if paciente:
+            citas = Cita.objects.filter(paciente=paciente)
+        else:
+            citas = Cita.objects.none()
+    elif user.rol == 'doctor':
+        # Los doctores ven sus citas
+        doctor = Doctor.objects.filter(usuario=user).first()
+        if doctor:
+            citas = Cita.objects.filter(doctor=doctor)
+        else:
+            citas = Cita.objects.none()
+    elif user.rol == 'nurse':
+        # Las enfermeras ven todas las citas (o podrían filtrar por departamento)
+        citas = Cita.objects.all()
+    else:
+        # Admin ve todas
+        citas = Cita.objects.all()
+    
+    serializer = CitaSerializer(citas, many=True)
+    return Response(serializer.data)
+# =========================
+
+
+# ===== PERFIL PERSONAL PARA DOCTORES Y ENFERMERAS =====
+@api_view(['GET', 'PUT', 'PATCH'])
+@permission_classes([IsAuthenticated])
+def mi_perfil_doctor(request):
+    """
+    Endpoint para que un doctor vea y edite su propio perfil.
+    GET: obtener perfil
+    PUT/PATCH: actualizar perfil
+    """
+    try:
+        doctor = Doctor.objects.get(usuario=request.user)
+    except Doctor.DoesNotExist:
+        return Response(
+            {'error': 'No tienes perfil de doctor asociado'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+    
+    if request.method == 'GET':
+        serializer = DoctorSerializer(doctor)
+        return Response(serializer.data)
+    
+    elif request.method in ['PUT', 'PATCH']:
+        # Solo permitir actualizar campos específicos del perfil
+        data_permitida = {
+            'especialidad': request.data.get('especialidad'),
+            'otra_especialidad': request.data.get('otra_especialidad', ''),
+            'biografia': request.data.get('biografia', '')
+        }
+        
+        # Permitir actualizar datos del usuario también
+        if 'first_name' in request.data:
+            doctor.usuario.first_name = request.data['first_name']
+        if 'last_name' in request.data:
+            doctor.usuario.last_name = request.data['last_name']
+        if 'email' in request.data:
+            doctor.usuario.email = request.data['email']
+        if 'telefono' in request.data:
+            doctor.usuario.telefono = request.data['telefono']
+        
+        doctor.usuario.save()
+        
+        # Actualizar perfil del doctor
+        serializer = DoctorSerializer(doctor, data=data_permitida, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET', 'PUT', 'PATCH'])
+@permission_classes([IsAuthenticated])
+def mi_perfil_enfermera(request):
+    """
+    Endpoint para que una enfermera vea y edite su propio perfil.
+    GET: obtener perfil
+    PUT/PATCH: actualizar perfil
+    """
+    try:
+        enfermera = Enfermera.objects.get(usuario=request.user)
+    except Enfermera.DoesNotExist:
+        return Response(
+            {'error': 'No tienes perfil de enfermera asociado'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+    
+    if request.method == 'GET':
+        serializer = EnfermeraSerializer(enfermera)
+        return Response(serializer.data)
+    
+    elif request.method in ['PUT', 'PATCH']:
+        # Solo permitir actualizar campos específicos del perfil
+        data_permitida = {
+            'especialidad': request.data.get('especialidad'),
+            'otra_especialidad': request.data.get('otra_especialidad', ''),
+            'numero_licencia': request.data.get('numero_licencia', '')
+        }
+        
+        # Permitir actualizar datos del usuario también
+        if 'first_name' in request.data:
+            enfermera.usuario.first_name = request.data['first_name']
+        if 'last_name' in request.data:
+            enfermera.usuario.last_name = request.data['last_name']
+        if 'email' in request.data:
+            enfermera.usuario.email = request.data['email']
+        if 'telefono' in request.data:
+            enfermera.usuario.telefono = request.data['telefono']
+        
+        enfermera.usuario.save()
+        
+        # Actualizar perfil de enfermera
+        serializer = EnfermeraSerializer(enfermera, data=data_permitida, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# =========================
+
+
 # ViewSets (todos requieren autenticación)
 class UsuarioViewSet(viewsets.ModelViewSet):
     queryset = Usuario.objects.all()

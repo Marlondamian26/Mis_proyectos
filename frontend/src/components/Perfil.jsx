@@ -31,7 +31,12 @@ function Perfil() {
     alergias: '',
     grupo_sanguineo: '',
     contacto_emergencia: '',
-    telefono_emergencia: ''
+    telefono_emergencia: '',
+    // Para doctors y enfermeras
+    especialidad: '',
+    otra_especialidad: '',
+    biografia: '',
+    numero_licencia: ''
   })
 
   // Estado para cambio de contraseña
@@ -142,26 +147,44 @@ function Perfil() {
   const cargarDatosDoctor = async (usuarioId) => {
     setLoadingMessage('Cargando información profesional...')
     
-    const doctoresResponse = await axiosInstance.get('doctores/')
-    const doctoresData = Array.isArray(doctoresResponse.data) ? doctoresResponse.data : []
-    const miDoctor = doctoresData.find(d => d.usuario?.id === usuarioId)
-    
-    if (miDoctor) {
-      console.log('Perfil de doctor cargado:', miDoctor)
-      setDoctor(miDoctor)
+    try {
+      const doctorResponse = await axiosInstance.get('mi-perfil-doctor/')
+      console.log('Perfil de doctor cargado:', doctorResponse.data)
+      setDoctor(doctorResponse.data)
+      setEditForm(prev => ({
+        ...prev,
+        first_name: doctorResponse.data.usuario?.first_name || prev.first_name,
+        last_name: doctorResponse.data.usuario?.last_name || prev.last_name,
+        email: doctorResponse.data.usuario?.email || prev.email,
+        telefono: doctorResponse.data.usuario?.telefono || prev.telefono,
+        especialidad: doctorResponse.data.especialidad || '',
+        otra_especialidad: doctorResponse.data.otra_especialidad || '',
+        biografia: doctorResponse.data.biografia || ''
+      }))
+    } catch (error) {
+      console.error('Error cargando perfil de doctor:', error)
     }
   }
 
   const cargarDatosEnfermera = async (usuarioId) => {
     setLoadingMessage('Cargando información profesional...')
     
-    const enfermerasResponse = await axiosInstance.get('enfermeras/')
-    const enfermerasData = Array.isArray(enfermerasResponse.data) ? enfermerasResponse.data : []
-    const miEnfermera = enfermerasData.find(e => e.usuario?.id === usuarioId)
-    
-    if (miEnfermera) {
-      console.log('Perfil de enfermera cargado:', miEnfermera)
-      setEnfermera(miEnfermera)
+    try {
+      const enfermeraResponse = await axiosInstance.get('mi-perfil-enfermera/')
+      console.log('Perfil de enfermera cargado:', enfermeraResponse.data)
+      setEnfermera(enfermeraResponse.data)
+      setEditForm(prev => ({
+        ...prev,
+        first_name: enfermeraResponse.data.usuario?.first_name || prev.first_name,
+        last_name: enfermeraResponse.data.usuario?.last_name || prev.last_name,
+        email: enfermeraResponse.data.usuario?.email || prev.email,
+        telefono: enfermeraResponse.data.usuario?.telefono || prev.telefono,
+        especialidad: enfermeraResponse.data.especialidad || '',
+        otra_especialidad: enfermeraResponse.data.otra_especialidad || '',
+        numero_licencia: enfermeraResponse.data.numero_licencia || ''
+      }))
+    } catch (error) {
+      console.error('Error cargando perfil de enfermera:', error)
     }
   }
 
@@ -243,6 +266,32 @@ function Perfil() {
           grupo_sanguineo: editForm.grupo_sanguineo,
           contacto_emergencia: editForm.contacto_emergencia,
           telefono_emergencia: editForm.telefono_emergencia
+        })
+      }
+
+      // Si es doctor, actualizar su perfil
+      if (user.rol === 'doctor' && doctor) {
+        await axiosInstance.patch('mi-perfil-doctor/', {
+          first_name: editForm.first_name,
+          last_name: editForm.last_name,
+          email: editForm.email,
+          telefono: editForm.telefono,
+          especialidad: editForm.especialidad,
+          otra_especialidad: editForm.otra_especialidad || '',
+          biografia: editForm.biografia || ''
+        })
+      }
+
+      // Si es enfermera, actualizar su perfil
+      if (user.rol === 'nurse' && enfermera) {
+        await axiosInstance.patch('mi-perfil-enfermera/', {
+          first_name: editForm.first_name,
+          last_name: editForm.last_name,
+          email: editForm.email,
+          telefono: editForm.telefono,
+          especialidad: editForm.especialidad,
+          otra_especialidad: editForm.otra_especialidad || '',
+          numero_licencia: editForm.numero_licencia || ''
         })
       }
 
