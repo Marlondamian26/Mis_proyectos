@@ -128,4 +128,15 @@
 # ---
 #
 # ¡Listo! Mantén a mano esta guía y edítala según evolucione el proyecto.
+#
+# NOTA EXTRA:
+# - Si se elimina el último superusuario (incluido el genérico `admin`),
+#   al reiniciar el servidor Django se generará automáticamente un usuario
+#   llamado `admin` con contraseña `12345678`.
+# - Cuando se cree cualquier usuario con `rol='admin'` mediante la API o el
+#   panel, el usuario genérico será borrado de inmediato.
+#   Esto evita que quede activo más de un administrador genérico en la plataforma.
+# - Para comprobar este comportamiento puedes ejecutar el script
+#   `test_generic_admin.py` desde la raíz del proyecto; elimina usuarios y
+#   simula varios escenarios.
 

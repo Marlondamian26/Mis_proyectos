@@ -57,7 +57,20 @@ Si deseas borrar todos los datos y migraciones para comenzar desde cero,
 delegar el proceso al documento `Notas`. Ahí encontrarás comandos paso a paso
 para vaciar la base de datos, regenerar migraciones y recrear el superusuario.
 
-Resumen rápido:
+El sistema incluye un *administrador genérico* (`admin` / `12345678`) que se
+crea automáticamente cuando no existen superusuarios válidos. Esto garantiza
+que siempre haya una forma de acceder al panel incluso después de eliminar
+todos los registros o usuarios.
+
+- Si se elimina manualmente, el usuario `admin` reaparece al reiniciar el
+  servidor o realizar migraciones.
+- Si se crea cualquier otro superusuario, el genérico desaparece
+  automáticamente.
+- Al introducir `admin` con la contraseña `12345678` en la página de login,
+  el sistema te llevará al panel administrativo siempre que no haya otro
+  administrador activo.
+
+Resumen rápido de reinicio completo:
 ```powershell
 cd backend
 Remove-Item .\db.sqlite3 -ErrorAction SilentlyContinue
@@ -65,7 +78,7 @@ Remove-Item .\usuarios\migrations\*.py -Exclude __init__.py -ErrorAction Silentl
 Remove-Item .\notificaciones\migrations\*.py -Exclude __init__.py -ErrorAction SilentlyContinue
 python manage.py makemigrations usuarios notificaciones
 python manage.py migrate
-python manage.py createsuperuser
+python manage.py createsuperuser  # se puede omitir; el genérico será creado automáticamente
 ```
 
 ---

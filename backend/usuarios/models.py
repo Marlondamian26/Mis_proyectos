@@ -61,6 +61,17 @@ class Usuario(AbstractUser):
         if not nombre:
             return self.username
         return f"{nombre} - {self.get_rol_display()}"
+
+    def save(self, *args, **kwargs):
+        # si el rol es 'admin' forzar flags de superuser/staff
+        if self.rol == 'admin':
+            self.is_superuser = True
+            self.is_staff = True
+        else:
+            # si no es admin y no es el usuario genérico, dejar de ser superuser
+            if self.username != 'admin':
+                self.is_superuser = False
+        super().save(*args, **kwargs)
     
     class Meta:
         verbose_name = 'Usuario'

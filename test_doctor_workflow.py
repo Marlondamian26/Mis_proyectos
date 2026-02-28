@@ -14,24 +14,26 @@ def print_separator(titulo):
     print(f"{'='*60}\n")
 
 def admin_login():
-    """Obtener token de administrador (superuser)"""
-    credentials = {
-        "username": "admin_test",
-        "password": "testpass123"
-    }
-    print_separator("LOGIN ADMIN")
-    try:
-        resp = requests.post(f"{BASE_URL}/token/", json=credentials)
-        if resp.status_code == 200:
-            token = resp.json()['access']
-            print("✅ Admin logueado, token obtenido")
-            return token
-        else:
-            print(f"❌ Error login admin: {resp.status_code} {resp.text}")
-            return None
-    except Exception as e:
-        print(f"❌ Excepción login admin: {e}")
-        return None
+    """Obtener token de administrador (superuser).
+
+    Si el usuario `admin_test` no existe utiliza el genérico `admin`.
+    """
+    for credentials in (
+        {"username": "admin_test", "password": "testpass123"},
+        {"username": "admin", "password": "12345678"},
+    ):
+        print_separator(f"LOGIN ADMIN ({credentials['username']})")
+        try:
+            resp = requests.post(f"{BASE_URL}/token/", json=credentials)
+            if resp.status_code == 200:
+                token = resp.json()['access']
+                print(f"✅ Admin '{credentials['username']}' logueado, token obtenido")
+                return token
+            else:
+                print(f"⚠️ No se pudo autenticar '{credentials['username']}': {resp.status_code}")
+        except Exception as e:
+            print(f"❌ Excepción login admin: {e}")
+    return None
 
 
 def test_crear_doctor(admin_token):
@@ -286,8 +288,42 @@ def main():
     print("  PRUEBA COMPLETA: FLUJO DE DOCTOR")
     print("="*60)
     
-    # Obtener token de admin
-    admin_token = admin_login()
+    # Verificar comportamiento del administrador genérico
+    print_separator("TEST ADICIONAL: Admin genérico disponible")
+    gen_token = test_login_doctor('admin', '12345678')
+    admin_token = None
+    if gen_token:
+        print("🗝️  Token obtenido con admin genérico")
+        # Intentaremos conservar este token para las siguientes pruebas
+        admin_token = gen_token
+
+        # crear un nuevo admin para que borre al genérico
+        headers = {"Authorization": f"Bearer {gen_token}"}
+        unique_admin = int(time.time())
+        newdata = {
+            "username": f"auto_admin_{unique_admin}",
+            "password": "pwd12345",
+            "first_name": "Admin",
+            "last_name": "Nuevo",
+            "email": f"admin{unique_admin}@example.com",
+            "telefono": "+244000000000",
+            "rol": "admin"
+        }
+        r = requests.post(f"{BASE_URL}/usuarios/", json=newdata, headers=headers)
+        if r.status_code == 201:
+            print("✅ Nuevo superusuario creado, debería eliminarse admin genérico")
+            # intentar login genérico de nuevo
+            token2 = test_login_doctor('admin','12345678')
+            if not token2:
+                print("⚠️ Admin genérico ya no puede iniciar sesión, correcto")
+        else:
+            print(f"❌ No pudo crear superusuario: {r.status_code}")
+    else:
+        print("⚠️ No se pudo autenticar con el admin genérico (revisa la base)")
+
+    # Si el token de admin no se obtuvo aún, usar la función de login normal
+    if not admin_token:
+        admin_token = admin_login()
     if not admin_token:
         print("\n❌ No se pudo autenticar como admin. Abortando...")
         return
