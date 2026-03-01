@@ -150,8 +150,9 @@ function Registro() {
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), 10000)
 
-      const response = await axios.post(
-        'http://127.0.0.1:8000/api/registro/', 
+      // usar axiosInstance para respetar la configuración común
+      const response = await axiosInstance.post(
+        'registro/', 
         formData,
         {
           signal: controller.signal,
@@ -165,15 +166,16 @@ function Registro() {
 
       console.log('Respuesta del servidor:', response.data)
       
-      setSuccess('¡Registro exitoso! Redirigiendo al login...')
+      setSuccess('¡Registro exitoso! Accediendo a tu perfil...')
       
       // Guardar tokens si el registro devuelve tokens
       if (response.data.access) {
         localStorage.setItem('access_token', response.data.access)
         localStorage.setItem('refresh_token', response.data.refresh)
-        setTimeout(() => navigate('/dashboard'), 2000)
+        // redirigir directamente al perfil en vez de al dashboard
+        setTimeout(() => navigate('/perfil'), 1500)
       } else {
-        setTimeout(() => navigate('/login'), 2000)
+        setTimeout(() => navigate('/login'), 1500)
       }
     } catch (err) {
       console.error('Error detallado:', err)

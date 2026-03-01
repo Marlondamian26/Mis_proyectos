@@ -105,6 +105,14 @@ class TestRunner:
             self.log_test("Crear doctor", passed,
                          f"Status: {response.status_code}")
             
+            if passed:
+                # guardar id de usuario y resetear profile id
+                try:
+                    self.doctor_user_id = response.json().get('id')
+                except:
+                    self.doctor_user_id = None
+                self.doctor_id = None  # se resolverá más tarde como perfil
+            
             if response.status_code not in [201, 200]:
                 try:
                     error_msg = response.json()
@@ -162,6 +170,13 @@ class TestRunner:
             passed = response.status_code in [201, 200]
             self.log_test("Crear paciente", passed,
                          f"Status: {response.status_code}")
+            
+            if passed:
+                try:
+                    self.patient_user_id = response.json().get('id')
+                except:
+                    self.patient_user_id = None
+                self.patient_id = None
             
             return passed
         except Exception as e:
@@ -280,6 +295,128 @@ class TestRunner:
         except Exception as e:
             self.log_test("Acceso a perfil enfermera", False, str(e))
             return False
+
+    def test_specialty_and_appointments(self):
+        """Prueba 13: creación de especialidad y manejo de citas"""
+        self.log_title("PRUEBA 13: ESPECIALIDAD Y CITAS")
+        try:
+            headers = {'Authorization': f'Bearer {self.admin_token}'}
+            # crear especialidad nueva
+            esp_data = {'nombre': f'TestEsp_{TIMESTAMP}', 'activo': True}
+            esp_resp = requests.post(f'{API_URL}/especialidades/', json=esp_data, headers=headers)
+            passed_esp = esp_resp.status_code in [201, 200]
+            self.log_test("Crear especialidad", passed_esp, f"Status: {esp_resp.status_code}")
+
+            # listar especialidades y verificar que aparece
+            list_resp = requests.get(f'{API_URL}/especialidades/', headers=headers)
+            has_esp = False
+            if list_resp.status_code == 200:
+                items = list_resp.json()
+                if isinstance(items, dict) and 'results' in items:
+                    items = items['results']
+                if isinstance(items, list):
+                    # buscar por substring para evitar pequeñas diferencias
+                    for e in items:
+                        nombre = e.get('nombre','')
+                        if esp_data['nombre'].lower() in nombre.lower():
+                            has_esp = True
+                            break
+                else:
+                    items = []
+            else:
+                items = []
+            self.log_test("Listar especialidades incluye la creada", has_esp,
+                         f"Status: {list_resp.status_code}, total: {len(items)}")
+            if not has_esp and items:
+                # para depuración listar nombres
+                self.log_test("  Nombres recibidos", False, ", ".join([e.get('nombre','') for e in items]))
+
+            # crear cita como paciente
+            # necesitamos id de perfil (no usuario)
+            # obtener perfil de paciente
+            if not getattr(self, 'patient_id', None):
+                # localizar paciente con usuario id
+                url = f'{API_URL}/pacientes/'
+                while url:
+                    pat_list = requests.get(url, headers=headers)
+                    if pat_list.status_code != 200:
+                        break
+                    data = pat_list.json()
+                    items = data
+                    if isinstance(data, dict) and 'results' in data:
+                        items = data['results']
+                    if isinstance(items, list):
+                        for p in items:
+                            if isinstance(p, dict):
+                                usuario = p.get('usuario')
+                                if isinstance(usuario, dict) and usuario.get('id') == self.patient_user_id:
+                                    self.patient_id = p.get('id')
+                                    break
+                    if self.patient_id:
+                        break
+                    # follow pagination
+                    url = data.get('next') if isinstance(data, dict) else None
+            if not getattr(self, 'doctor_id', None):
+                url = f'{API_URL}/doctores/'
+                while url:
+                    doc_list = requests.get(url, headers=headers)
+                    if doc_list.status_code != 200:
+                        break
+                    data = doc_list.json()
+                    items = data
+                    if isinstance(data, dict) and 'results' in data:
+                        items = data['results']
+                    if isinstance(items, list):
+                        for d in items:
+                            if isinstance(d, dict):
+                                usuario = d.get('usuario')
+                                if isinstance(usuario, dict) and usuario.get('id') == self.doctor_user_id:
+                                    self.doctor_id = d.get('id')
+                                    break
+                    if self.doctor_id:
+                        break
+                    url = data.get('next') if isinstance(data, dict) else None
+            if not self.patient_id:
+                self.log_test("Preparar cita", False, "ID de paciente no disponible")
+                return False
+            if not self.doctor_id:
+                self.log_test("Preparar cita", False, "ID de doctor no disponible")
+                return False
+
+            # obtener token paciente
+            login_resp = requests.post(f'{API_URL}/token/', json={
+                'username': f'patient_test_{TIMESTAMP}',
+                'password': 'test1234'
+            })
+            if login_resp.status_code == 200:
+                pat_token = login_resp.json().get('access')
+            else:
+                pat_token = None
+            pat_headers = {'Authorization': f'Bearer {pat_token}'} if pat_token else {}
+
+            fecha = datetime.now().strftime('%Y-%m-%d')
+            cita_data = {
+                'paciente': self.patient_id,
+                'doctor': self.doctor_id,
+                'fecha': fecha,
+                'hora': '09:00:00'
+            }
+            # intentar crear cita pero no marcar fallo aquí (se evaluará con has_cita)
+            cita_resp = requests.post(f'{API_URL}/citas/', json=cita_data, headers=pat_headers)
+            msg = f"Status: {cita_resp.status_code}"
+            self.log_test("Crear cita como paciente", True, msg)
+
+            # verificar que paciente puede recuperar sus citas
+            misc_resp = requests.get(f'{API_URL}/mis-citas/', headers=pat_headers)
+            has_cita = False
+            if misc_resp.status_code == 200 and isinstance(misc_resp.json(), list):
+                has_cita = any(c.get('paciente') == self.patient_id for c in misc_resp.json())
+            self.log_test("Paciente puede ver su cita", has_cita,
+                         f"Status: {misc_resp.status_code}, total: {len(misc_resp.json() if misc_resp.status_code==200 else [])}")
+            return passed_esp and has_esp and has_cita
+        except Exception as e:
+            self.log_test("Especialidad y citas", False, str(e))
+            return False
     
     def test_public_endpoints(self):
         """Prueba 10: Endpoints públicos (doctores y especialidades)"""
@@ -376,6 +513,7 @@ class TestRunner:
         self.test_patient_login()
         self.test_doctor_profile()
         self.test_nurse_profile()
+        self.test_specialty_and_appointments()
         self.test_public_endpoints()
         self.test_admin_stats()
         self.test_generic_admin()
