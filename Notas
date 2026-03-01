@@ -139,4 +139,10 @@
 # - Para comprobar este comportamiento puedes ejecutar el script
 #   `test_generic_admin.py` desde la raíz del proyecto; elimina usuarios y
 #   simula varios escenarios.
+#   Nota: los archivos de prueba se han movido a la carpeta `tests/`.
+#   Esta carpeta contiene:
+#     * `test_platform_full.py` – suite E2E completa
+#     * `test_generic_admin.py` – verificación del admin genérico
+#     * helpers/ – utilidades (`clean_test_users.py`, `create_test_admin.py`)
+#   Otros scripts antiguos fueron eliminados para mantener el proyecto limpio.
 
