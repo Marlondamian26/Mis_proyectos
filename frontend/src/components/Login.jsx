@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
+// reuse the preconfigured axios instance for consistency
+import axiosInstance from '../services/auth'
 import { useNavigate, Link } from 'react-router-dom'
 import { APP_NAME, APP_SLOGAN } from '../config/constants'  
 
@@ -69,7 +70,7 @@ function Login() {
     setError('')
 
     try {
-      const response = await axios.post('http://127.0.0.1:8000/api/token/', {
+      const response = await axiosInstance.post('token/', {
         username: formData.username,
         password: formData.password
       })

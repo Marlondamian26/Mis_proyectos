@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import axios from 'axios'
+// use the shared axios instance for auth and token handling
+import axiosInstance from '../services/auth'
 import { useNavigate, Link } from 'react-router-dom'
 import { 
   FaUser, FaEnvelope, FaPhone, FaLock, FaEye, FaEyeSlash,
