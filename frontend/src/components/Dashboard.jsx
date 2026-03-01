@@ -171,7 +171,7 @@ function Dashboard() {
       <div style={styles.header}>
         <div style={styles.welcomeSection}>
           <h1 style={styles.welcomeTitle}>
-            ¡Bienvenido{user?.first_name ? `, ${user.first_name}` : ''}!
+            ¡Bienvenido{user?.username !== 'admin' && user?.first_name ? `, ${user.first_name}` : ''}!
           </h1>
           <p style={styles.userRole}>
             {user?.rol === 'admin' && '⚙️ Administrador'}
