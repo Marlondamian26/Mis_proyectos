@@ -147,9 +147,9 @@ function Registro() {
     console.log('Enviando registro:', formData)
 
     try {
-      // Configurar timeout
+      // Configurar timeout (30s) — ampliar para evitar cancelaciones locales
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 10000)
+      const timeoutId = setTimeout(() => controller.abort(), 30000)
 
       // usar axiosInstance para respetar la configuración común
       const response = await axiosInstance.post(
@@ -181,8 +181,9 @@ function Registro() {
     } catch (err) {
       console.error('Error detallado:', err)
 
-      if (err.name === 'AbortError' || err.code === 'ECONNABORTED') {
-        setError('Tiempo de espera agotado. Verifica que el servidor esté corriendo.')
+      // Axios produces different error shapes for cancellations/timeouts.
+      if (err?.name === 'AbortError' || err?.name === 'CanceledError' || err?.code === 'ECONNABORTED' || err?.code === 'ERR_CANCELED') {
+        setError('Tiempo de espera agotado o petición cancelada. Verifica que el servidor esté corriendo.')
       } else if (err.response) {
         // Errores del servidor
         console.error('Error response:', err.response.data)

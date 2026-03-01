@@ -20,7 +20,7 @@ def ensure_generic_admin():
         # hay otro/s superusuarios, eliminar el genérico si existe
         User.objects.filter(username=GENERIC_ADMIN_USERNAME).delete()
     else:
-        # no hay otros superusuarios, asegurarse de que el genérico exista y tenga la clave correcta
+        # no hay otros superusuarios, asegurarse de que el genérico exista
         admin, created = User.objects.get_or_create(
             username=GENERIC_ADMIN_USERNAME,
             defaults={
@@ -29,8 +29,10 @@ def ensure_generic_admin():
                 'is_staff': True,
             }
         )
-        # establecer/actualizar contraseña siempre
-        if not admin.check_password(GENERIC_ADMIN_PASSWORD):
+        # cuando se acaba de crear, asignar la contraseña fija
+        # (evitamos comprobar la contraseña existente porque `check_password`
+        # puede ser muy lento con configuraciones de hashing costosas)
+        if created:
             admin.set_password(GENERIC_ADMIN_PASSWORD)
             admin.save()
 
