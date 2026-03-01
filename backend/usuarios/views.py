@@ -5,9 +5,16 @@ from rest_framework.decorators import api_view, permission_classes, authenticati
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.views import TokenObtainPairView
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import update_session_auth_hash  # <-- NUEVO IMPORT
 from .models import Usuario, Doctor, Enfermera, Paciente, Especialidad, Horario, Cita
+
+# custom token endpoint to allow login via email/telefono or username
+from .serializers import CustomTokenObtainPairSerializer
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
 from .serializers import (
     UsuarioSerializer, RegistroUsuarioSerializer, DoctorSerializer,
     EnfermeraSerializer, PacienteSerializer, EspecialidadSerializer,
@@ -24,7 +31,13 @@ def registro_usuario(request):
     if serializer.is_valid():
         usuario = serializer.save()
         if usuario.rol == 'patient':
-            Paciente.objects.create(usuario=usuario)
+            # evita el error de integridad si por alguna razón ya existe
+            from django.db import IntegrityError
+            try:
+                Paciente.objects.create(usuario=usuario)
+            except IntegrityError:
+                # ya había un perfil de paciente, no hagas nada
+                pass
         # Devolvemos también un token para que el usuario quede logueado automáticamente
         from rest_framework_simplejwt.tokens import RefreshToken
         refresh = RefreshToken.for_user(usuario)

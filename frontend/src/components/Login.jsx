@@ -51,7 +51,7 @@ function Login() {
 
   const validateForm = () => {
     if (!formData.username.trim()) {
-      setError('El nombre de usuario es requerido')
+      setError('Usuario, correo o teléfono es requerido')
       return false
     }
     if (!formData.password.trim()) {
@@ -123,7 +123,7 @@ function Login() {
                 value={formData.username}
                 onChange={handleChange}
                 style={styles.input}
-                placeholder="Ingresa tu usuario"
+                placeholder="Usuario, correo o teléfono"
                 disabled={loading}
               />
             </div>

@@ -96,7 +96,8 @@ class TestRunner:
                 'password': 'test1234',
                 'first_name': 'Juan',
                 'last_name': 'Pérez',
-                'email': 'doctor@test.com',
+                'email': f'doctor{TIMESTAMP}@test.com',
+                'telefono': f'333{int(TIMESTAMP) % 100000:05d}',
                 'rol': 'doctor'
             }
             
@@ -137,7 +138,8 @@ class TestRunner:
                 'password': 'test1234',
                 'first_name': 'María',
                 'last_name': 'González',
-                'email': 'nurse@test.com',
+                'email': f'nurse{TIMESTAMP}@test.com',
+                'telefono': f'444{int(TIMESTAMP) % 100000:05d}',
                 'rol': 'nurse'
             }
             
@@ -162,7 +164,8 @@ class TestRunner:
                 'password': 'test1234',
                 'first_name': 'Carlos',
                 'last_name': 'Rivera',
-                'email': 'patient@test.com',
+                'email': f'patient{TIMESTAMP}@test.com',
+                'telefono': f'555{int(TIMESTAMP) % 100000:05d}',
                 'rol': 'patient'
             }
             
@@ -237,19 +240,28 @@ class TestRunner:
         """Prueba 7: Login de paciente"""
         self.log_title("PRUEBA 7: LOGIN DE PACIENTE")
         try:
-            response = requests.post(f'{API_URL}/token/', json={
-                'username': f'patient_test_{TIMESTAMP}',
-                'password': 'test1234'
-            })
-            passed = response.status_code == 200
-            self.log_test("Paciente login", passed,
-                         f"Status: {response.status_code}")
-            
-            if passed:
-                data = response.json()
-                self.patient_token = data.get('access')
-                return True
-            return False
+            # try login via username, email and phone
+            identifiers = [
+                f'patient_test_{TIMESTAMP}',
+                f'patient{TIMESTAMP}@test.com',
+                f'555{int(TIMESTAMP) % 100000:05d}'
+            ]
+            login_success = False
+            last_status = None
+            for ident in identifiers:
+                response = requests.post(f'{API_URL}/token/', json={
+                    'username': ident,
+                    'password': 'test1234'
+                })
+                last_status = response.status_code
+                if response.status_code == 200:
+                    login_success = True
+                    data = response.json()
+                    self.patient_token = data.get('access')
+                    break
+            self.log_test("Paciente login", login_success,
+                         f"Status: {last_status}, tried {identifiers}")
+            return login_success
         except Exception as e:
             self.log_test("Paciente login", False, str(e))
             return False
@@ -307,26 +319,32 @@ class TestRunner:
             passed_esp = esp_resp.status_code in [201, 200]
             self.log_test("Crear especialidad", passed_esp, f"Status: {esp_resp.status_code}")
 
-            # listar especialidades y verificar que aparece
-            list_resp = requests.get(f'{API_URL}/especialidades/', headers=headers)
+            # listar especialidades y verificar que aparece (seguir paginación)
             has_esp = False
-            if list_resp.status_code == 200:
-                items = list_resp.json()
-                if isinstance(items, dict) and 'results' in items:
-                    items = items['results']
-                if isinstance(items, list):
-                    # buscar por substring para evitar pequeñas diferencias
-                    for e in items:
+            items = []
+            url = f'{API_URL}/especialidades/'
+            while url:
+                list_resp = requests.get(url, headers=headers)
+                if list_resp.status_code != 200:
+                    break
+                data = list_resp.json()
+                page_items = data
+                if isinstance(data, dict) and 'results' in data:
+                    page_items = data['results']
+                if isinstance(page_items, list):
+                    for e in page_items:
+                        items.append(e)
                         nombre = e.get('nombre','')
                         if esp_data['nombre'].lower() in nombre.lower():
                             has_esp = True
-                            break
+                # avanzar a la siguiente página si existe
+                if isinstance(data, dict) and data.get('next'):
+                    url = data.get('next')
                 else:
-                    items = []
-            else:
-                items = []
+                    url = None
+            status_code = list_resp.status_code if 'list_resp' in locals() else 'N/A'
             self.log_test("Listar especialidades incluye la creada", has_esp,
-                         f"Status: {list_resp.status_code}, total: {len(items)}")
+                         f"Status: {status_code}, total: {len(items)}")
             if not has_esp and items:
                 # para depuración listar nombres
                 self.log_test("  Nombres recibidos", False, ", ".join([e.get('nombre','') for e in items]))

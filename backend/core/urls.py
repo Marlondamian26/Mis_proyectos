@@ -17,16 +17,17 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework_simplejwt.views import (  # <-- NUEVAS IMPORTACIONES
-    TokenObtainPairView,
     TokenRefreshView,
     TokenVerifyView
 )
+# utilizaremos la vista personalizada que permite email/telefono
+from usuarios.views import CustomTokenObtainPairView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     
     # Rutas JWT (autenticación)
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     
