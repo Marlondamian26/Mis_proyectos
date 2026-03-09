@@ -7,7 +7,7 @@
   width: 100%;
   height: 100%;
   pointer-events: none;
-  z-index: -1;
+  z-index: -1; /* Revertido para que esté detrás del contenido */
   overflow: hidden;
 }
 
@@ -19,120 +19,4 @@
   height: 100%;
   background: var(--bg-gradient);
   opacity: 0.8;
-}
-
-/* Elementos flotantes principales - más visibles */
-.floating-element {
-  position: absolute;
-  border-radius: 50%;
-  background: var(--floating-elements);
-  animation: float 60s ease-in-out infinite; /* más lento */
-  opacity: 0.3;
-  filter: blur(1px);
-}
-
-.floating-1 {
-  width: 400px;
-  height: 400px;
-  top: 5%;
-  left: 5%;
-  animation-delay: 0s;
-  animation-duration: 30s;
-}
-
-.floating-2 {
-  width: 300px;
-  height: 300px;
-  top: 50%;
-  right: 10%;
-  animation-delay: -10s;
-  animation-duration: 35s;
-}
-
-.floating-3 {
-  width: 250px;
-  height: 250px;
-  bottom: 10%;
-  left: 50%;
-  animation-delay: -20s;
-  animation-duration: 28s;
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg) scale(1);
-  }
-  50% {
-    transform: translateY(-10px) rotate(0deg) scale(1);
-  }
-}
-
-/* Partículas médicas más visibles */
-.particles {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.particle {
-  position: absolute;
-  width: 6px;
-  height: 6px;
-  background: var(--particle-color);
-  border-radius: 50%;
-  animation: particleFloat 20s linear infinite;
-  box-shadow: 0 0 6px var(--particle-color);
-}
-
-@for $i from 1 through 20 {
-  .particle-#{$i} {
-    top: random(100) * 1%;
-    left: random(100) * 1%;
-    animation-delay: random(20) * -1s;
-    animation-duration: (20 + random(15)) * 1s;
-  }
-}
-
-@keyframes particleFloat {
-  0% {
-    transform: translateY(100vh) rotate(0deg) scale(0);
-    opacity: 0;
-  }
-  10% {
-    opacity: 0.8;
-    transform: translateY(90vh) rotate(90deg) scale(1);
-  }
-  90% {
-    opacity: 0.8;
-    transform: translateY(10vh) rotate(270deg) scale(1);
-  }
-  100% {
-    transform: translateY(-10px) rotate(360deg) scale(0);
-    opacity: 0;
-  }
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .floating-1 {
-    width: 250px;
-    height: 250px;
-  }
-
-  .floating-2 {
-    width: 200px;
-    height: 200px;
-  }
-
-  .floating-3 {
-    width: 150px;
-    height: 150px;
-  }
-
-  .particle {
-    width: 4px;
-    height: 4px;
-  }
 }

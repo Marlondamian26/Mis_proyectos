@@ -24,6 +24,7 @@ function Registro() {
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [passwordStrength, setPasswordStrength] = useState({ score: 0, message: '', color: '#e74c3c' })
   // Evitar que el componente se desmonte durante el registro
   const [isSubmitting, setIsSubmitting] = useState(false)
   
