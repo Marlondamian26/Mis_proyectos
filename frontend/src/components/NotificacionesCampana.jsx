@@ -1,16 +1,21 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNotificaciones } from '../context/NotificacionesContext';
+import { useAuth } from '../context/AuthContext';
 import { FaBell, FaCheck, FaTrash, FaClock } from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 const NotificacionesCampana = () => {
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
   const { notificaciones, noLeidas, marcarComoLeida, marcarTodasLeidas, eliminarNotificacion } = useNotificaciones();
 
   // Cerrar dropdown al hacer clic fuera
   useEffect(() => {
+    // el efecto no hace nada si no hay usuario
+    if (!user) return;
+
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false);
@@ -18,7 +23,10 @@ const NotificacionesCampana = () => {
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [user]);
+
+  // No mostrar notificaciones si no hay usuario autenticado
+  if (!user) return null;
 
   const getIconoTipo = (tipo) => {
     const iconos = {
@@ -160,7 +168,7 @@ const styles = {
     },
   },
   bellIcon: {
-    fontSize: '20px',
+    fontSize: '28px',
     color: 'var(--color-admin)',
   },
   badge: {

@@ -166,7 +166,7 @@ function Dashboard() {
 
   // Renderizar el dashboard normalmente
   return (
-    <div style={styles.container}>
+    <div style={styles.container} className="dashboard-container">
       {/* Header con información del usuario */}
       <div style={styles.header}>
         <div style={styles.welcomeSection}>
@@ -198,7 +198,7 @@ function Dashboard() {
       {/* Contenido principal */}
       <div style={styles.content}>
         {/* Tarjeta de información del usuario */}
-        <div style={styles.card}>
+        <div style={styles.card} className="gradient-card pulse-card">
           <h3 style={styles.cardTitle}>
             <span style={styles.cardIcon}>📋</span>
             Información Personal
@@ -226,7 +226,7 @@ function Dashboard() {
         </div>
 
         {/* Estadísticas */}
-        <div style={styles.statsCard}>
+        <div style={styles.statsCard} className="gradient-card pulse-card">
           <h3 style={styles.cardTitle}>
             <span style={styles.cardIcon}>📊</span>
             Estadísticas Rápidas

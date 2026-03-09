@@ -4,7 +4,7 @@ import './index.css';
 import './App.css';
 
 // Context
-import { ThemeProvider } from './context/ThemeContext';
+import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { NotificacionesProvider } from './context/NotificacionesContext';
 
@@ -19,7 +19,8 @@ import AdminDashboard from './components/AdminDashboard';
 import EnfermeriaDashboard from './components/EnfermeriaDashboard';
 import NotificacionesCampana from './components/NotificacionesCampana';
 import ThemeToggle from './components/ThemeToggle';
-import Footer from './components/Footer'; 
+import Footer from './components/Footer';
+import AnimatedBackground from './components/AnimatedBackground';
 import { APP_NAME } from './config/constants';
 
 const styles = {
@@ -44,8 +45,10 @@ const styles = {
 };
 
 function App() {
+
   return (
     <ThemeProvider>
+      <AnimatedBackground />
       <AuthProvider>
         <NotificacionesProvider>
           <Router>

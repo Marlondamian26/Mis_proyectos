@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react'
 // reuse the preconfigured axios instance for consistency
 import axiosInstance from '../services/auth'
 import { useNavigate, Link } from 'react-router-dom'
-import { APP_NAME, APP_SLOGAN } from '../config/constants'  
+import { APP_NAME, APP_SLOGAN } from '../config/constants'
+import { useAuth } from '../context/AuthContext'  
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -14,6 +15,7 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
   const navigate = useNavigate()
+  const { login } = useAuth()
 
   // Verificar si ya hay sesión activa
   useEffect(() => {
@@ -70,21 +72,12 @@ function Login() {
     setError('')
 
     try {
-      const response = await axiosInstance.post('token/', {
-        username: formData.username,
-        password: formData.password
-      })
-
-      if (response.data && response.data.access) {
-        localStorage.setItem('access_token', response.data.access)
-        if (response.data.refresh) {
-          localStorage.setItem('refresh_token', response.data.refresh)
-        }
-        if (rememberMe) {
-          localStorage.setItem('remember_me', 'true')
-        }
-        navigate('/dashboard')
+      await login(formData.username, formData.password)
+      
+      if (rememberMe) {
+        localStorage.setItem('remember_me', 'true')
       }
+      navigate('/dashboard')
     } catch (err) {
       console.error('Error:', err)
       if (err.response?.status === 401) {
@@ -98,7 +91,7 @@ function Login() {
   }
 
   return (
-    <div style={styles.container}>
+    <div style={styles.container} className="fade-in-up slide-in-bottom">
       <div style={styles.card}>
         <div style={styles.logoContainer}>
           <h1 style={styles.title}>{APP_NAME}</h1>

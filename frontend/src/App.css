@@ -1,55 +1,311 @@
-/* src/App.css - Estilos de la aplicación */
+/* src/App.css - Estilos mejorados de la aplicación */
 
-/* Ya no importamos theme.css aquí porque lo hace index.css primero */
+/* Importamos theme.css si no está en index.css */
+@import './styles/theme.css';
 
-/* Estilos generales de la app */
-.App {
+/* Estilos generales aplicados al body */
+body {
   min-height: 100vh;
-  background-color: var(--bg-primary);
+  background: var(--bg-gradient);
   color: var(--text-primary);
-  transition: background-color 0.25s ease, color 0.25s ease;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+               Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-/* Mantenemos algunas animaciones útiles de Vite */
-@keyframes logo-spin {
+/* Fondo animado con elementos flotantes más visibles */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--floating-elements);
+  pointer-events: none;
+  z-index: -1;
+  animation: backgroundFloat 30s ease-in-out infinite;
+  opacity: 0.6;
+}
+
+/* Animación de fondo más dinámica */
+@keyframes backgroundFloat {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+  }
+  33% {
+    transform: translateY(-5px) scale(1.01);
+  }
+  66% {
+    transform: translateY(5px) scale(0.99);
+  }
+}
+
+/* Animación de elementos flotantes */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-10px) rotate(1deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(0deg);
+  }
+  75% {
+    transform: translateY(-10px) rotate(-1deg);
+  }
+}
+
+/* Partículas médicas flotantes */
+.medical-particles {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.particle {
+  position: absolute;
+  background: var(--particle-color);
+  border-radius: 50%;
+  opacity: 0.1;
+  animation: drift 15s linear infinite;
+}
+
+.particle:nth-child(1) { width: 4px; height: 4px; left: 10%; animation-delay: 0s; }
+.particle:nth-child(2) { width: 6px; height: 6px; left: 20%; animation-delay: 2s; }
+.particle:nth-child(3) { width: 3px; height: 3px; left: 30%; animation-delay: 4s; }
+.particle:nth-child(4) { width: 5px; height: 5px; left: 40%; animation-delay: 6s; }
+.particle:nth-child(5) { width: 4px; height: 4px; left: 50%; animation-delay: 8s; }
+.particle:nth-child(6) { width: 7px; height: 7px; left: 60%; animation-delay: 10s; }
+.particle:nth-child(7) { width: 3px; height: 3px; left: 70%; animation-delay: 12s; }
+.particle:nth-child(8) { width: 5px; height: 5px; left: 80%; animation-delay: 14s; }
+
+@keyframes drift {
+  0% {
+    transform: translateY(100vh) translateX(0px);
+  }
+  100% {
+    transform: translateY(-100px) translateX(50px);
+  }
+}
+
+/* Animaciones de entrada */
+@keyframes fadeInUp {
   from {
-    transform: rotate(0deg);
+    opacity: 0;
+    transform: translateY(30px);
   }
   to {
-    transform: rotate(360deg);
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-/* Clase para logos (útil si los usas) */
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-
-.logo:hover {
-  filter: drop-shadow(0 0 2em var(--color-patient-soft));
-}
-
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 
-/* Tarjetas mejoradas */
-.card {
-  padding: 2em;
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
+.fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.fade-in-scale {
+  animation: fadeInScale 0.5s ease-out;
+}
+
+/* Botones mejorados con gradientes */
+.btn-primary {
+  background: var(--btn-gradient);
+  color: white;
+  border: none;
+  padding: 12px 24px;
   border-radius: var(--border-radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
   box-shadow: var(--box-shadow);
-  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+
+.btn-primary:hover::before {
+  left: 100%;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--box-shadow-hover);
+}
+
+.btn-secondary {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  padding: 12px 24px;
+  border-radius: var(--border-radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background: var(--hover-bg);
+  transform: translateY(-1px);
+}
+
+/* Tarjetas mejoradas con gradientes */
+.card {
+  background: var(--card-gradient);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  padding: 2rem;
+  box-shadow: var(--box-shadow);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  position: relative;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--card-accent);
+  border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--box-shadow-hover);
+}
+
+/* Formularios mejorados */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  background: var(--input-bg);
+  color: var(--text-primary);
+  font-size: 16px;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--focus-shadow);
+  transform: translateY(-1px);
+}
+
+/* Animación de carga */
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--border-color);
+  border-top: 4px solid var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .card {
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+}
+
+/* Tema médico: elementos decorativos */
+.medical-icon {
+  color: var(--color-primary);
+  filter: drop-shadow(0 2px 4px var(--shadow-color));
+  transition: all 0.3s ease;
+}
+
+.medical-icon:hover {
+  transform: scale(1.1);
+  filter: drop-shadow(0 4px 8px var(--shadow-color));
+}
+
+/* Gradientes de fondo para secciones */
+.section-gradient {
+  background: var(--section-gradient);
+  padding: 2rem;
+  border-radius: var(--border-radius-lg);
+  margin: 1rem 0;
+}
+
+/* Animación de pulso para elementos importantes */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 var(--pulse-color);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
+
+.pulse {
+  animation: pulse 2s infinite;
 }
 
 .card:hover {
@@ -164,7 +420,128 @@
   transform: translateY(-4px);
   box-shadow: var(--box-shadow-hover);
 }
+/* Tarjetas con gradientes más visibles */
+.gradient-card {
+  background: var(--card-gradient) !important;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--box-shadow);
+  transition: var(--transition-smooth);
+  backdrop-filter: blur(12px);
+  position: relative;
+  overflow: hidden;
+}
 
+.gradient-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--card-accent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.gradient-card:hover::before {
+  opacity: 0.05;
+}
+
+.gradient-card:hover {
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: var(--box-shadow-hover);
+} 
+
+/* Efectos de pulso más visibles */
+.pulse-card {
+  /* animación reducida o eliminada */
+}
+
+/* Eliminados efectos de pulso exagerados */
+
+/* Estilos para inputs mejorados */
+input, textarea, select {
+  background: var(--input-bg);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  padding: 12px 16px;
+  color: var(--text-primary);
+  font-size: 16px;
+  transition: var(--transition-smooth);
+  backdrop-filter: blur(5px);
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--color-patient);
+  box-shadow: 0 0 0 3px var(--focus-shadow);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* Estilos para botones mejorados */
+button {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  padding: 10px 20px;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--border-color);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  font-size: 16px;
+}
+
+button:hover {
+  background: var(--hover-bg);
+  transform: translateY(-1px);
+  box-shadow: var(--box-shadow-hover);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+} 
+
+/* Estilos para contenedores */
+.container, .card {
+  background: var(--card-gradient);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--box-shadow);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-color);
+}
+
+
+/* Efectos de transición de tema */
+.theme-transition,
+.theme-transition *,
+.theme-transition *::before,
+.theme-transition *::after {
+  transition: all 0.3s ease !important;
+}
+
+/* Asegurar que los gradientes se apliquen */
+* {
+  box-sizing: border-box;
+}
+
+/* Mejorar la visibilidad de los elementos flotantes */
+.floating-element {
+  mix-blend-mode: multiply;
+  filter: blur(2px) contrast(1.2);
+}
+
+.particle {
+  mix-blend-mode: screen;
+  filter: blur(0.5px);
+}
 /* Badges por rol */
 .badge {
   padding: 4px 8px;

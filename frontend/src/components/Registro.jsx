@@ -24,11 +24,8 @@ function Registro() {
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
-  const [passwordStrength, setPasswordStrength] = useState({
-    score: 0,
-    message: '',
-    color: '#95a5a6'
-  })
+  // Evitar que el componente se desmonte durante el registro
+  const [isSubmitting, setIsSubmitting] = useState(false)
   
   const navigate = useNavigate()
 
@@ -115,10 +112,10 @@ function Registro() {
       newErrors.last_name = 'El apellido es requerido'
     }
 
-    // Validar email
-    if (!formData.email.trim()) {
+    // Validar email (opcional para pacientes, obligatorio para otros roles)
+    if (formData.rol !== 'patient' && !formData.email.trim()) {
       newErrors.email = 'El email es requerido'
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+    } else if (formData.email.trim() && !/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Email inválido'
     }
 
@@ -134,12 +131,18 @@ function Registro() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     
+    // Prevenir múltiples envíos
+    if (isSubmitting || loading) {
+      return
+    }
+    
     // Validar formulario
     if (!validateForm()) {
       setError('Por favor corrige los errores en el formulario')
       return
     }
 
+    setIsSubmitting(true)
     setLoading(true)
     setError('')
     setSuccess('')
@@ -147,9 +150,9 @@ function Registro() {
     console.log('Enviando registro:', formData)
 
     try {
-      // Configurar timeout (30s) — ampliar para evitar cancelaciones locales
+      // Configurar timeout más largo (60s) para evitar cancelaciones
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 30000)
+      const timeoutId = setTimeout(() => controller.abort(), 60000)
 
       // usar axiosInstance para respetar la configuración común
       const response = await axiosInstance.post(
@@ -159,7 +162,8 @@ function Registro() {
           signal: controller.signal,
           headers: {
             'Content-Type': 'application/json'
-          }
+          },
+          timeout: 60000  // timeout adicional de axios
         }
       )
 
@@ -167,14 +171,14 @@ function Registro() {
 
       console.log('Respuesta del servidor:', response.data)
       
-      setSuccess('¡Registro exitoso! Accediendo a tu perfil...')
+      setSuccess('¡Registro exitoso! Accediendo a tu cuenta...')
       
       // Guardar tokens si el registro devuelve tokens
       if (response.data.access) {
         localStorage.setItem('access_token', response.data.access)
         localStorage.setItem('refresh_token', response.data.refresh)
-        // redirigir directamente al perfil en vez de al dashboard
-        setTimeout(() => navigate('/perfil'), 1500)
+        // redirigir al dashboard para que complete su información
+        setTimeout(() => navigate('/dashboard'), 1500)
       } else {
         setTimeout(() => navigate('/login'), 1500)
       }
@@ -230,6 +234,7 @@ function Registro() {
       }
     } finally {
       setLoading(false)
+      setIsSubmitting(false)
     }
   }
 
@@ -247,7 +252,7 @@ function Registro() {
   }
 
   return (
-    <div style={styles.container}>
+    <div style={styles.container} className="fade-in-scale slide-in-top">
       <div style={styles.card}>
         {/* Logo y título */}
         <div style={styles.header}>

@@ -32,6 +32,10 @@ class RegistroUsuarioSerializer(serializers.ModelSerializer):
     class Meta:
         model = Usuario
         fields = ['username', 'password', 'first_name', 'last_name', 'email', 'rol', 'telefono']
+        extra_kwargs = {
+            'email': {'required': False, 'allow_blank': True},
+            'telefono': {'required': False, 'allow_blank': True},
+        }
 
     def create(self, validated_data):
         usuario = Usuario.objects.create_user(

@@ -36,9 +36,9 @@ const ThemeToggle = () => {
       outline: 'none',
     },
     icon: {
-      fontSize: '32px',
-      transition: 'transform 0.5s ease, color 0.3s ease',
-      transform: isRotating ? 'rotate(360deg)' : 'rotate(0)',
+      fontSize: '36px',
+      transition: 'transform 0.3s ease, color 0.3s ease',
+      transform: isRotating ? 'rotate(90deg)' : 'rotate(0)',
     },
     autoIndicator: {
       position: 'absolute',

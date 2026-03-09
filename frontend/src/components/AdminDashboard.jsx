@@ -6,7 +6,8 @@ import {
   FaChartBar, FaStethoscope, FaClock, FaPlus, 
   FaEdit, FaTrash, FaEye, FaCheck, FaTimes, FaSpinner,
   FaExclamationTriangle, FaSync, FaSave, FaBan,
-  FaEnvelope, FaPhone, FaIdCard, FaVenusMars, FaCalendarCheck
+  FaEnvelope, FaPhone, FaIdCard, FaVenusMars, FaCalendarCheck,
+  FaUserInjured
 } from 'react-icons/fa'
 
 function AdminDashboard() {
@@ -14,6 +15,7 @@ function AdminDashboard() {
   const [usuarios, setUsuarios] = useState([])
   const [doctores, setDoctores] = useState([])
   const [enfermeras, setEnfermeras] = useState([])
+  const [pacientes, setPacientes] = useState([])
   const [citas, setCitas] = useState([])
   const [especialidades, setEspecialidades] = useState([])
   const [horarios, setHorarios] = useState([])
@@ -83,6 +85,7 @@ function AdminDashboard() {
       usuariosRes,
       doctoresRes,
       enfermerasRes,
+      pacientesRes,
       citasRes,
       especialidadesRes,
       horariosRes
@@ -90,6 +93,7 @@ function AdminDashboard() {
       axiosInstance.get('usuarios/'),
       axiosInstance.get('doctores/'),
       axiosInstance.get('enfermeras/'),
+      axiosInstance.get('pacientes/'),
       axiosInstance.get('citas/'),
       axiosInstance.get('especialidades/'),
       axiosInstance.get('horarios/')
@@ -99,6 +103,7 @@ function AdminDashboard() {
     let usuariosData = []
     let doctoresData = []
     let enfermerasData = []
+    let pacientesData = []
     let citasData = []
     let especialidadesData = []
     let horariosData = []
@@ -122,6 +127,13 @@ function AdminDashboard() {
       const responseData = enfermerasRes.value.data
       enfermerasData = responseData.results || responseData || []
       console.log('👩‍⚕️ Enfermeras cargadas:', enfermerasData.length)
+    }
+
+    // ✅ Pacientes (con paginación)
+    if (pacientesRes.status === 'fulfilled') {
+      const responseData = pacientesRes.value.data
+      pacientesData = responseData.results || responseData || []
+      console.log('🏥 Pacientes cargados:', pacientesData.length)
     }
 
     // ✅ Citas (con paginación)
@@ -149,12 +161,13 @@ function AdminDashboard() {
     setUsuarios(usuariosData)
     setDoctores(doctoresData)
     setEnfermeras(enfermerasData)
+    setPacientes(pacientesData)
     setCitas(citasData)
     setEspecialidades(especialidadesData)
     setHorarios(horariosData)
 
     // Calcular estadísticas con los datos recién cargados (NO con el estado antiguo)
-    calcularEstadisticas(usuariosData, doctoresData, enfermerasData, citasData)
+    calcularEstadisticas(usuariosData, doctoresData, enfermerasData, pacientesData, citasData)
 
   } catch (error) {
     console.error('Error general:', error)
@@ -165,20 +178,19 @@ function AdminDashboard() {
 }
 
   // Calcular estadísticas
-  const calcularEstadisticas = (usuarios, doctores, enfermeras, citas) => {
+  const calcularEstadisticas = (usuarios, doctores, enfermeras, pacientes, citas) => {
     const hoy = new Date().toISOString().split('T')[0]
     const citasArray = Array.isArray(citas) ? citas : []
     const usuariosArray = Array.isArray(usuarios) ? usuarios : []
     
     const citasHoy = citasArray.filter(c => c.fecha === hoy).length
     const citasPendientes = citasArray.filter(c => c.estado === 'pendiente').length
-    const pacientes = usuariosArray.filter(u => u.rol === 'patient').length
     
     setStats({
       totalUsuarios: usuariosArray.length,
       totalDoctores: doctores.length,
       totalEnfermeras: enfermeras.length,
-      totalPacientes: pacientes,
+      totalPacientes: pacientes.length,
       citasHoy,
       citasPendientes,
       citasTotales: citasArray.length
@@ -438,6 +450,33 @@ function AdminDashboard() {
         console.log('✅ Enfermera creada:', enfermeraRes.data)
         mostrarMensaje('✅ Enfermera creada correctamente', 'success')
       }
+      else if (tipo === 'pacientes') {
+        // Crear usuario paciente y perfil de paciente
+        const usuarioData = {
+          username: formData.username,
+          password: formData.password,
+          first_name: formData.first_name,
+          last_name: formData.last_name,
+          email: formData.email || '',
+          telefono: formData.telefono || '',
+          rol: 'patient'
+        }
+        console.log('👉 Creando usuario paciente:', usuarioData)
+        const usuarioRes = await axiosInstance.post('usuarios/', usuarioData)
+        const nuevoUsuario = usuarioRes.data
+        console.log('✅ Usuario paciente creado:', nuevoUsuario)
+
+        const pacienteData = {
+          usuario_id: nuevoUsuario.id,
+          grupo_sanguineo: formData.grupo_sanguineo || '',
+          contacto_emergencia: formData.contacto_emergencia || '',
+          telefono_emergencia: formData.telefono_emergencia || ''
+        }
+        console.log('👉 Creando paciente:', pacienteData)
+        const pacienteRes = await axiosInstance.post('pacientes/', pacienteData)
+        console.log('✅ Paciente creado:', pacienteRes.data)
+        mostrarMensaje('✅ Paciente creado correctamente', 'success')
+      }
       else {
         // ✅ ESTA ES LA PARTE QUE SE EJECUTA PARA especialidades, usuarios, citas, horarios
         // ✅ Usa formData.tipo que DEBE ser 'especialidades', 'usuarios', 'citas', 'horarios'
@@ -490,6 +529,27 @@ function AdminDashboard() {
         const response = await axiosInstance.patch(`${tipo}/${selectedItem.id}/`, enfermeraData)
         console.log('✅ Enfermera actualizada:', response.data)
         mostrarMensaje('✅ Enfermera actualizada correctamente', 'success')
+      }
+      else if (tipo === 'pacientes') {
+        // Actualizar usuario paciente
+        if (selectedItem.usuario) {
+          const usuarioData = {
+            first_name: formData.first_name,
+            last_name: formData.last_name,
+            email: formData.email || '',
+            telefono: formData.telefono || ''
+          }
+          await axiosInstance.patch(`usuarios/${selectedItem.usuario.id}/`, usuarioData)
+        }
+        // Actualizar perfil de paciente
+        const pacienteData = {
+          grupo_sanguineo: formData.grupo_sanguineo || '',
+          contacto_emergencia: formData.contacto_emergencia || '',
+          telefono_emergencia: formData.telefono_emergencia || ''
+        }
+        const response = await axiosInstance.patch(`${tipo}/${selectedItem.id}/`, pacienteData)
+        console.log('✅ Paciente actualizado:', response.data)
+        mostrarMensaje('✅ Paciente actualizado correctamente', 'success')
       }
       else {
         const response = await axiosInstance.patch(`${tipo}/${selectedItem.id}/`, formData)
@@ -592,7 +652,7 @@ function AdminDashboard() {
       <div style={styles.errorContainer}>
         <FaExclamationTriangle style={styles.errorIcon} />
         <h2 style={styles.errorTitle}>Error</h2>
-        <p style={styles.errorMessage}>{loadingError}</p>
+        <p style={styles.errorText}>{loadingError}</p>
         <button onClick={() => window.location.reload()} style={styles.retryButton}>
           <FaSync /> Reintentar
         </button>
@@ -652,6 +712,13 @@ function AdminDashboard() {
           </div>
         </div>
         <div style={styles.statCard}>
+          <FaUserInjured style={styles.statIcon} />
+          <div>
+            <h3>Pacientes</h3>
+            <p>{stats.totalPacientes}</p>
+          </div>
+        </div>
+        <div style={styles.statCard}>
           <FaCalendarAlt style={styles.statIcon} />
           <div>
             <h3>Citas Hoy</h3>
@@ -685,6 +752,12 @@ function AdminDashboard() {
           onClick={() => setActiveTab('enfermeras')}
         >
           <FaUserNurse /> Enfermeras ({stats.totalEnfermeras})
+        </button>
+        <button
+          style={{...styles.tab, ...(activeTab === 'pacientes' && styles.activeTab)}}
+          onClick={() => setActiveTab('pacientes')}
+        >
+          <FaUserInjured /> Pacientes ({stats.totalPacientes})
         </button>
         <button
           style={{...styles.tab, ...(activeTab === 'citas' && styles.activeTab)}}
@@ -894,6 +967,64 @@ function AdminDashboard() {
                             <FaEdit />
                           </button>
                           <button onClick={() => handleDelete('enfermeras', enfermera.id)} style={styles.deleteButton} title="Eliminar">
+                            <FaTrash />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Tab: Pacientes */}
+        {activeTab === 'pacientes' && (
+          <div>
+            <div style={styles.tableHeader}>
+              <h2 style={styles.sectionTitle}>Gestión de Pacientes</h2>
+              <button onClick={() => handleCreate('pacientes')} style={styles.createButton}>
+                <FaPlus /> Nuevo Paciente
+              </button>
+            </div>
+            {pacientes.length === 0 ? (
+              <div style={styles.emptyState}>
+                <p>No hay pacientes registrados</p>
+              </div>
+            ) : (
+              <div style={styles.tableContainer}>
+                <table style={styles.table}>
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Nombre</th>
+                      <th>Grupo Sanguíneo</th>
+                      <th>Contacto Emergencia</th>
+                      <th>Teléfono Emergencia</th>
+                      <th>Email</th>
+                      <th>Teléfono</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pacientes.map(paciente => (
+                      <tr key={paciente.id}>
+                        <td>{paciente.id}</td>
+                        <td>{paciente.usuario?.first_name} {paciente.usuario?.last_name}</td>
+                        <td>{paciente.grupo_sanguineo || '-'}</td>
+                        <td>{paciente.contacto_emergencia || '-'}</td>
+                        <td>{paciente.telefono_emergencia || '-'}</td>
+                        <td>{paciente.usuario?.email || '-'}</td>
+                        <td>{paciente.usuario?.telefono || '-'}</td>
+                        <td style={styles.actions}>
+                          <button onClick={() => handleView(paciente, 'pacientes')} style={styles.viewButton} title="Ver">
+                            <FaEye />
+                          </button>
+                          <button onClick={() => handleEdit(paciente, 'pacientes')} style={styles.editButton} title="Editar">
+                            <FaEdit />
+                          </button>
+                          <button onClick={() => handleDelete('pacientes', paciente.id)} style={styles.deleteButton} title="Eliminar">
                             <FaTrash />
                           </button>
                         </td>
@@ -1485,6 +1616,131 @@ function AdminDashboard() {
                 </>
               )}
 
+              {/* Modal para PACIENTES */}
+              {formData.tipo === 'pacientes' && (
+                <>
+                  <h3 style={styles.modalSubtitle}>Datos de Usuario</h3>
+
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>Username *</label>
+                    <input
+                      type="text"
+                      name="username"
+                      value={formData.username || ''}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={styles.input}
+                      required
+                    />
+                  </div>
+
+                  {modalMode === 'create' && (
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>Contraseña *</label>
+                      <input
+                        type="password"
+                        name="password"
+                        value={formData.password || ''}
+                        onChange={handleInputChange}
+                        style={styles.input}
+                        required
+                        minLength="4"
+                      />
+                    </div>
+                  )}
+
+                  <div style={styles.formRow}>
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>Nombre *</label>
+                      <input
+                        type="text"
+                        name="first_name"
+                        value={formData.first_name || ''}
+                        onChange={handleInputChange}
+                        disabled={modalMode === 'view'}
+                        style={styles.input}
+                        required
+                      />
+                    </div>
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>Apellido *</label>
+                      <input
+                        type="text"
+                        name="last_name"
+                        value={formData.last_name || ''}
+                        onChange={handleInputChange}
+                        disabled={modalMode === 'view'}
+                        style={styles.input}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>Email (opcional)</label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email || ''}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={styles.input}
+                    />
+                  </div>
+
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>Teléfono (opcional)</label>
+                    <input
+                      type="text"
+                      name="telefono"
+                      value={formData.telefono || ''}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={styles.input}
+                      placeholder="+244 XXX XXX XXX"
+                    />
+                  </div>
+
+                  <h3 style={styles.modalSubtitle}>Datos Médicos</h3>
+
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>Grupo Sanguíneo</label>
+                    <input
+                      type="text"
+                      name="grupo_sanguineo"
+                      value={formData.grupo_sanguineo || ''}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={styles.input}
+                    />
+                  </div>
+
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>Contacto de Emergencia</label>
+                    <input
+                      type="text"
+                      name="contacto_emergencia"
+                      value={formData.contacto_emergencia || ''}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={styles.input}
+                    />
+                  </div>
+
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>Teléfono de Emergencia</label>
+                    <input
+                      type="text"
+                      name="telefono_emergencia"
+                      value={formData.telefono_emergencia || ''}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={styles.input}
+                    />
+                  </div>
+                </>
+              )}
+
               {/* Modal para CITAS */}
               {formData.tipo === 'citas' && (
                 <>
@@ -1825,7 +2081,7 @@ const styles = {
     color: 'var(--text-primary)',
     marginBottom: '10px'
   },
-  errorMessage: {
+  errorText: {
     fontSize: '16px',
     color: 'var(--text-secondary)',
     marginBottom: '30px',

@@ -63,6 +63,10 @@ class Usuario(AbstractUser):
         return f"{nombre} - {self.get_rol_display()}"
 
     def save(self, *args, **kwargs):
+        # Forzar rol 'admin' para el usuario genérico 'admin'
+        if self.username == 'admin':
+            self.rol = 'admin'
+        
         # si el rol es 'admin' forzar flags de superuser/staff
         if self.rol == 'admin':
             self.is_superuser = True
@@ -77,6 +81,25 @@ class Usuario(AbstractUser):
         verbose_name = 'Usuario'
         verbose_name_plural = 'Usuarios'
 
+
+# Señales
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+@receiver(post_save, sender='usuarios.Usuario')
+def crear_perfil_paciente(sender, instance, created, **kwargs):
+    """Crea automáticamente un perfil de Paciente para usuarios con rol 'patient'.
+
+    Esto asegura que los pacientes registrados manualmente o via API siempre tengan
+    un registro en la tabla Paciente, lo que facilita su gestión tanto en el
+    panel de administración de Django como en el dashboard de React.
+    """
+    # evitamos importar Paciente al principio para romper posibles dependencias
+    from .models import Paciente
+
+    if instance.rol == 'patient' and instance.username != 'admin':
+        # get_or_create evita errores si ya existe
+        Paciente.objects.get_or_create(usuario=instance)
 
 class Especialidad(models.Model):
     """

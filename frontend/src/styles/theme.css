@@ -1,4 +1,4 @@
-/* src/styles/theme.css - Sistema de Temas Profesional v2.0 */
+/* src/styles/theme.css - Sistema de Temas Profesional v2.0 con Animaciones */
 
 :root {
   /* --- Tema Claro (por defecto) --- */
@@ -12,6 +12,18 @@
   --shadow-color: rgba(0, 0, 0, 0.05);
   --shadow-color-hover: rgba(0, 0, 0, 0.1);
   --card-bg: #ffffff;
+
+  /* Gradientes de fondo */
+  --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  --card-gradient: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%);
+  --section-gradient: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  --btn-gradient: linear-gradient(135deg, #3498db 0%, #6ab5f5 100%);
+
+  /* Elementos flotantes */
+  --floating-elements: radial-gradient(circle at 20% 80%, rgba(52, 152, 219, 0.1) 0%, transparent 50%),
+                      radial-gradient(circle at 80% 20%, rgba(155, 89, 182, 0.1) 0%, transparent 50%),
+                      radial-gradient(circle at 40% 40%, rgba(26, 188, 156, 0.1) 0%, transparent 50%);
+  --particle-color: rgba(52, 152, 219, 0.3);
 
   /* Colores de acento por rol (Nueva paleta médica) */
   --color-admin: #6c5ce7;
@@ -42,6 +54,12 @@
   --box-shadow: 0 4px 12px var(--shadow-color);
   --box-shadow-hover: 0 12px 24px var(--shadow-color-hover);
   --box-shadow-glow: 0 0 0 2px var(--color-patient-soft);
+  --focus-shadow: rgba(52, 152, 219, 0.2);
+  --pulse-color: rgba(52, 152, 219, 0.4);
+  --hover-bg: rgba(52, 152, 219, 0.1);
+  --input-bg: rgba(255, 255, 255, 0.8);
+  --card-accent: linear-gradient(90deg, #3498db, #6ab5f5);
+  --color-primary: #3498db;
 }
 
 /* Tema Oscuro */
@@ -57,6 +75,18 @@
   --shadow-color-hover: rgba(0, 0, 0, 0.7);
   --card-bg: #1e293b;
 
+  /* Gradientes oscuros */
+  --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  --card-gradient: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(30, 41, 59, 0.7) 100%);
+  --section-gradient: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  --btn-gradient: linear-gradient(135deg, #6ab5f5 0%, #3498db 100%);
+
+  /* Elementos flotantes oscuros */
+  --floating-elements: radial-gradient(circle at 20% 80%, rgba(106, 181, 245, 0.1) 0%, transparent 50%),
+                      radial-gradient(circle at 80% 20%, rgba(162, 155, 254, 0.1) 0%, transparent 50%),
+                      radial-gradient(circle at 40% 40%, rgba(85, 239, 196, 0.1) 0%, transparent 50%);
+  --particle-color: rgba(106, 181, 245, 0.2);
+
   --color-admin: #a29bfe;
   --color-admin-soft: #6c5ce7;
   --color-admin-bg: #2d2740;
@@ -69,4 +99,11 @@
   --color-patient: #6ab5f5;
   --color-patient-soft: #3498db;
   --color-patient-bg: #1e3347;
+
+  --focus-shadow: rgba(106, 181, 245, 0.3);
+  --pulse-color: rgba(106, 181, 245, 0.6);
+  --hover-bg: rgba(106, 181, 245, 0.1);
+  --input-bg: rgba(30, 41, 59, 0.8);
+  --card-accent: linear-gradient(90deg, #6ab5f5, #3498db);
+  --color-primary: #6ab5f5;
 }

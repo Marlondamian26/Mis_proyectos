@@ -124,10 +124,14 @@ STATIC_URL = 'static/'
 
 
 # Al final del archivo, añade la configuración de CORS:
-# Permite que React (puerto 5173) se conecte
+# Permite que React (puertos 5173, 5174, 5175) se conecte
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "http://localhost:5174",
+    "http://127.0.0.1:5174",
+    "http://localhost:5175",
+    "http://127.0.0.1:5175",
 ]
 
 # Opcional: Si quieres permitir credenciales (cookies, sesiones)

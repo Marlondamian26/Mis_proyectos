@@ -38,7 +38,26 @@ export const AuthProvider = ({ children }) => {
   };
 
   const login = async (username, password) => {
-    // Implementar login
+    try {
+      const response = await axiosInstance.post('token/', {
+        username,
+        password
+      });
+
+      if (response.data && response.data.access) {
+        localStorage.setItem('access_token', response.data.access);
+        if (response.data.refresh) {
+          localStorage.setItem('refresh_token', response.data.refresh);
+        }
+        
+        // Cargar usuario después del login exitoso
+        await cargarUsuario();
+        return { success: true };
+      }
+    } catch (error) {
+      console.error('Error en login:', error);
+      throw error;
+    }
   };
 
   const logout = () => {
