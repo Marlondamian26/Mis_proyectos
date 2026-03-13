@@ -320,7 +320,7 @@ const styles = {
     color: '#e74c3c',
     borderColor: '#e74c3c',
     ':hover': {
-      backgroundColor: '#e74c3c',
+      backgroundColor: 'var(--color-cancelled)',
       color: 'white',
     },
   },

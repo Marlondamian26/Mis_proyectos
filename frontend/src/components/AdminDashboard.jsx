@@ -641,8 +641,8 @@ function AdminDashboard() {
     return (
       <div style={styles.loadingContainer}>
         <FaSpinner style={styles.loadingSpinner} />
-        <p style={styles.loadingText}>Cargando panel de administración...</p>
-        <p style={styles.loadingSubtext}>Cargando usuarios, doctores, citas...</p>
+        <p style={styles.loadingText}>Carregando painel de administracao...</p>
+        <p style={styles.loadingSubtext}>Carregando usuarios, medicos, consultas...</p>
       </div>
     )
   }
@@ -654,7 +654,7 @@ function AdminDashboard() {
         <h2 style={styles.errorTitle}>Error</h2>
         <p style={styles.errorText}>{loadingError}</p>
         <button onClick={() => window.location.reload()} style={styles.retryButton}>
-          <FaSync /> Reintentar
+          <FaSync /> Tentar novamente
         </button>
         <button onClick={() => navigate('/dashboard')} style={styles.backButton}>
           ← Volver al Dashboard
@@ -811,14 +811,14 @@ function AdminDashboard() {
         {activeTab === 'usuarios' && (
           <div>
             <div style={styles.tableHeader}>
-              <h2 style={styles.sectionTitle}>Gestión de Usuarios</h2>
+              <h2 style={styles.sectionTitle}>Gestao de Usuarios</h2>
               <button onClick={() => handleCreate('usuarios')} style={styles.createButton}>
-                <FaPlus /> Nuevo Usuario
+                <FaPlus /> Novo Usuario
               </button>
             </div>
             {usuarios.length === 0 ? (
               <div style={styles.emptyState}>
-                <p>No hay usuarios registrados</p>
+                <p>Nao ha usuarios cadastrados</p>
               </div>
             ) : (
               <div style={styles.tableContainer}>
@@ -2136,8 +2136,8 @@ const styles = {
     margin: 0
   },
   successMessage: {
-    backgroundColor: '#d4edda',
-    color: '#155724',
+    backgroundColor: 'var(--color-success-bg)',
+    color: 'var(--color-success-text)',
     padding: '15px 20px',
     borderRadius: '10px',
     marginBottom: '20px',
@@ -2147,8 +2147,8 @@ const styles = {
     border: '1px solid #c3e6cb'
   },
   errorMessage: {
-    backgroundColor: '#f8d7da',
-    color: '#721c24',
+    backgroundColor: 'var(--color-error-bg)',
+    color: 'var(--color-error-text)',
     padding: '15px 20px',
     borderRadius: '10px',
     marginBottom: '20px',
@@ -2162,8 +2162,8 @@ const styles = {
     flex: 1
   },
   errorBackend: {
-    backgroundColor: '#f8d7da',
-    color: '#721c24',
+    backgroundColor: 'var(--color-error-bg)',
+    color: 'var(--color-error-text)',
     padding: '15px',
     borderRadius: '8px',
     marginBottom: '20px',
@@ -2295,7 +2295,7 @@ const styles = {
     fontSize: '12px'
   },
   editButton: {
-    backgroundColor: '#f39c12',
+    backgroundColor: 'var(--color-warning)',
     color: 'white',
     padding: '5px 8px',
     border: 'none',
@@ -2304,7 +2304,7 @@ const styles = {
     fontSize: '12px'
   },
   deleteButton: {
-    backgroundColor: '#e74c3c',
+    backgroundColor: 'var(--color-danger)',
     color: 'white',
     padding: '5px 8px',
     border: 'none',
@@ -2432,7 +2432,7 @@ const styles = {
     marginTop: '20px'
   },
   saveButton: {
-    backgroundColor: '#27ae60',
+    backgroundColor: 'var(--color-success)',
     color: 'white',
     padding: '12px',
     border: 'none',
@@ -2447,7 +2447,7 @@ const styles = {
     fontWeight: '500'
   },
   cancelButton: {
-    backgroundColor: '#e74c3c',
+    backgroundColor: 'var(--color-cancelled)',
     color: 'white',
     padding: '12px',
     border: 'none',

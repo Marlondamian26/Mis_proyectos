@@ -1,4 +1,8 @@
-/* src/styles/theme.css - Sistema de Temas Profesional v2.0 con Animaciones */
+/* src/styles/theme.css - Sistema de Temas Profesional v3.0 con Animaciones y Colores por Rol */
+
+/* ============================================
+   VARIABLES CSS PRINCIPALES
+   ============================================ */
 
 :root {
   /* --- Tema Claro (por defecto) --- */
@@ -25,25 +29,38 @@
                       radial-gradient(circle at 40% 40%, rgba(26, 188, 156, 0.1) 0%, transparent 50%);
   --particle-color: rgba(52, 152, 219, 0.3);
 
-  /* Colores de acento por rol (Nueva paleta médica) */
-  --color-admin: #6c5ce7;
-  --color-admin-soft: #a29bfe;
-  --color-admin-bg: #f0eefe;
-  --color-doctor: #00b894;
-  --color-doctor-soft: #6ab04c;
-  --color-doctor-bg: #e0f7f0;
-  --color-nurse: #fdcb6e;
-  --color-nurse-soft: #ffeaa7;
-  --color-nurse-bg: #fff3db;
-  --color-patient: #3498db;
-  --color-patient-soft: #6ab5f5;
-  --color-patient-bg: #e8f0fe;
+  /* Colores de acento por rol - MODO CLARO */
+  /* ADMINISTRADOR - Púrpura elegante para gestión */
+  --color-admin: #7c3aed;
+  --color-admin-light: #a78bfa;
+  --color-admin-soft: #c4b5fd;
+  --color-admin-bg: #f5f3ff;
+  --color-admin-surface: #ede9fe;
+  --gradient-admin: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
 
-  /* Gradientes por rol (suaves y modernos) */
-  --gradient-admin: linear-gradient(135deg, #6c5ce7 0%, #a463f5 100%);
-  --gradient-doctor: linear-gradient(135deg, #00b894 0%, #55efc4 100%);
-  --gradient-nurse: linear-gradient(135deg, #fdcb6e 0%, #ffe083 100%);
-  --gradient-patient: linear-gradient(135deg, #3498db 0%, #6ab5f5 100%);
+  /* DOCTOR - Verde médico para salud */
+  --color-doctor: #059669;
+  --color-doctor-light: #34d399;
+  --color-doctor-soft: #6ee7b7;
+  --color-doctor-bg: #ecfdf5;
+  --color-doctor-surface: #d1fae5;
+  --gradient-doctor: linear-gradient(135deg, #059669 0%, #34d399 100%);
+
+  /* ENFERMERÍA - Amarillo cálido para cuidado */
+  --color-nurse: #d97706;
+  --color-nurse-light: #fbbf24;
+  --color-nurse-soft: #fcd34d;
+  --color-nurse-bg: #fffbeb;
+  --color-nurse-surface: #fef3c7;
+  --gradient-nurse: linear-gradient(135deg, #d97706 0%, #fbbf24 100%);
+
+  /* PACIENTE - Azul calmado para serenidad */
+  --color-patient: #2563eb;
+  --color-patient-light: #60a5fa;
+  --color-patient-soft: #93c5fd;
+  --color-patient-bg: #eff6ff;
+  --color-patient-surface: #dbeafe;
+  --gradient-patient: linear-gradient(135deg, #2563eb 0%, #60a5fa 100%);
 
   /* Efectos y animaciones */
   --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -59,51 +76,324 @@
   --hover-bg: rgba(52, 152, 219, 0.1);
   --input-bg: rgba(255, 255, 255, 0.8);
   --card-accent: linear-gradient(90deg, #3498db, #6ab5f5);
-  --color-primary: #3498db;
+  --color-primary: #2563eb;
+
+  /* --- Estados de Citas --- */
+  --color-pending: #f59e0b;
+  --color-pending-bg: #fffbeb;
+  --color-confirmed: #10b981;
+  --color-confirmed-bg: #ecfdf5;
+  --color-completed: #3b82f6;
+  --color-completed-bg: #eff6ff;
+  --color-cancelled: #ef4444;
+  --color-cancelled-bg: #fef2f2;
+  --color-no-show: #6b7280;
+  --color-no-show-bg: #f3f4f6;
+
+  /* --- Colores de Utilidad --- */
+  --color-success: #10b981;
+  --color-success-bg: #d1fae5;
+  --color-success-text: #065f46;
+  --color-error: #ef4444;
+  --color-error-bg: #fee2e2;
+  --color-error-text: #991b1b;
+  --color-warning: #f59e0b;
+  --color-warning-bg: #fef3c7;
+  --color-warning-text: #92400e;
+  --color-danger: #dc2626;
+  --color-danger-bg: #fee2e2;
+
+  /* Colores de burbujas para fondo animado */
+  --bubble-color-1: rgba(124, 58, 237, 0.15);
+  --bubble-color-2: rgba(5, 150, 105, 0.15);
+  --bubble-color-3: rgba(217, 119, 6, 0.15);
+  --bubble-color-4: rgba(37, 99, 235, 0.15);
 }
 
-/* Tema Oscuro */
+/* ============================================
+   TEMA OSCURO
+   ============================================ */
+
 [data-theme="dark"] {
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --bg-tertiary: #334155;
+  --bg-primary: #0a0f1a;
+  --bg-secondary: #111827;
+  --bg-tertiary: #1e293b;
   --text-primary: #f1f5f9;
   --text-secondary: #cbd5e1;
   --text-muted: #94a3b8;
   --border-color: #334155;
   --shadow-color: rgba(0, 0, 0, 0.5);
   --shadow-color-hover: rgba(0, 0, 0, 0.7);
-  --card-bg: #1e293b;
+  --card-bg: #111827;
 
   /* Gradientes oscuros */
-  --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-  --card-gradient: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(30, 41, 59, 0.7) 100%);
-  --section-gradient: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-  --btn-gradient: linear-gradient(135deg, #6ab5f5 0%, #3498db 100%);
+  --bg-gradient: linear-gradient(135deg, #0a0f1a 0%, #111827 100%);
+  --card-gradient: linear-gradient(135deg, rgba(17, 24, 39, 0.9) 0%, rgba(17, 24, 39, 0.7) 100%);
+  --section-gradient: linear-gradient(135deg, #111827 0%, #1e293b 100%);
+  --btn-gradient: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
 
   /* Elementos flotantes oscuros */
-  --floating-elements: radial-gradient(circle at 20% 80%, rgba(106, 181, 245, 0.1) 0%, transparent 50%),
-                      radial-gradient(circle at 80% 20%, rgba(162, 155, 254, 0.1) 0%, transparent 50%),
-                      radial-gradient(circle at 40% 40%, rgba(85, 239, 196, 0.1) 0%, transparent 50%);
-  --particle-color: rgba(106, 181, 245, 0.2);
+  --floating-elements: radial-gradient(circle at 20% 80%, rgba(96, 165, 250, 0.15) 0%, transparent 50%),
+                      radial-gradient(circle at 80% 20%, rgba(167, 139, 250, 0.15) 0%, transparent 50%),
+                      radial-gradient(circle at 40% 40%, rgba(52, 211, 153, 0.15) 0%, transparent 50%);
+  --particle-color: rgba(96, 165, 250, 0.2);
 
-  --color-admin: #a29bfe;
-  --color-admin-soft: #6c5ce7;
-  --color-admin-bg: #2d2740;
-  --color-doctor: #55efc4;
-  --color-doctor-soft: #00b894;
-  --color-doctor-bg: #1e3a3a;
-  --color-nurse: #ffeaa7;
-  --color-nurse-soft: #fdcb6e;
-  --color-nurse-bg: #3e3a2e;
-  --color-patient: #6ab5f5;
-  --color-patient-soft: #3498db;
-  --color-patient-bg: #1e3347;
+  /* Colores de acento por rol - MODO OSCURO */
+  /* ADMINISTRADOR - Púrpura oscura elegante */
+  --color-admin: #a78bfa;
+  --color-admin-light: #c4b5fd;
+  --color-admin-soft: #7c3aed;
+  --color-admin-bg: #1e1b4b;
+  --color-admin-surface: #312e81;
+  --gradient-admin: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
 
-  --focus-shadow: rgba(106, 181, 245, 0.3);
-  --pulse-color: rgba(106, 181, 245, 0.6);
-  --hover-bg: rgba(106, 181, 245, 0.1);
-  --input-bg: rgba(30, 41, 59, 0.8);
-  --card-accent: linear-gradient(90deg, #6ab5f5, #3498db);
-  --color-primary: #6ab5f5;
+  /* DOCTOR - Verde oscuro médico */
+  --color-doctor: #34d399;
+  --color-doctor-light: #6ee7b7;
+  --color-doctor-soft: #059669;
+  --color-doctor-bg: #064e3b;
+  --color-doctor-surface: #065f46;
+  --gradient-doctor: linear-gradient(135deg, #34d399 0%, #059669 100%);
+
+  /* ENFERMERÍA - Amarillo oscuro cálido */
+  --color-nurse: #fbbf24;
+  --color-nurse-light: #fcd34d;
+  --color-nurse-soft: #d97706;
+  --color-nurse-bg: #451a03;
+  --color-nurse-surface: #78350f;
+  --gradient-nurse: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+
+  /* PACIENTE - Azul oscuro calmado */
+  --color-patient: #60a5fa;
+  --color-patient-light: #93c5fd;
+  --color-patient-soft: #2563eb;
+  --color-patient-bg: #1e3a8a;
+  --color-patient-surface: #1e40af;
+  --gradient-patient: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
+
+  --focus-shadow: rgba(96, 165, 250, 0.3);
+  --pulse-color: rgba(96, 165, 250, 0.6);
+  --hover-bg: rgba(96, 165, 250, 0.1);
+  --input-bg: rgba(17, 24, 39, 0.8);
+  --card-accent: linear-gradient(90deg, #60a5fa, #2563eb);
+  --color-primary: #60a5fa;
+
+  /* --- Estados de Citas --- */
+  --color-pending: #fbbf24;
+  --color-pending-bg: #451a03;
+  --color-confirmed: #34d399;
+  --color-confirmed-bg: #064e3b;
+  --color-completed: #60a5fa;
+  --color-completed-bg: #1e3a8a;
+  --color-cancelled: #f87171;
+  --color-cancelled-bg: #7f1d1d;
+  --color-no-show: #9ca3af;
+  --color-no-show-bg: #374151;
+
+  /* --- Colores de Utilidad --- */
+  --color-success: #34d399;
+  --color-success-bg: #064e3b;
+  --color-success-text: #a7f3d0;
+  --color-error: #f87171;
+  --color-error-bg: #7f1d1d;
+  --color-error-text: #fecaca;
+  --color-warning: #fbbf24;
+  --color-warning-bg: #78350f;
+  --color-warning-text: #fde68a;
+  --color-danger: #ef4444;
+  --color-danger-bg: #7f1d1d;
+
+  /* Burbujas en modo oscuro */
+  --bubble-color-1: rgba(167, 139, 250, 0.2);
+  --bubble-color-2: rgba(52, 211, 153, 0.2);
+  --bubble-color-3: rgba(251, 191, 36, 0.2);
+  --bubble-color-4: rgba(96, 165, 250, 0.2);
 }
+
+/* ============================================
+   VARIABLES DINÁMICAS POR ROL (se establecen desde JS)
+   ============================================ */
+
+[data-role="admin"] {
+  --role-color: var(--color-admin);
+  --role-color-light: var(--color-admin-light);
+  --role-color-soft: var(--color-admin-soft);
+  --role-color-bg: var(--color-admin-bg);
+  --role-color-surface: var(--color-admin-surface);
+  --role-gradient: var(--gradient-admin);
+  --bubble-color-1: rgba(167, 139, 250, var(--bubble-opacity, 0.15));
+  --bubble-color-2: rgba(196, 181, 253, var(--bubble-opacity, 0.15));
+}
+
+[data-role="doctor"] {
+  --role-color: var(--color-doctor);
+  --role-color-light: var(--color-doctor-light);
+  --role-color-soft: var(--color-doctor-soft);
+  --role-color-bg: var(--color-doctor-bg);
+  --role-color-surface: var(--color-doctor-surface);
+  --role-gradient: var(--gradient-doctor);
+  --bubble-color-1: rgba(52, 211, 153, var(--bubble-opacity, 0.15));
+  --bubble-color-2: rgba(110, 231, 183, var(--bubble-opacity, 0.15));
+}
+
+[data-role="nurse"] {
+  --role-color: var(--color-nurse);
+  --role-color-light: var(--color-nurse-light);
+  --role-color-soft: var(--color-nurse-soft);
+  --role-color-bg: var(--color-nurse-bg);
+  --role-color-surface: var(--color-nurse-surface);
+  --role-gradient: var(--gradient-nurse);
+  --bubble-color-1: rgba(251, 191, 36, var(--bubble-opacity, 0.15));
+  --bubble-color-2: rgba(252, 211, 77, var(--bubble-opacity, 0.15));
+}
+
+[data-role="patient"] {
+  --role-color: var(--color-patient);
+  --role-color-light: var(--color-patient-light);
+  --role-color-soft: var(--color-patient-soft);
+  --role-color-bg: var(--color-patient-bg);
+  --role-color-surface: var(--color-patient-surface);
+  --role-gradient: var(--gradient-patient);
+  --bubble-color-1: rgba(96, 165, 250, var(--bubble-opacity, 0.15));
+  --bubble-color-2: rgba(147, 197, 253, var(--bubble-opacity, 0.15));
+}
+
+/* Opacidad de burbujas - mayor en modo oscuro */
+[data-theme="dark"] {
+  [data-role="admin"],
+  [data-role="doctor"],
+  [data-role="nurse"],
+  [data-role="patient"] {
+    --bubble-opacity: 0.25;
+  }
+}
+
+/* ============================================
+   UTILIDADES DE COLOR POR ROL
+   ============================================ */
+
+.role-admin {
+  --local-color: var(--color-admin);
+  --local-bg: var(--color-admin-bg);
+}
+
+.role-doctor {
+  --local-color: var(--color-doctor);
+  --local-bg: var(--color-doctor-bg);
+}
+
+.role-nurse {
+  --local-color: var(--color-nurse);
+  --local-bg: var(--color-nurse-bg);
+}
+
+.role-patient {
+  --local-color: var(--color-patient);
+  --local-bg: var(--color-patient-bg);
+}
+
+/* ============================================
+   CLASES DE FONDO ANIMADO
+   ============================================ */
+
+.has-animated-bg {
+  position: relative;
+  overflow: hidden;
+}
+
+.has-animated-bg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--bg-gradient);
+  z-index: -2;
+}
+
+.has-animated-bg::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--floating-elements);
+  z-index: -1;
+}
+
+/* Burbujas flotantes */
+.bubble {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.6;
+  animation: float 20s infinite ease-in-out;
+  filter: blur(1px);
+}
+
+.bubble-1 {
+  width: 300px;
+  height: 300px;
+  background: var(--bubble-color-1);
+  top: 10%;
+  left: 10%;
+  animation-delay: 0s;
+}
+
+.bubble-2 {
+  width: 200px;
+  height: 200px;
+  background: var(--bubble-color-2);
+  top: 60%;
+  right: 15%;
+  animation-delay: -5s;
+}
+
+.bubble-3 {
+  width: 150px;
+  height: 150px;
+  background: var(--bubble-color-3);
+  bottom: 20%;
+  left: 30%;
+  animation-delay: -10s;
+}
+
+.bubble-4 {
+  width: 100px;
+  height: 100px;
+  background: var(--bubble-color-4);
+  top: 40%;
+  right: 40%;
+  animation-delay: -15s;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(30px, -30px) scale(1.05);
+  }
+  50% {
+    transform: translate(-20px, 20px) scale(0.95);
+  }
+  75% {
+    transform: translate(10px, 40px) scale(1.02);
+  }
+}
+
+/* ============================================
+   TRANSICIONES SUAVES
+   ============================================ */
+
+.theme-transition,
+.theme-transition *,
+.theme-transition *::before,
+.theme-transition *::after {
+  transition: background-color 0.3s ease,
+              color 0.3s ease,
+              border-color 0.3s ease,
+              box-shadow 0.3s ease !important;
+}
+

@@ -43,19 +43,19 @@ function Registro() {
     if (/[^A-Za-z0-9]/.test(password)) score += 1
 
     if (password.length === 0) {
-      message = 'Ingresa una contraseña'
+      message = 'Digite uma senha'
       color = '#95a5a6'
     } else if (score <= 2) {
-      message = 'Contraseña débil'
+      message = 'Senha fraca'
       color = '#e74c3c'
     } else if (score <= 3) {
-      message = 'Contraseña media'
+      message = 'Senha media'
       color = '#f39c12'
     } else if (score <= 4) {
-      message = 'Contraseña fuerte'
+      message = 'Senha forte'
       color = '#27ae60'
     } else {
-      message = 'Contraseña muy fuerte'
+      message = 'Senha muito forte'
       color = '#27ae60'
     }
 
@@ -91,38 +91,38 @@ function Registro() {
 
     // Validar username
     if (!formData.username.trim()) {
-      newErrors.username = 'El nombre de usuario es requerido'
+      newErrors.username = 'O nome de usuario e obrigatorio'
     } else if (formData.username.length < 3) {
-      newErrors.username = 'El usuario debe tener al menos 3 caracteres'
+      newErrors.username = 'O usuario deve ter pelo menos 3 caracteres'
     }
 
-    // Validar contraseña
+    // Validar senha
     if (!formData.password) {
-      newErrors.password = 'La contraseña es requerida'
+      newErrors.password = 'A senha e obrigatoria'
     } else if (formData.password.length < 4) {
-      newErrors.password = 'La contraseña debe tener al menos 4 caracteres'
+      newErrors.password = 'A senha deve ter pelo menos 4 caracteres'
     }
 
     // Validar nombre
     if (!formData.first_name.trim()) {
-      newErrors.first_name = 'El nombre es requerido'
+      newErrors.first_name = 'O nome e obrigatorio'
     }
 
     // Validar apellido
     if (!formData.last_name.trim()) {
-      newErrors.last_name = 'El apellido es requerido'
+      newErrors.last_name = 'O sobrenome e obrigatorio'
     }
 
     // Validar email (opcional para pacientes, obligatorio para otros roles)
     if (formData.rol !== 'patient' && !formData.email.trim()) {
-      newErrors.email = 'El email es requerido'
+      newErrors.email = 'O email e obrigatorio'
     } else if (formData.email.trim() && !/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email inválido'
+      newErrors.email = 'Email invalido'
     }
 
     // Validar teléfono (opcional pero con formato)
     if (formData.telefono && !/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/.test(formData.telefono)) {
-      newErrors.telefono = 'Formato de teléfono inválido'
+      newErrors.telefono = 'Formato de telefone invalido'
     }
 
     setErrors(newErrors)
@@ -139,7 +139,7 @@ function Registro() {
     
     // Validar formulario
     if (!validateForm()) {
-      setError('Por favor corrige los errores en el formulario')
+      setError('Por favor corrija os erros no formulario')
       return
     }
 
@@ -172,9 +172,9 @@ function Registro() {
 
       console.log('Respuesta del servidor:', response.data)
       
-      setSuccess('¡Registro exitoso! Accediendo a tu cuenta...')
+      setSuccess('Cadastro realizado com sucesso! Acessando sua conta...')
       
-      // Guardar tokens si el registro devuelve tokens
+      // Salvar tokens se o registro retornar tokens
       if (response.data.access) {
         localStorage.setItem('access_token', response.data.access)
         localStorage.setItem('refresh_token', response.data.refresh)
@@ -188,7 +188,7 @@ function Registro() {
 
       // Axios produces different error shapes for cancellations/timeouts.
       if (err?.name === 'AbortError' || err?.name === 'CanceledError' || err?.code === 'ECONNABORTED' || err?.code === 'ERR_CANCELED') {
-        setError('Tiempo de espera agotado o petición cancelada. Verifica que el servidor esté corriendo.')
+        setError('Tempo limite excedido ou requisicao cancelada. Verifique se o servidor esta funcionando.')
       } else if (err.response) {
         // Errores del servidor
         console.error('Error response:', err.response.data)
@@ -198,7 +198,7 @@ function Registro() {
           const backendErrors = err.response.data
           
           if (typeof backendErrors === 'object') {
-            // Mostrar errores específicos del backend
+            // Mostrar erros especificos do backend
             const errorMessages = []
             Object.entries(backendErrors).forEach(([field, messages]) => {
               if (Array.isArray(messages)) {
@@ -214,24 +214,24 @@ function Registro() {
             if (errorMessages.length > 0) {
               setError(errorMessages.join('\n'))
             } else {
-              setError('Error en los datos enviados')
+              setError('Erro nos dados enviados')
             }
           } else {
-            setError(backendErrors.message || 'Error en el registro')
+            setError(backendErrors.message || 'Erro no cadastro')
           }
         } else if (err.response.status === 409) {
-          setError('El nombre de usuario ya existe')
+          setError('O nome de usuario ja existe')
           setErrors(prev => ({
             ...prev,
-            username: 'Este usuario ya está registrado'
+            username: 'Este usuario ja esta cadastrado'
           }))
         } else {
-          setError(`Error del servidor: ${err.response.status}`)
+          setError(`Erro do servidor: ${err.response.status}`)
         }
       } else if (err.request) {
-        setError('No se pudo conectar con el servidor. Verifica que el backend esté corriendo.')
+        setError('Nao foi possivel conectar com o servidor. Verifique se o backend esta funcionando.')
       } else {
-        setError('Error al conectar con el servidor')
+        setError('Erro ao conectar com o servidor')
       }
     } finally {
       setLoading(false)
@@ -351,7 +351,7 @@ function Registro() {
             {errors.username && (
               <span style={styles.fieldError}>{errors.username}</span>
             )}
-            <span style={styles.inputHint}>Mínimo 3 caracteres</span>
+            <span style={styles.inputHint}>Minimo 3 caracteres</span>
           </div>
 
           {/* Email */}
@@ -382,7 +382,7 @@ function Registro() {
           <div style={styles.inputGroup}>
             <label style={styles.label}>
               <FaPhone style={styles.inputIcon} />
-              Teléfono
+              Telefone
             </label>
             <input
               type="tel"
@@ -406,7 +406,7 @@ function Registro() {
           <div style={styles.inputGroup}>
             <label style={styles.label}>
               <FaLock style={styles.inputIcon} />
-              Contraseña *
+              Senha *
             </label>
             <div style={styles.passwordWrapper}>
               <input
@@ -451,7 +451,7 @@ function Registro() {
               </div>
             )}
             
-            <span style={styles.inputHint}>Mínimo 4 caracteres</span>
+            <span style={styles.inputHint}>Minimo 4 caracteres</span>
           </div>
 
           {/* Rol (fijo como patient, oculto) */}
@@ -486,7 +486,7 @@ function Registro() {
               onClick={handleDemoData}
               style={styles.demoButton}
             >
-              🚀 Cargar datos de demo
+              🚀 Carregar dados de demo
             </button>
           )}
         </form>
@@ -504,10 +504,10 @@ function Registro() {
         {/* Términos y condiciones */}
         <div style={styles.termsContainer}>
           <p style={styles.termsText}>
-            Al registrarte, aceptas nuestros{' '}
-            <a href="/terminos" style={styles.termsLink}>Términos y Condiciones</a>{' '}
-            y{' '}
-            <a href="/privacidad" style={styles.termsLink}>Política de Privacidad</a>
+            Ao se cadastrar, voce aceita nossos{' '}
+            <a href="/terminos" style={styles.termsLink}>Termos e Condicoes</a>{' '}
+            e{' '}
+            <a href="/privacidade" style={styles.termsLink}>Politica de Privacidade</a>
           </p>
         </div>
       </div>
@@ -557,8 +557,8 @@ const styles = {
     margin: 0
   },
   errorContainer: {
-    backgroundColor: '#f8d7da',
-    border: '1px solid #f5c6cb',
+    backgroundColor: 'var(--color-error-bg)',
+    border: '1px solid var(--color-error)',
     borderRadius: '10px',
     padding: '15px',
     marginBottom: '20px',
@@ -567,8 +567,8 @@ const styles = {
     gap: '10px'
   },
   successContainer: {
-    backgroundColor: '#d4edda',
-    border: '1px solid #c3e6cb',
+    backgroundColor: 'var(--color-success-bg)',
+    border: '1px solid var(--color-success)',
     borderRadius: '10px',
     padding: '15px',
     marginBottom: '20px',

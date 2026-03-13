@@ -29,5 +29,9 @@ urlpatterns = [
     # Rutas de perfil personal para doctores y enfermeras
     path('mi-perfil-doctor/', views.mi_perfil_doctor, name='mi_perfil_doctor'),
     path('mi-perfil-enfermera/', views.mi_perfil_enfermera, name='mi_perfil_enfermera'),
+    
+    # Rutas del Asistente de IA
+    path('chat-ia/', views.chat_ia, name='chat_ia'),
+    path('chat-ia/sugerencias/', views.chat_ia_sugerencias, name='chat_ia_sugerencias'),
 
 ]

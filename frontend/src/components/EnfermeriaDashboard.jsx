@@ -14,7 +14,7 @@ function EnfermeriaDashboard() {
   const [pacientesHoy, setPacientesHoy] = useState([])
   const [procedimientosPendientes, setProcedimientosPendientes] = useState([])
   const [loading, setLoading] = useState(true)
-  const [loadingMessage, setLoadingMessage] = useState('Cargando panel de enfermería...')
+  const [loadingMessage, setLoadingMessage] = useState('Carregando painel de enfermagem...')
   const [mensaje, setMensaje] = useState({ texto: '', tipo: '' })
   const [activeTab, setActiveTab] = useState('pacientes')
   const [selectedPaciente, setSelectedPaciente] = useState(null)
@@ -86,7 +86,7 @@ function EnfermeriaDashboard() {
 
   const loadTodayData = async () => {
     try {
-      setLoadingMessage('Cargando pacientes del día...')
+      setLoadingMessage('Carregando pacientes do dia...')
       
       // Obtener citas de hoy
       const hoy = new Date().toISOString().split('T')[0]
@@ -242,7 +242,7 @@ function EnfermeriaDashboard() {
           )}
         </div>
         <button onClick={() => navigate('/dashboard')} style={styles.backButton}>
-          ← Volver al Dashboard
+          ← Voltar ao Dashboard
         </button>
       </div>
 
@@ -723,8 +723,8 @@ const styles = {
     fontSize: '14px'
   },
   successMessage: {
-    backgroundColor: '#d4edda',
-    color: '#155724',
+    backgroundColor: 'var(--color-success-bg)',
+    color: 'var(--color-success-text)',
     padding: '15px 20px',
     borderRadius: '10px',
     marginBottom: '20px',
@@ -734,8 +734,8 @@ const styles = {
     border: '1px solid #c3e6cb'
   },
   errorMessage: {
-    backgroundColor: '#f8d7da',
-    color: '#721c24',
+    backgroundColor: 'var(--color-error-bg)',
+    color: 'var(--color-error-text)',
     padding: '15px 20px',
     borderRadius: '10px',
     marginBottom: '20px',
@@ -954,7 +954,7 @@ const styles = {
     marginTop: '20px'
   },
   saveButton: {
-    backgroundColor: '#27ae60',
+    backgroundColor: 'var(--color-success)',
     color: 'white',
     padding: '10px',
     border: 'none',
@@ -967,7 +967,7 @@ const styles = {
     gap: '5px'
   },
   cancelButton: {
-    backgroundColor: '#e74c3c',
+    backgroundColor: 'var(--color-cancelled)',
     color: 'white',
     padding: '10px',
     border: 'none',

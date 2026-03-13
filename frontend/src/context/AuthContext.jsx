@@ -28,10 +28,29 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await axiosInstance.get('usuario-actual/');
       setUser(response.data);
+      // Guardar el rol del usuario para el fondo animado
+      if (response.data && response.data.rol) {
+        const validRoles = ['admin', 'doctor', 'nurse', 'patient'];
+        const rol = response.data.rol.toLowerCase();
+        if (validRoles.includes(rol)) {
+          try {
+            localStorage.setItem('user_role', rol);
+          } catch (e) {
+            console.warn('No se pudo guardar el rol en localStorage:', e);
+          }
+          document.documentElement.setAttribute('data-role', rol);
+        }
+      }
     } catch (error) {
       console.error('Error cargando usuario:', error);
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
+      try {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('user_role');
+      } catch (e) {
+        console.warn('No se pudo limpiar localStorage:', e);
+      }
+      document.documentElement.removeAttribute('data-role');
     } finally {
       setLoading(false);
     }
@@ -60,14 +79,23 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Helper to get current token
+  const getToken = () => localStorage.getItem('access_token');
+
   const logout = () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
+    try {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('user_role');
+    } catch (e) {
+      console.warn('No se pudo limpiar localStorage:', e);
+    }
+    document.documentElement.removeAttribute('data-role');
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, cargarUsuario }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, cargarUsuario, getToken }}>
       {children}
     </AuthContext.Provider>
   );

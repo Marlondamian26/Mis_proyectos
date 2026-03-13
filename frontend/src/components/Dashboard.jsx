@@ -2,11 +2,14 @@ import React, { useEffect, useState } from 'react'
 import axiosInstance from '../services/auth'
 import { useNavigate } from 'react-router-dom'
 import { useNotificaciones } from '../context/NotificacionesContext';
+import { useAuth } from '../context/AuthContext';
+import ChatIA from './ChatIA';
 
 function Dashboard() {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [mostrarChatIA, setMostrarChatIA] = useState(false)
   const [stats, setStats] = useState({
     totalCitas: 0,
     citasProximas: 0,
@@ -15,6 +18,7 @@ function Dashboard() {
   })
   const navigate = useNavigate()
   const { noLeidas } = useNotificaciones();
+  const { getToken } = useAuth();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -27,7 +31,7 @@ function Dashboard() {
       }
 
       try {
-        console.log('Obteniendo datos del usuario...')
+        console.log('Obtendo dados do usuario...')
         const response = await axiosInstance.get('usuario-actual/')
         
         if (response.data && response.data.username) {
@@ -35,10 +39,10 @@ function Dashboard() {
           setError('')
           
           // Cargar datos adicionales según el rol
-          await loadAdditionalData(response.data.rol)
+          await loadAdditionalData()
         } else {
           console.error('Respuesta inválida del servidor:', response.data)
-          setError('Error al cargar los datos del usuario')
+          setError('Erro ao carregar os dados do usuario')
         }
       } catch (err) {
         console.error('Error detallado:', err)
@@ -72,7 +76,7 @@ function Dashboard() {
   }, [navigate])
 
   // Cargar datos adicionales según el rol
-  const loadAdditionalData = async (rol) => {
+  const loadAdditionalData = async () => {
     try {
       const [citasRes, especialidadesRes, doctoresRes] = await Promise.allSettled([
         axiosInstance.get('mis-citas/'),
@@ -129,7 +133,7 @@ function Dashboard() {
     return (
       <div style={styles.loadingContainer}>
         <div style={styles.loadingSpinner}></div>
-        <p style={styles.loadingText}>Cargando tu información...</p>
+        <p style={styles.loadingText}>Carregando suas informacoes...</p>
         <p style={styles.loadingSubtext}>Por favor espera</p>
       </div>
     )
@@ -156,7 +160,7 @@ function Dashboard() {
   if (!user) {
     return (
       <div style={styles.errorContainer}>
-        <p>No se pudo cargar la información del usuario</p>
+        <p>Nao foi possivel carregar as informacoes do usuario</p>
         <button onClick={() => navigate('/login')} style={styles.errorButton}>
           Volver al Login
         </button>
@@ -422,6 +426,45 @@ function Dashboard() {
           </div>
         )}
       </div>
+
+      {/* Botón flotante del Asistente de IA - Solo para pacientes */}
+      {user?.rol === 'patient' && (
+        <>
+          <button
+            onClick={() => setMostrarChatIA(true)}
+            style={{
+              position: 'fixed',
+              bottom: '20px',
+              right: '20px',
+              width: '70px',
+              height: '60px',
+              borderRadius: '30px',
+              background: 'var(--role-gradient)',
+              border: 'none',
+              boxShadow: '0 4px 20px var(--shadow-color-hover)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '22px',
+              zIndex: 999,
+              flexDirection: 'column',
+              gap: '2px'
+            }}
+            title="Asistente de Citas"
+          >
+            <span style={{ fontSize: '24px' }}>🤖</span>
+            <span style={{ fontSize: '10px', fontWeight: 'bold' }}>IA</span>
+          </button>
+
+          {mostrarChatIA && (
+            <ChatIA
+              token={getToken()}
+              onClose={() => setMostrarChatIA(false)}
+            />
+          )}
+        </>
+      )}
     </div>
   )
 }
@@ -555,7 +598,7 @@ const styles = {
     gap: '5px'
   },
   logoutButton: {
-    backgroundColor: '#e74c3c',
+    backgroundColor: 'var(--color-cancelled)',
     color: 'white',
     padding: '12px 25px',
     border: 'none',

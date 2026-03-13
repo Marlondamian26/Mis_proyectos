@@ -84,7 +84,7 @@ function Doctores() {
     : doctoresArray
 
   if (loading) {
-    return <div style={styles.loading}>Cargando doctores...</div>
+    return <div style={styles.loading}>Carregando medicos...</div>
   }
 
   return (
@@ -93,7 +93,7 @@ function Doctores() {
       <div style={styles.header}>
         <h1>👨‍⚕️ Nuestros Especialistas</h1>
         <button onClick={() => navigate('/dashboard')} style={styles.backButton}>
-          ← Volver al Dashboard
+          ← Voltar ao Dashboard
         </button>
       </div>
 

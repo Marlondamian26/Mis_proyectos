@@ -4,6 +4,8 @@ from rest_framework import viewsets, generics, permissions, status
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.throttling import UserRateThrottle
+from rest_framework.decorators import throttle_classes
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.shortcuts import get_object_or_404
@@ -231,6 +233,76 @@ def mi_perfil_enfermera(request):
 
 
 # ViewSets (todos requieren autenticación)
+# ===== CHAT IA =====
+import logging
+
+logger = logging.getLogger(__name__)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@throttle_classes([UserRateThrottle])
+def chat_ia(request):
+    """
+    Endpoint para el asistente de IA de agendamiento de citas.
+    """
+    from .ai_service import procesar_chat
+    from .models import Paciente
+    
+    mensaje = request.data.get('mensaje', '').strip()
+    
+    if not mensaje:
+        return Response(
+            {'error': 'El mensaje no puede estar vacío'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    if len(mensaje) > 500:
+        return Response(
+            {'error': 'El mensaje no puede exceder 500 caracteres'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    # Obtener el paciente
+    paciente = Paciente.objects.filter(usuario=request.user).first()
+    
+    if not paciente:
+        logger.warning(f"Intento de chat por usuario no-paciente: {request.user.username}")
+        return Response(
+            {'error': 'Tu cuenta no está registrada como paciente. Esta función es solo para pacientes.'},
+            status=status.HTTP_403_FORBIDDEN
+        )
+    
+    # Procesar mensaje
+    logger.debug(f"Chat request - Usuario: {request.user.username}, Paciente ID: {paciente.id}")
+    respuesta = procesar_chat(paciente.id, mensaje)
+    
+    return Response({
+        'respuesta': respuesta
+    })
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@throttle_classes([UserRateThrottle])
+def chat_ia_sugerencias(request):
+    """
+    Endpoint para obtener sugerencias según el contexto.
+    """
+    from .ai_service import obtener_servicio
+    from .models import Paciente
+    
+    paciente = Paciente.objects.filter(usuario=request.user).first()
+    
+    if not paciente:
+        return Response({'sugerencias': []})
+    
+    servicio = obtener_servicio(paciente.id)
+    sugerencias = servicio.obtener_sugerencias() if servicio else []
+    
+    return Response({'sugerencias': sugerencias})
+# =========================
+
+
 class UsuarioViewSet(viewsets.ModelViewSet):
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer

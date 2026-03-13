@@ -162,11 +162,11 @@ function Citas() {
 
   const getEstadoBadge = (estado) => {
     const estilos = {
-      pendiente: { backgroundColor: '#f39c12', color: 'white' },
-      confirmada: { backgroundColor: '#27ae60', color: 'white' },
-      completada: { backgroundColor: '#3498db', color: 'white' },
-      cancelada: { backgroundColor: '#e74c3c', color: 'white' },
-      no_asistio: { backgroundColor: '#95a5a6', color: 'white' }
+      pendiente: { backgroundColor: 'var(--color-pending)', color: 'white' },
+      confirmada: { backgroundColor: 'var(--color-confirmed)', color: 'white' },
+      completada: { backgroundColor: 'var(--color-completed)', color: 'white' },
+      cancelada: { backgroundColor: 'var(--color-cancelled)', color: 'white' },
+      no_asistio: { backgroundColor: 'var(--color-no-show)', color: 'white' }
     }
     return <span style={{...styles.badge, ...estilos[estado]}}>{estado}</span>
   }
@@ -178,7 +178,7 @@ function Citas() {
   const citasPasadas = citasArray.filter(c => new Date(`${c.fecha}T${c.hora}`) <= now)
 
   if (loading) {
-    return <div style={styles.loading}>Cargando citas...</div>
+    return <div style={styles.loading}>Carregando consultas...</div>
   }
 
   return (
@@ -249,7 +249,7 @@ function Citas() {
             </div>
 
             {cargandoHorarios ? (
-              <div style={styles.loadingSmall}>Cargando horarios disponibles...</div>
+              <div style={styles.loadingSmall}>Carregando horarios disponiveis...</div>
             ) : (
               nuevaCita.doctor && nuevaCita.fecha && (
                 <div style={styles.formGroup}>
@@ -399,19 +399,19 @@ const styles = {
     fontSize: '14px'
   },
   successMessage: {
-    backgroundColor: '#d4edda',
-    color: '#155724',
+    backgroundColor: 'var(--color-success-bg)',
+    color: 'var(--color-success-text)',
     padding: '15px 20px',
     borderRadius: '10px',
     marginBottom: '20px',
     display: 'flex',
     alignItems: 'center',
     gap: '10px',
-    border: '1px solid #c3e6cb'
+    border: '1px solid var(--color-success)'
   },
   errorMessage: {
-    backgroundColor: '#f8d7da',
-    color: '#721c24',
+    backgroundColor: 'var(--color-error-bg)',
+    color: 'var(--color-error-text)',
     padding: '15px 20px',
     borderRadius: '10px',
     marginBottom: '20px',
@@ -569,7 +569,7 @@ const styles = {
     justifyContent: 'flex-end'
   },
   cancelButton: {
-    backgroundColor: '#e74c3c',
+    backgroundColor: 'var(--color-cancelled)',
     color: 'white',
     padding: '5px 10px',
     border: 'none',

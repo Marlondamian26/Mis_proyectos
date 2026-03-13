@@ -26,19 +26,34 @@ function Login() {
   }, [navigate])
 
   // ===== FUNCIÓN DE DEMO =====
-  const handleDemoAccess = () => {
-    console.log('Botón de demo clickeado') // Para debug
-    setFormData({
-      username: 'belkis_admin',
-      password: 'admin123'
-    })
-    // Opcional: auto-submit después de 500ms
-    setTimeout(() => {
-      console.log('Ejecutando auto-submit...')
-      // Crear un evento sintético y llamar a handleSubmit
-      const fakeEvent = { preventDefault: () => {} }
-      handleSubmit(fakeEvent)
-    }, 500)
+  // El demo ahora usa el endpoint especial del backend
+  // Las credenciales se configuran en el backend via variables de entorno
+  // En el frontend, permitimos configurar via variables de entorno también
+  const DEMO_USERNAME = import.meta?.env?.VITE_DEMO_USERNAME || 'demo_patient';
+  const DEMO_PASSWORD = import.meta?.env?.VITE_DEMO_PASSWORD || 'demo1234';
+
+  const handleDemoAccess = async () => {
+    setLoading(true)
+    setError('')
+    
+    try {
+      // Intentar login con credenciales de demo
+      // Estas credenciales deben estar configuradas en el backend
+      // Si no están configuradas, el login fallará
+      await login(DEMO_USERNAME, DEMO_PASSWORD)
+      navigate('/dashboard')
+    } catch (err) {
+      console.error('Error en demo:', err)
+      if (err.response?.status === 401) {
+        setError('Demo no disponible. Por favor, use sus propias credenciales o configure las variables de entorno DEMO_PATIENT_USERNAME y DEMO_PATIENT_PASSWORD en el servidor.')
+      } else if (err.response?.status === 403) {
+        setError('La cuenta demo no tiene acceso de paciente. Use sus propias credenciales.')
+      } else {
+        setError('Error al conectar con el servidor')
+      }
+    } finally {
+      setLoading(false)
+    }
   }
   // ==========================
 
@@ -53,11 +68,11 @@ function Login() {
 
   const validateForm = () => {
     if (!formData.username.trim()) {
-      setError('Usuario, correo o teléfono es requerido')
+      setError('Usuario, correo ou telefone e obrigatorio')
       return false
     }
     if (!formData.password.trim()) {
-      setError('La contraseña es requerida')
+      setError('A senha e obrigatoria')
       return false
     }
     return true
@@ -81,9 +96,9 @@ function Login() {
     } catch (err) {
       console.error('Error:', err)
       if (err.response?.status === 401) {
-        setError('Usuario o contraseña incorrectos')
+        setError('Usuario ou senha incorretos')
       } else {
-        setError('Error al conectar con el servidor')
+        setError('Erro ao conectar com o servidor')
       }
     } finally {
       setLoading(false)
@@ -116,14 +131,14 @@ function Login() {
                 value={formData.username}
                 onChange={handleChange}
                 style={styles.input}
-                placeholder="Usuario, correo o teléfono"
+                placeholder="Usuario, correo ou telefone"
                 disabled={loading}
               />
             </div>
           </div>
 
           <div style={styles.inputGroup}>
-            <label style={styles.label}>Contraseña</label>
+            <label style={styles.label}>Senha</label>
             <div style={styles.inputWrapper}>
               <span style={styles.inputIcon}>🔒</span>
               <input
@@ -132,7 +147,7 @@ function Login() {
                 value={formData.password}
                 onChange={handleChange}
                 style={styles.input}
-                placeholder="Ingresa tu contraseña"
+                placeholder="Digite sua senha"
                 disabled={loading}
               />
               <button
@@ -152,7 +167,7 @@ function Login() {
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
               />
-              Recordarme
+              Lembrar-me
             </label>
           </div>
 
@@ -164,7 +179,7 @@ function Login() {
             }}
             disabled={loading}
           >
-            {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+            {loading ? 'Entrando...' : 'Entrar'}
           </button>
 
           {/* ===== BOTÓN DE DEMO ===== */}
@@ -184,9 +199,9 @@ function Login() {
 
         <div style={styles.registerContainer}>
           <p style={styles.registerText}>
-            ¿No tienes una cuenta?{' '}
+            Nao tem uma conta?{' '}
             <Link to="/registro" style={styles.registerLink}>
-              Regístrate aquí
+              Cadastre-se aqui
             </Link>
           </p>
         </div>
@@ -231,8 +246,8 @@ const styles = {
     margin: 0
   },
   errorContainer: {
-    backgroundColor: '#f8d7da',
-    border: '1px solid #f5c6cb',
+    backgroundColor: 'var(--color-error-bg)',
+    border: '1px solid var(--color-error)',
     borderRadius: '10px',
     padding: '12px',
     marginBottom: '20px',

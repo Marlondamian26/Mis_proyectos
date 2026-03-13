@@ -28,6 +28,19 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'belkis-saude.com', 'www.belkis-saude.com']
 
+# Cache configuration for rate limiting and session management
+# Using LocMemCache for development; use Redis for production
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'belkis-saude-cache',
+        'TIMEOUT': 300,  # Default timeout: 5 minutes
+        'OPTIONS': {
+            'MAX_ENTRIES': 1000
+        }
+    }
+}
+
 
 # Application definition
 
@@ -159,7 +172,16 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.BrowsableAPIRenderer',
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10
+    'PAGE_SIZE': 10,
+    # Rate limiting configuration
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'user': '60/minute',  # Rate limit for authenticated users
+        'anon': '30/minute',  # Rate limit for anonymous users
+    }
 }
 
 

@@ -14,7 +14,7 @@ function Perfil() {
   const [doctor, setDoctor] = useState(null)
   const [enfermera, setEnfermera] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [loadingMessage, setLoadingMessage] = useState('Cargando perfil...')
+  const [loadingMessage, setLoadingMessage] = useState('Carregando perfil...')
   const [editMode, setEditMode] = useState(false)
   const [changePasswordMode, setChangePasswordMode] = useState(false)
   const [historialCitas, setHistorialCitas] = useState([])
@@ -59,7 +59,7 @@ function Perfil() {
 
   const fetchUserData = async () => {
     setLoading(true)
-    setLoadingMessage('Cargando tu información...')
+    setLoadingMessage('Carregando suas informacoes...')
     
     try {
       // Verificar token primero
@@ -71,11 +71,11 @@ function Perfil() {
       }
 
       // Obtener usuario actual
-      setLoadingMessage('Obteniendo datos del usuario...')
+      setLoadingMessage('Obtendo dados do usuario...')
       const userResponse = await axiosInstance.get('usuario-actual/')
       
       if (!userResponse.data) {
-        throw new Error('No se recibieron datos del usuario')
+        throw new Error('Nao foram recebidos dados do usuario')
       }
 
       console.log('Usuario cargado:', userResponse.data)
@@ -125,7 +125,7 @@ function Perfil() {
   }
 
   const cargarDatosPaciente = async (usuarioId) => {
-    setLoadingMessage('Cargando información médica...')
+    setLoadingMessage('Carregando informacoes medicas...')
     
     const pacientesResponse = await axiosInstance.get('pacientes/')
     const pacientesData = Array.isArray(pacientesResponse.data) ? pacientesResponse.data : []
@@ -145,7 +145,7 @@ function Perfil() {
   }
 
   const cargarDatosDoctor = async (usuarioId) => {
-    setLoadingMessage('Cargando información profesional...')
+    setLoadingMessage('Carregando informacoes profissionais...')
     
     try {
       const doctorResponse = await axiosInstance.get('mi-perfil-doctor/')
@@ -167,7 +167,7 @@ function Perfil() {
   }
 
   const cargarDatosEnfermera = async (usuarioId) => {
-    setLoadingMessage('Cargando información profesional...')
+    setLoadingMessage('Carregando informacoes profissionais...')
     
     try {
       const enfermeraResponse = await axiosInstance.get('mi-perfil-enfermera/')
@@ -189,7 +189,7 @@ function Perfil() {
   }
 
   const cargarHistorialCitas = async () => {
-    setLoadingMessage('Cargando historial de citas...')
+    setLoadingMessage('Carregando historico de consultas...')
     
     const citasResponse = await axiosInstance.get('citas/')
     const citasData = Array.isArray(citasResponse.data) ? citasResponse.data : []
@@ -228,19 +228,19 @@ function Perfil() {
     const errors = {}
     
     if (!passwordForm.old_password) {
-      errors.old_password = 'La contraseña actual es requerida'
+      errors.old_password = 'A senha atual e obrigatoria'
     }
     
     if (!passwordForm.new_password) {
-      errors.new_password = 'La nueva contraseña es requerida'
+      errors.new_password = 'A nova senha e obrigatoria'
     } else if (passwordForm.new_password.length < 4) {
-      errors.new_password = 'La contraseña debe tener al menos 4 caracteres'
+      errors.new_password = 'A senha deve ter pelo menos 4 caracteres'
     }
     
     if (!passwordForm.confirm_password) {
-      errors.confirm_password = 'Confirma tu nueva contraseña'
+      errors.confirm_password = 'Confirme sua nova senha'
     } else if (passwordForm.new_password !== passwordForm.confirm_password) {
-      errors.confirm_password = 'Las contraseñas no coinciden'
+      errors.confirm_password = 'As senhas nao coincidem'
     }
     
     setPasswordErrors(errors)
@@ -325,7 +325,7 @@ function Perfil() {
         new_password: passwordForm.new_password
       })
 
-      mostrarMensaje('✅ Contraseña cambiada correctamente', 'success')
+      mostrarMensaje('Senha alterada com sucesso', 'success')
       setChangePasswordMode(false)
       setPasswordForm({
         old_password: '',
@@ -333,14 +333,14 @@ function Perfil() {
         confirm_password: ''
       })
     } catch (error) {
-      console.error('Error cambiando contraseña:', error)
+      console.error('Erro ao alterar senha:', error)
       
       if (error.response?.data?.error) {
         mostrarMensaje(error.response.data.error, 'error')
       } else if (error.response?.status === 400) {
-        mostrarMensaje('Contraseña actual incorrecta', 'error')
+        mostrarMensaje('Senha atual incorreta', 'error')
       } else {
-        mostrarMensaje('Error al cambiar la contraseña', 'error')
+        mostrarMensaje('Erro ao alterar a senha', 'error')
       }
     } finally {
       setSaving(false)
@@ -419,7 +419,7 @@ function Perfil() {
           </p>
         </div>
         <button onClick={() => navigate('/dashboard')} style={styles.backButton}>
-          ← Volver al Dashboard
+          ← Voltar ao Dashboard
         </button>
       </div>
 
@@ -725,9 +725,9 @@ function Perfil() {
                 <button 
                   onClick={() => setChangePasswordMode(true)} 
                   style={styles.editButton}
-                  title="Cambiar contraseña"
+                  title="Alterar senha"
                 >
-                  <FaKey /> Cambiar contraseña
+                  <FaKey /> Alterar senha
                 </button>
               )}
             </div>
@@ -735,7 +735,7 @@ function Perfil() {
             {changePasswordMode ? (
               <div style={styles.editForm}>
                 <div style={styles.formGroup}>
-                  <label style={styles.label}>Contraseña actual:</label>
+                  <label style={styles.label}>Senha atual:</label>
                   <input
                     type="password"
                     name="old_password"
@@ -750,7 +750,7 @@ function Perfil() {
                 </div>
 
                 <div style={styles.formGroup}>
-                  <label style={styles.label}>Nueva contraseña:</label>
+                  <label style={styles.label}>Nova senha:</label>
                   <input
                     type="password"
                     name="new_password"
@@ -766,7 +766,7 @@ function Perfil() {
                 </div>
 
                 <div style={styles.formGroup}>
-                  <label style={styles.label}>Confirmar nueva contraseña:</label>
+                  <label style={styles.label}>Confirmar nova senha:</label>
                   <input
                     type="password"
                     name="confirm_password"
@@ -787,7 +787,7 @@ function Perfil() {
                     disabled={saving}
                   >
                     {saving ? <FaSpinner style={styles.spinner} /> : <FaKey />}
-                    {saving ? 'Cambiando...' : 'Cambiar Contraseña'}
+                    {saving ? 'Alterando...' : 'Alterar Senha'}
                   </button>
                   <button 
                     onClick={() => {
@@ -810,7 +810,7 @@ function Perfil() {
               <div style={styles.passwordDisplay}>
                 <FaKey style={styles.passwordIcon} />
                 <span style={styles.passwordPlaceholder}>••••••••</span>
-                <span style={styles.passwordHint}>La contraseña está encriptada por seguridad</span>
+                <span style={styles.passwordHint}>A senha esta criptografada por seguranca</span>
               </div>
             )}
           </div>
@@ -949,8 +949,8 @@ const styles = {
     fontSize: '14px'
   },
   successMessage: {
-    backgroundColor: '#d4edda',
-    color: '#155724',
+    backgroundColor: 'var(--color-success-bg)',
+    color: 'var(--color-success-text)',
     padding: '15px 20px',
     borderRadius: '10px',
     marginBottom: '20px',
@@ -960,8 +960,8 @@ const styles = {
     border: '1px solid #c3e6cb'
   },
   errorMessage: {
-    backgroundColor: '#f8d7da',
-    color: '#721c24',
+    backgroundColor: 'var(--color-error-bg)',
+    color: 'var(--color-error-text)',
     padding: '15px 20px',
     borderRadius: '10px',
     marginBottom: '20px',
@@ -1142,7 +1142,7 @@ const styles = {
     marginTop: '15px'
   },
   saveButton: {
-    backgroundColor: '#27ae60',
+    backgroundColor: 'var(--color-success)',
     color: 'white',
     padding: '12px',
     border: 'none',
@@ -1157,7 +1157,7 @@ const styles = {
     fontWeight: '500'
   },
   cancelButton: {
-    backgroundColor: '#e74c3c',
+    backgroundColor: 'var(--color-cancelled)',
     color: 'white',
     padding: '12px',
     border: 'none',
