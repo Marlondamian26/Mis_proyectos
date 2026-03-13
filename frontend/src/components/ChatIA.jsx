@@ -61,7 +61,7 @@ const ChatIA = ({ token, onClose }) => {
       texto: texto,
       timestamp: new Date()
     };
-    setMensagens(prev => [...prev, mensagemUsuario]);
+    setMensajes(prev => [...prev, mensagemUsuario]);
     setInputMensagem('');
     setCarregando(true);
 
@@ -76,7 +76,7 @@ const ChatIA = ({ token, onClose }) => {
         texto: response.data.resposta,
         timestamp: new Date()
       };
-      setMensagens(prev => [...prev, respostaIA]);
+      setMensajes(prev => [...prev, respostaIA]);
 
       // Atualizar sugestoes com timeout e tratamento de erros
       setSugestoesCarregando(true);
@@ -117,7 +117,7 @@ const ChatIA = ({ token, onClose }) => {
         texto: mensagemErroTexto,
         timestamp: new Date()
       };
-      setMensagens(prev => [...prev, mensagemErro]);
+      setMensajes(prev => [...prev, mensagemErro]);
     } finally {
       setCarregando(false);
     }
@@ -181,7 +181,7 @@ const ChatIA = ({ token, onClose }) => {
         <div ref={chatEndRef} />
       </div>
 
-      {sugerencias.length > 0 && !carregando && mensagens.length <= 2 && (
+      {sugerencias.length > 0 && !carregando && mensajes.length <= 2 && (
         <div className="chat-sugerencias">
           {sugerenciasCarregando ? (
             <span className="sugerencias-loading">Carregando sugestoes...</span>
