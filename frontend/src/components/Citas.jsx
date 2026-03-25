@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import axiosInstance from '../services/auth'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { useLanguage } from '../context/LanguageContext'
 import { FaCalendarAlt, FaClock, FaUserMd, FaNotesMedical, FaCheck, FaTimes } from 'react-icons/fa'
 import { format, addDays, parseISO } from 'date-fns'
-import { es } from 'date-fns/locale'
+import { ptBR } from 'date-fns/locale'
 
 function Citas() {
+  const { t } = useLanguage()
   const [citas, setCitas] = useState([]) // Inicializado como array vacío
   const [doctores, setDoctores] = useState([])
   const [loading, setLoading] = useState(true)
@@ -44,7 +46,7 @@ function Citas() {
     } catch (error) {
       console.error('Error cargando citas:', error)
       setCitas([]) // En caso de error, dejar array vacío
-      mostrarMensaje('Error al cargar las citas', 'error')
+      mostrarMensaje(t('connectionError'), 'error')
     } finally {
       setLoading(false)
     }
@@ -119,14 +121,14 @@ function Citas() {
     e.preventDefault()
     
     if (!nuevaCita.doctor || !nuevaCita.fecha || !nuevaCita.hora) {
-      mostrarMensaje('Por favor completa todos los campos requeridos', 'error')
+      mostrarMensaje(t('requiredField'), 'error')
       return
     }
 
     try {
       await axiosInstance.post('citas/', nuevaCita)
       
-      mostrarMensaje('¡Cita reservada con éxito!', 'success')
+      mostrarMensaje(t('appointmentBooked'), 'success')
       setShowForm(false)
       fetchCitas()
       
@@ -138,20 +140,20 @@ function Citas() {
       })
     } catch (error) {
       console.error('Error creando cita:', error)
-      mostrarMensaje(error.response?.data?.message || 'Error al crear la cita', 'error')
+      mostrarMensaje(error.response?.data?.message || t('errorSaving', { type: t('appointments').toLowerCase() }), 'error')
     }
   }
 
   const cancelarCita = async (citaId) => {
-    if (!window.confirm('¿Estás seguro de cancelar esta cita?')) return
+    if (!window.confirm(t('confirmCancel'))) return
     
     try {
       await axiosInstance.delete(`citas/${citaId}/`)
-      mostrarMensaje('Cita cancelada', 'success')
+      mostrarMensaje(t('appointmentCancelled'), 'success')
       fetchCitas()
     } catch (error) {
       console.error('Error cancelando cita:', error)
-      mostrarMensaje('Error al cancelar la cita', 'error')
+      mostrarMensaje(t('errorDeleting', { type: t('appointments').toLowerCase() }), 'error')
     }
   }
 
@@ -178,19 +180,19 @@ function Citas() {
   const citasPasadas = citasArray.filter(c => new Date(`${c.fecha}T${c.hora}`) <= now)
 
   if (loading) {
-    return <div style={styles.loading}>Carregando consultas...</div>
+    return <div style={styles.loading}>{t('loading')}</div>
   }
 
   return (
     <div style={styles.container}>
       <div style={styles.header}>
-        <h1>📅 Gestión de Citas</h1>
+        <h1>📅 {t('appointmentsManagement')}</h1>
         <div>
           <button onClick={() => navigate('/dashboard')} style={styles.backButton}>
-            ← Volver
+            ← {t('back')}
           </button>
           <button onClick={() => setShowForm(!showForm)} style={styles.newButton}>
-            {showForm ? '✕ Cancelar' : '+ Nueva Cita'}
+            {showForm ? '✕ ' + t('cancel') : '+ ' + t('newAppointment')}
           </button>
         </div>
       </div>
@@ -203,10 +205,10 @@ function Citas() {
 
       {showForm && (
         <div style={styles.formContainer}>
-          <h2>Reservar Nueva Cita</h2>
+          <h2>{t('bookAppointment')}</h2>
           <form onSubmit={handleSubmit} style={styles.form}>
             <div style={styles.formGroup}>
-              <label style={styles.label}>Doctor:</label>
+              <label style={styles.label}>{t('doctor')}:</label>
               <select
                 name="doctor"
                 value={nuevaCita.doctor}
@@ -214,7 +216,7 @@ function Citas() {
                 style={styles.select}
                 required
               >
-                <option value="">Seleccionar doctor</option>
+                <option value="">{t('selectDoctor')}</option>
                 {doctores.map(doctor => {
                   // Determinar la especialidad a mostrar
                   const especialidadMostrar = doctor.especialidad_nombre || 
@@ -235,7 +237,7 @@ function Citas() {
             </div>
 
             <div style={styles.formGroup}>
-              <label style={styles.label}>Fecha:</label>
+              <label style={styles.label}>{t('date')}:</label>
               <input
                 type="date"
                 name="fecha"
@@ -253,7 +255,7 @@ function Citas() {
             ) : (
               nuevaCita.doctor && nuevaCita.fecha && (
                 <div style={styles.formGroup}>
-                  <label style={styles.label}>Hora disponible:</label>
+                  <label style={styles.label}>{t('availableTime')}:</label>
                   {horariosDisponibles.length > 0 ? (
                     <div style={styles.horariosGrid}>
                       {horariosDisponibles.map(hora => (
@@ -271,7 +273,7 @@ function Citas() {
                       ))}
                     </div>
                   ) : (
-                    <p style={styles.noHorarios}>No hay horarios disponibles para este día</p>
+                    <p style={styles.noHorarios}>{t('noAvailableTimes')}</p>
                   )}
                 </div>
               )
@@ -334,7 +336,7 @@ function Citas() {
         </div>
 
         <div style={styles.section}>
-          <h2>📋 Historial de Citas</h2>
+          <h2>📋 {t('appointmentHistory')}</h2>
           {citasPasadas.length === 0 ? (
             <p style={styles.emptyState}>No hay citas en el historial</p>
           ) : (

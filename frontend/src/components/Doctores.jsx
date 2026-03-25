@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import axiosInstance from '../services/auth'
 import { useNavigate } from 'react-router-dom'
+import { useLanguage } from '../context/LanguageContext'
 import { FaStar, FaMapMarkerAlt, FaPhone, FaEnvelope, FaCalendarAlt } from 'react-icons/fa'
 
 function Doctores() {
+  const { t } = useLanguage()
   const [doctores, setDoctores] = useState([])
   const [especialidades, setEspecialidades] = useState([])
   const [loading, setLoading] = useState(true)
@@ -71,7 +73,7 @@ function Doctores() {
     } else if (doctor.otra_especialidad) {
       return `${doctor.otra_especialidad} ✏️`
     }
-    return 'Especialidad no especificada'
+    return t('notSpecified')
   }
 
   // Filtrar doctores por especialidad (usando el nombre para la comparación)
@@ -84,28 +86,28 @@ function Doctores() {
     : doctoresArray
 
   if (loading) {
-    return <div style={styles.loading}>Carregando medicos...</div>
+    return <div style={styles.loading}>{t('loading')}</div>
   }
 
   return (
     <div style={styles.container}>
       {/* Header */}
       <div style={styles.header}>
-        <h1>👨‍⚕️ Nuestros Especialistas</h1>
+        <h1>👨‍⚕️ {t('ourSpecialists')}</h1>
         <button onClick={() => navigate('/dashboard')} style={styles.backButton}>
-          ← Voltar ao Dashboard
+          ← {t('back')}
         </button>
       </div>
 
       {/* Filtros */}
       <div style={styles.filtros}>
-        <label style={styles.filtroLabel}>Filtrar por especialidad:</label>
+        <label style={styles.filtroLabel}>{t('filterBySpecialty')}:</label>
         <select 
           value={filtroEspecialidad} 
           onChange={(e) => setFiltroEspecialidad(e.target.value)}
           style={styles.filtroSelect}
         >
-          <option value="">Todas las especialidades</option>
+          <option value="">{t('allSpecialties')}</option>
           {especialidades.map(esp => (
             <option key={esp.id} value={esp.nombre}>{esp.nombre}</option>
           ))}
@@ -141,14 +143,14 @@ function Doctores() {
                 onClick={() => verDetalles(doctor)}
                 style={styles.verMasButton}
               >
-                Ver disponibilidad
+                {t('viewAvailability')}
               </button>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Modal de detalles del doctor */}
+      {/* Modal de detalhes do medico */}
       {doctorSeleccionado && (
         <div style={styles.modalOverlay} onClick={cerrarModal}>
           <div style={styles.modal} onClick={e => e.stopPropagation()}>
@@ -168,8 +170,8 @@ function Doctores() {
 
             <div style={styles.modalBody}>
               <div style={styles.modalSection}>
-                <h4>📋 Información Profesional</h4>
-                <p><strong>Biografía:</strong> {doctorSeleccionado.biografia || 'No especificada'}</p>
+                <h4>{t('professionalInfo')}</h4>
+                <p><strong>{t('biography')}:</strong> {doctorSeleccionado.biografia || t('notSpecified')}</p>
               </div>
 
               <div style={styles.modalSection}>
@@ -179,7 +181,7 @@ function Doctores() {
               </div>
 
               <div style={styles.modalSection}>
-                <h4>🕒 Horarios de Atención</h4>
+                <h4>{t('officeHours')}</h4>
                 {horarios.length > 0 ? (
                   <div style={styles.horariosGrid}>
                     {horarios.map(horario => (
@@ -190,7 +192,7 @@ function Doctores() {
                     ))}
                   </div>
                 ) : (
-                  <p>No hay horarios configurados</p>
+                  <p>{t('noScheduleConfigured')}</p>
                 )}
               </div>
 
@@ -201,7 +203,7 @@ function Doctores() {
                   navigate('/citas', { state: { doctorSeleccionado } })
                 }}
               >
-                <FaCalendarAlt /> Reservar Cita
+                <FaCalendarAlt /> {t('bookAppointmentBtn')}
               </button>
             </div>
           </div>

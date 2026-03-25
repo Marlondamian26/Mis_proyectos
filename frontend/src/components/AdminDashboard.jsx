@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import axiosInstance from '../services/auth'
 import { useNavigate } from 'react-router-dom'
+import { useLanguage } from '../context/LanguageContext'
 import { 
   FaUsers, FaUserMd, FaUserNurse, FaCalendarAlt, 
   FaChartBar, FaStethoscope, FaClock, FaPlus, 
@@ -11,6 +12,7 @@ import {
 } from 'react-icons/fa'
 
 function AdminDashboard() {
+  const { t } = useLanguage()
   const [activeTab, setActiveTab] = useState('dashboard')
   const [usuarios, setUsuarios] = useState([])
   const [doctores, setDoctores] = useState([])
@@ -62,7 +64,7 @@ function AdminDashboard() {
       const userResponse = await axiosInstance.get('usuario-actual/')
       
       if (userResponse.data.rol !== 'admin') {
-        mostrarMensaje('Acceso no autorizado', 'error')
+        mostrarMensaje(t('unauthorized'), 'error')
         setTimeout(() => navigate('/dashboard'), 2000)
         return
       }
@@ -70,15 +72,15 @@ function AdminDashboard() {
       await loadAllData()
     } catch (error) {
       console.error('Error verificando admin:', error)
-      setLoadingError('Error de autenticación. Por favor inicia sesión nuevamente.')
+      setLoadingError(t('sessionExpired'))
       setTimeout(() => navigate('/login'), 3000)
     }
   }
 
   // Cargar todos los datos
   const loadAllData = async () => {
-  setLoading(true)
-  setLoadingError(null)
+    setLoading(true)
+    setLoadingError(null)
   
   try {
     const [
@@ -353,16 +355,16 @@ function AdminDashboard() {
 
   // Eliminar elemento
   const handleDelete = async (tipo, id) => {
-    if (!window.confirm(`¿Estás seguro de eliminar este ${tipo}? Esta acción no se puede deshacer.`)) return
+    if (!window.confirm(t('confirmDelete', { type: tipo }))) return
 
     try {
       setSaving(true)
       await axiosInstance.delete(`${tipo}/${id}/`)
-      mostrarMensaje(`✅ ${tipo} eliminado correctamente`, 'success')
+      mostrarMensaje(`✅ ${t('itemDeleted', { type: tipo })}`, 'success')
       await loadAllData()
     } catch (error) {
       console.error('Error eliminando:', error)
-      mostrarMensaje(error.response?.data?.message || `Error al eliminar ${tipo}`, 'error')
+      mostrarMensaje(error.response?.data?.message || t('errorDeleting', { type: tipo }), 'error')
     } finally {
       setSaving(false)
     }
@@ -418,7 +420,7 @@ function AdminDashboard() {
         
         const doctorRes = await axiosInstance.post('doctores/', doctorData)
         console.log('✅ Doctor creado:', doctorRes.data)
-        mostrarMensaje('✅ Doctor creado correctamente', 'success')
+        mostrarMensaje('✅ ' + t('itemCreated', { type: t('doctor') }), 'success')
       }
       else if (tipo === 'enfermeras') {
         // Crear usuario primero
@@ -448,7 +450,7 @@ function AdminDashboard() {
         
         const enfermeraRes = await axiosInstance.post('enfermeras/', enfermeraData)
         console.log('✅ Enfermera creada:', enfermeraRes.data)
-        mostrarMensaje('✅ Enfermera creada correctamente', 'success')
+        mostrarMensaje('✅ ' + t('itemCreated', { type: t('nurse') }), 'success')
       }
       else if (tipo === 'pacientes') {
         // Crear usuario paciente y perfil de paciente
@@ -475,14 +477,14 @@ function AdminDashboard() {
         console.log('👉 Creando paciente:', pacienteData)
         const pacienteRes = await axiosInstance.post('pacientes/', pacienteData)
         console.log('✅ Paciente creado:', pacienteRes.data)
-        mostrarMensaje('✅ Paciente creado correctamente', 'success')
+        mostrarMensaje('✅ ' + t('itemCreated', { type: t('patient') }), 'success')
       }
       else {
         // ✅ ESTA ES LA PARTE QUE SE EJECUTA PARA especialidades, usuarios, citas, horarios
         // ✅ Usa formData.tipo que DEBE ser 'especialidades', 'usuarios', 'citas', 'horarios'
         const response = await axiosInstance.post(`${tipo}/`, formData)
         console.log('✅ Creado:', response.data)
-        mostrarMensaje(`✅ ${tipo} creado correctamente`, 'success')
+        mostrarMensaje('✅ ' + t('itemCreated', { type: tipo }), 'success')
       }
     }
     else if (modalMode === 'edit') {
@@ -506,7 +508,7 @@ function AdminDashboard() {
         }
         const response = await axiosInstance.patch(`${tipo}/${selectedItem.id}/`, doctorData)
         console.log('✅ Doctor actualizado:', response.data)
-        mostrarMensaje('✅ Doctor actualizado correctamente', 'success')
+        mostrarMensaje('✅ ' + t('itemUpdated', { type: t('doctor') }), 'success')
       }
       else if (tipo === 'enfermeras') {
         // Actualizar usuario
@@ -528,7 +530,7 @@ function AdminDashboard() {
         }
         const response = await axiosInstance.patch(`${tipo}/${selectedItem.id}/`, enfermeraData)
         console.log('✅ Enfermera actualizada:', response.data)
-        mostrarMensaje('✅ Enfermera actualizada correctamente', 'success')
+        mostrarMensaje('✅ ' + t('itemUpdated', { type: t('nurse') }), 'success')
       }
       else if (tipo === 'pacientes') {
         // Actualizar usuario paciente
@@ -549,12 +551,12 @@ function AdminDashboard() {
         }
         const response = await axiosInstance.patch(`${tipo}/${selectedItem.id}/`, pacienteData)
         console.log('✅ Paciente actualizado:', response.data)
-        mostrarMensaje('✅ Paciente actualizado correctamente', 'success')
+        mostrarMensaje('✅ ' + t('itemUpdated', { type: t('patient') }), 'success')
       }
       else {
         const response = await axiosInstance.patch(`${tipo}/${selectedItem.id}/`, formData)
         console.log('✅ Actualizado:', response.data)
-        mostrarMensaje(`✅ ${tipo} actualizado correctamente`, 'success')
+        mostrarMensaje('✅ ' + t('itemUpdated', { type: tipo }), 'success')
       }
     }
     
@@ -579,11 +581,11 @@ function AdminDashboard() {
       setErrorBackend(errorMsg)
       mostrarMensaje(`Error ${error.response.status}: ${errorMsg}`, 'error')
     } else if (error.request) {
-      setErrorBackend('No hubo respuesta del servidor')
-      mostrarMensaje('No se pudo conectar con el servidor', 'error')
+      setErrorBackend(t('connectionError'))
+      mostrarMensaje(t('connectionError'), 'error')
     } else {
-      setErrorBackend('Error al enviar los datos')
-      mostrarMensaje('Error al enviar los datos', 'error')
+      setErrorBackend(t('errorSaving', { type: tipo }))
+      mostrarMensaje(t('errorSaving', { type: tipo }), 'error')
     }
   } finally {
     setSaving(false)
@@ -714,7 +716,7 @@ function AdminDashboard() {
         <div style={styles.statCard}>
           <FaUserInjured style={styles.statIcon} />
           <div>
-            <h3>Pacientes</h3>
+            <h3>{t('patientsTab')}</h3>
             <p>{stats.totalPacientes}</p>
           </div>
         </div>
@@ -757,7 +759,7 @@ function AdminDashboard() {
           style={{...styles.tab, ...(activeTab === 'pacientes' && styles.activeTab)}}
           onClick={() => setActiveTab('pacientes')}
         >
-          <FaUserInjured /> Pacientes ({stats.totalPacientes})
+          <FaUserInjured /> {t('patientsTab')} ({stats.totalPacientes})
         </button>
         <button
           style={{...styles.tab, ...(activeTab === 'citas' && styles.activeTab)}}
@@ -791,8 +793,8 @@ function AdminDashboard() {
                 <div style={styles.statsList}>
                   <div><span>Administradores:</span> <strong>{usuarios.filter(u => u.rol === 'admin').length}</strong></div>
                   <div><span>Doctores:</span> <strong>{stats.totalDoctores}</strong></div>
-                  <div><span>Enfermeras:</span> <strong>{stats.totalEnfermeras}</strong></div>
-                  <div><span>Pacientes:</span> <strong>{stats.totalPacientes}</strong></div>
+                  <div><span>{t('nurses')}:</span> <strong>{stats.totalEnfermeras}</strong></div>
+                  <div><span>{t('patientsTab')}:</span> <strong>{stats.totalPacientes}</strong></div>
                 </div>
               </div>
               <div style={styles.dashboardCard}>
@@ -847,10 +849,10 @@ function AdminDashboard() {
                           <button onClick={() => handleView(user, 'usuarios')} style={styles.viewButton} title="Ver">
                             <FaEye />
                           </button>
-                          <button onClick={() => handleEdit(user, 'usuarios')} style={styles.editButton} title="Editar">
+                          <button onClick={() => handleEdit(user, 'usuarios')} style={styles.editButton} title={t('edit')}>
                             <FaEdit />
                           </button>
-                          <button onClick={() => handleDelete('usuarios', user.id)} style={styles.deleteButton} title="Eliminar">
+                          <button onClick={() => handleDelete('usuarios', user.id)} style={styles.deleteButton} title={t('delete')}>
                             <FaTrash />
                           </button>
                         </td>
@@ -867,14 +869,14 @@ function AdminDashboard() {
         {activeTab === 'doctores' && (
           <div>
             <div style={styles.tableHeader}>
-              <h2 style={styles.sectionTitle}>Gestión de Doctores</h2>
+              <h2 style={styles.sectionTitle}>{t('manageDoctors')}</h2>
               <button onClick={() => handleCreate('doctores')} style={styles.createButton}>
-                <FaPlus /> Nuevo Doctor
+                <FaPlus /> {t('newAppointment')}
               </button>
             </div>
             {doctores.length === 0 ? (
               <div style={styles.emptyState}>
-                <p>No hay doctores registrados</p>
+                <p>{t('noDoctorsFound')}</p>
               </div>
             ) : (
               <div style={styles.tableContainer}>
@@ -904,10 +906,10 @@ function AdminDashboard() {
                           <button onClick={() => handleView(doctor, 'doctores')} style={styles.viewButton} title="Ver">
                             <FaEye />
                           </button>
-                          <button onClick={() => handleEdit(doctor, 'doctores')} style={styles.editButton} title="Editar">
+                          <button onClick={() => handleEdit(doctor, 'doctores')} style={styles.editButton} title={t('edit')}>
                             <FaEdit />
                           </button>
-                          <button onClick={() => handleDelete('doctores', doctor.id)} style={styles.deleteButton} title="Eliminar">
+                          <button onClick={() => handleDelete('doctores', doctor.id)} style={styles.deleteButton} title={t('delete')}>
                             <FaTrash />
                           </button>
                         </td>
@@ -924,14 +926,14 @@ function AdminDashboard() {
         {activeTab === 'enfermeras' && (
           <div>
             <div style={styles.tableHeader}>
-              <h2 style={styles.sectionTitle}>Gestión de Enfermeras</h2>
+              <h2 style={styles.sectionTitle}>{t('manageNurses')}</h2>
               <button onClick={() => handleCreate('enfermeras')} style={styles.createButton}>
-                <FaPlus /> Nueva Enfermera
+                <FaPlus /> {t('registerNew')}
               </button>
             </div>
             {enfermeras.length === 0 ? (
               <div style={styles.emptyState}>
-                <p>No hay enfermeras registradas</p>
+                <p>{t('noNursesFound')}</p>
               </div>
             ) : (
               <div style={styles.tableContainer}>
@@ -963,10 +965,10 @@ function AdminDashboard() {
                           <button onClick={() => handleView(enfermera, 'enfermeras')} style={styles.viewButton} title="Ver">
                             <FaEye />
                           </button>
-                          <button onClick={() => handleEdit(enfermera, 'enfermeras')} style={styles.editButton} title="Editar">
+                          <button onClick={() => handleEdit(enfermera, 'enfermeras')} style={styles.editButton} title={t('edit')}>
                             <FaEdit />
                           </button>
-                          <button onClick={() => handleDelete('enfermeras', enfermera.id)} style={styles.deleteButton} title="Eliminar">
+                          <button onClick={() => handleDelete('enfermeras', enfermera.id)} style={styles.deleteButton} title={t('delete')}>
                             <FaTrash />
                           </button>
                         </td>
@@ -985,7 +987,7 @@ function AdminDashboard() {
             <div style={styles.tableHeader}>
               <h2 style={styles.sectionTitle}>Gestión de Pacientes</h2>
               <button onClick={() => handleCreate('pacientes')} style={styles.createButton}>
-                <FaPlus /> Nuevo Paciente
+                <FaPlus /> {t('newPatient')}
               </button>
             </div>
             {pacientes.length === 0 ? (
@@ -1021,10 +1023,10 @@ function AdminDashboard() {
                           <button onClick={() => handleView(paciente, 'pacientes')} style={styles.viewButton} title="Ver">
                             <FaEye />
                           </button>
-                          <button onClick={() => handleEdit(paciente, 'pacientes')} style={styles.editButton} title="Editar">
+                          <button onClick={() => handleEdit(paciente, 'pacientes')} style={styles.editButton} title={t('edit')}>
                             <FaEdit />
                           </button>
-                          <button onClick={() => handleDelete('pacientes', paciente.id)} style={styles.deleteButton} title="Eliminar">
+                          <button onClick={() => handleDelete('pacientes', paciente.id)} style={styles.deleteButton} title={t('delete')}>
                             <FaTrash />
                           </button>
                         </td>
@@ -1079,10 +1081,10 @@ function AdminDashboard() {
                           <button onClick={() => handleView(cita, 'citas')} style={styles.viewButton} title="Ver">
                             <FaEye />
                           </button>
-                          <button onClick={() => handleEdit(cita, 'citas')} style={styles.editButton} title="Editar">
+                          <button onClick={() => handleEdit(cita, 'citas')} style={styles.editButton} title={t('edit')}>
                             <FaEdit />
                           </button>
-                          <button onClick={() => handleDelete('citas', cita.id)} style={styles.deleteButton} title="Eliminar">
+                          <button onClick={() => handleDelete('citas', cita.id)} style={styles.deleteButton} title={t('delete')}>
                             <FaTrash />
                           </button>
                         </td>
@@ -1145,10 +1147,10 @@ function AdminDashboard() {
                           <button onClick={() => handleView(esp, 'especialidades')} style={styles.viewButton} title="Ver">
                             <FaEye />
                           </button>
-                          <button onClick={() => handleEdit(esp, 'especialidades')} style={styles.editButton} title="Editar">
+                          <button onClick={() => handleEdit(esp, 'especialidades')} style={styles.editButton} title={t('edit')}>
                             <FaEdit />
                           </button>
-                          <button onClick={() => handleDelete('especialidades', esp.id)} style={styles.deleteButton} title="Eliminar">
+                          <button onClick={() => handleDelete('especialidades', esp.id)} style={styles.deleteButton} title={t('delete')}>
                             <FaTrash />
                           </button>
                         </td>
@@ -1211,10 +1213,10 @@ function AdminDashboard() {
                             <button onClick={() => handleView(horario, 'horarios')} style={styles.viewButton} title="Ver">
                               <FaEye />
                             </button>
-                            <button onClick={() => handleEdit(horario, 'horarios')} style={styles.editButton} title="Editar">
+                            <button onClick={() => handleEdit(horario, 'horarios')} style={styles.editButton} title={t('edit')}>
                               <FaEdit />
                             </button>
-                            <button onClick={() => handleDelete('horarios', horario.id)} style={styles.deleteButton} title="Eliminar">
+                            <button onClick={() => handleDelete('horarios', horario.id)} style={styles.deleteButton} title={t('delete')}>
                               <FaTrash />
                             </button>
                           </td>
@@ -1234,9 +1236,9 @@ function AdminDashboard() {
         <div style={styles.modalOverlay} onClick={handleCloseModal}>
           <div style={styles.modal} onClick={e => e.stopPropagation()}>
             <h2 style={styles.modalTitle}>
-              {modalMode === 'create' && `Crear ${formData.tipo}`}
-              {modalMode === 'edit' && `Editar ${formData.tipo}`}
-              {modalMode === 'view' && `Ver ${formData.tipo}`}
+              {modalMode === 'create' && `${t('createNew')} ${formData.tipo}`}
+              {modalMode === 'edit' && `${t('editItem')} ${formData.tipo}`}
+              {modalMode === 'view' && `${t('viewItem')} ${formData.tipo}`}
             </h2>
             
             {/* Error del backend */}
@@ -1341,9 +1343,9 @@ function AdminDashboard() {
                       style={styles.select}
                       required
                     >
-                      <option value="patient">Paciente</option>
-                      <option value="doctor">Doctor</option>
-                      <option value="nurse">Enfermera</option>
+                      <option value="patient">{t('patient')}</option>
+                      <option value="doctor">{t('doctor')}</option>
+                      <option value="nurse">{t('nurse')}</option>
                       <option value="admin">Administrador</option>
                     </select>
                   </div>
@@ -1842,8 +1844,8 @@ function AdminDashboard() {
                   
                   {modalMode === 'view' && selectedItem && (
                     <div style={styles.infoCard}>
-                      <p><strong>📋 Historial de la cita:</strong></p>
-                      <p>📅 Creada: {new Date(selectedItem?.fecha_creacion).toLocaleString()}</p>
+                      <p><strong>📋 {t('appointmentHistory')}:</strong></p>
+                      <p>📅 {t('created')}: {new Date(selectedItem?.fecha_creacion).toLocaleString()}</p>
                       {selectedItem?.fecha_actualizacion && (
                         <p>🔄 Última actualización: {new Date(selectedItem.fecha_actualizacion).toLocaleString()}</p>
                       )}

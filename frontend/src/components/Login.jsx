@@ -3,9 +3,11 @@ import React, { useState, useEffect } from 'react'
 import axiosInstance from '../services/auth'
 import { useNavigate, Link } from 'react-router-dom'
 import { APP_NAME, APP_SLOGAN } from '../config/constants'
-import { useAuth } from '../context/AuthContext'  
+import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'  
 
 function Login() {
+  const { t } = useLanguage()
   const [formData, setFormData] = useState({
     username: '',
     password: ''
@@ -68,11 +70,11 @@ function Login() {
 
   const validateForm = () => {
     if (!formData.username.trim()) {
-      setError('Usuario, correo ou telefone e obrigatorio')
+      setError(t('usernameRequiredField'))
       return false
     }
     if (!formData.password.trim()) {
-      setError('A senha e obrigatoria')
+      setError(t('passwordRequiredField'))
       return false
     }
     return true
@@ -96,9 +98,9 @@ function Login() {
     } catch (err) {
       console.error('Error:', err)
       if (err.response?.status === 401) {
-        setError('Usuario ou senha incorretos')
+        setError(t('invalidCredentials'))
       } else {
-        setError('Erro ao conectar com o servidor')
+        setError(t('connectionError'))
       }
     } finally {
       setLoading(false)
@@ -122,7 +124,7 @@ function Login() {
 
         <form onSubmit={handleSubmit} style={styles.form}>
           <div style={styles.inputGroup}>
-            <label style={styles.label}>Usuario</label>
+            <label style={styles.label}>{t('username')}</label>
             <div style={styles.inputWrapper}>
               <span style={styles.inputIcon}>👤</span>
               <input
@@ -131,14 +133,14 @@ function Login() {
                 value={formData.username}
                 onChange={handleChange}
                 style={styles.input}
-                placeholder="Usuario, correo ou telefone"
+                placeholder={t('usernameOrEmail')}
                 disabled={loading}
               />
             </div>
           </div>
 
           <div style={styles.inputGroup}>
-            <label style={styles.label}>Senha</label>
+            <label style={styles.label}>{t('password')}</label>
             <div style={styles.inputWrapper}>
               <span style={styles.inputIcon}>🔒</span>
               <input
@@ -147,7 +149,7 @@ function Login() {
                 value={formData.password}
                 onChange={handleChange}
                 style={styles.input}
-                placeholder="Digite sua senha"
+                placeholder={t('enterPassword')}
                 disabled={loading}
               />
               <button

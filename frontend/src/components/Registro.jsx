@@ -7,8 +7,10 @@ import {
   FaCheckCircle, FaExclamationTriangle, FaSpinner, FaUserPlus
 } from 'react-icons/fa'
 import { APP_NAME, APP_SLOGAN } from '../config/constants'
+import { useLanguage } from '../context/LanguageContext'
 
 function Registro() {
+  const { t } = useLanguage()
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -43,19 +45,19 @@ function Registro() {
     if (/[^A-Za-z0-9]/.test(password)) score += 1
 
     if (password.length === 0) {
-      message = 'Digite uma senha'
+      message = t('passwordEmpty')
       color = '#95a5a6'
     } else if (score <= 2) {
-      message = 'Senha fraca'
+      message = t('passwordWeak')
       color = '#e74c3c'
     } else if (score <= 3) {
-      message = 'Senha media'
+      message = t('passwordMedium')
       color = '#f39c12'
     } else if (score <= 4) {
-      message = 'Senha forte'
+      message = t('passwordStrong')
       color = '#27ae60'
     } else {
-      message = 'Senha muito forte'
+      message = t('passwordVeryStrong')
       color = '#27ae60'
     }
 
@@ -259,7 +261,7 @@ function Registro() {
         <div style={styles.header}>
           <FaUserPlus style={styles.headerIcon} />
           <h1 style={styles.title}>{APP_NAME}</h1>
-          <p style={styles.subtitle}>Crear nueva cuenta</p>
+          <p style={styles.subtitle}>{t('createAccount')}</p>
         </div>
 
         {/* Mensajes */}
@@ -474,7 +476,7 @@ function Registro() {
             ) : (
               <>
                 <FaUserPlus />
-                Crear Cuenta
+                {t('createAccount')}
               </>
             )}
           </button>

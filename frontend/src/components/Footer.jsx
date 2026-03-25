@@ -1,10 +1,12 @@
 import React from 'react';
 import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
 import { FaHeart, FaCode } from 'react-icons/fa';
 import { APP_NAME, APP_VERSION } from '../config/constants';
 
 const Footer = () => {
   const { theme } = useTheme();
+  const { t } = useLanguage();
   const currentYear = new Date().getFullYear();
 
   const styles = {
@@ -71,7 +73,7 @@ const Footer = () => {
           © {currentYear} <strong style={{ color: 'var(--text-primary)' }}>{APP_NAME}</strong>.
           </p>
           <p style={styles.small}>
-           Versión {APP_VERSION} | Sistema de gestión médica
+            {t('version')} {APP_VERSION} | {t('medicalSystem')}
           </p>
         </div>
       </div>

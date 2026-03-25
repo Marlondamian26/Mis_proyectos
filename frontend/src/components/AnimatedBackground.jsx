@@ -7,17 +7,17 @@ const AnimatedBackground = () => {
 
   const generateBubbles = () => {
     const newBubbles = [];
-    const bubbleCount = 8; // Número de burbujas
+    const bubbleCount = 6; // Número reducido de burbujas para mejor rendimiento
     
     for (let i = 0; i < bubbleCount; i++) {
       newBubbles.push({
         id: i,
-        size: Math.random() * 150 + 50, // Tamaño entre 50 y 200px
+        size: Math.random() * 120 + 40, // Tamaño entre 40 y 160px (más sutil)
         x: Math.random() * 100, // Posición horizontal
         y: Math.random() * 100, // Posición vertical
         duration: Math.random() * 20 + 15, // Duración entre 15-35 segundos
         delay: Math.random() * -20, // Delay negativo para animación inmediata
-        opacity: Math.random() * 0.3 + 0.1 // Opacidad entre 0.1 y 0.4
+        opacity: Math.random() * 0.15 + 0.05 // Opacidad más sutil entre 0.05 y 0.2
       });
     }
     
@@ -28,9 +28,8 @@ const AnimatedBackground = () => {
     // Función para obtener el rol actual
     const getRole = () => localStorage.getItem('user_role') || 'patient';
     
-    // Manejar cambios de rol en localStorage (incluyeStorage events para múltiples tabs)
+    // Manejar cambios de rol en localStorage
     const handleStorageChange = (e) => {
-      // Si el evento viene de storage, verificar si fue el user_role
       if (e.key === 'user_role' || e.key === null) {
         const newRole = getRole();
         setRole(newRole);
@@ -40,16 +39,12 @@ const AnimatedBackground = () => {
     // Manejar cambio de tema
     const handleThemeChange = () => setRole(getRole());
     
-    // Escuchar eventos de storage (cambios en otras tabs)
+    // Escuchar eventos
     window.addEventListener('storage', handleStorageChange);
-    
-    // Escuchar evento de cambio de tema
     window.addEventListener('themechange', handleThemeChange);
     
     // Initial check
     setRole(getRole());
-
-    // Generar burbujas
     generateBubbles();
 
     return () => {
@@ -74,10 +69,7 @@ const AnimatedBackground = () => {
       {/* Gradiente de fondo dinámico */}
       <div className="background-gradient"></div>
       
-      {/* Capa de elementos flotantes */}
-      <div className="floating-elements"></div>
-      
-      {/* Burbujas animadas */}
+      {/* Burbujas animadas sutiles */}
       <div className="bubbles-container">
         {bubbles.map((bubble) => (
           <div
@@ -90,7 +82,7 @@ const AnimatedBackground = () => {
       
       {/* Partículas pequeñas adicionales */}
       <div className="particles">
-        {Array.from({ length: 15 }).map((_, i) => (
+        {Array.from({ length: 8 }).map((_, i) => (
           <div
             key={`particle-${i}`}
             className="particle"
@@ -99,8 +91,8 @@ const AnimatedBackground = () => {
               top: `${Math.random() * 100}%`,
               animationDelay: `${Math.random() * 5}s`,
               animationDuration: `${Math.random() * 10 + 10}s`,
-              width: `${Math.random() * 4 + 2}px`,
-              height: `${Math.random() * 4 + 2}px`,
+              width: `${Math.random() * 3 + 1}px`,
+              height: `${Math.random() * 3 + 1}px`,
             }}
           />
         ))}

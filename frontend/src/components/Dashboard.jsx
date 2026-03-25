@@ -3,9 +3,11 @@ import axiosInstance from '../services/auth'
 import { useNavigate } from 'react-router-dom'
 import { useNotificaciones } from '../context/NotificacionesContext';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import ChatIA from './ChatIA';
 
 function Dashboard() {
+  const { t } = useLanguage()
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -55,17 +57,17 @@ function Dashboard() {
             console.log('Token inválido, eliminando...')
             localStorage.removeItem('access_token')
             localStorage.removeItem('refresh_token')
-            setError('Sesión expirada. Por favor inicia sesión nuevamente.')
+            setError(t('sessionExpired'))
             setTimeout(() => navigate('/login'), 2000)
           } else {
-            setError(`Error del servidor: ${err.response.status}`)
+            setError(t('serverError') + ': ' + err.response.status)
           }
         } else if (err.request) {
           console.error('No hubo respuesta del servidor')
-          setError('No se pudo conectar con el servidor. Verifica que el backend esté corriendo.')
+          setError(t('connectionError'))
         } else {
           console.error('Error en la petición:', err.message)
-          setError('Error al conectar con el servidor')
+          setError(t('error') + ': ' + err.message)
         }
       } finally {
         setLoading(false)
@@ -133,8 +135,7 @@ function Dashboard() {
     return (
       <div style={styles.loadingContainer}>
         <div style={styles.loadingSpinner}></div>
-        <p style={styles.loadingText}>Carregando suas informacoes...</p>
-        <p style={styles.loadingSubtext}>Por favor espera</p>
+        <p style={styles.loadingText}>{t('loading')}</p>
       </div>
     )
   }
@@ -150,7 +151,7 @@ function Dashboard() {
           onClick={() => navigate('/login')} 
           style={styles.errorButton}
         >
-          Ir al Login
+          {t('login')}
         </button>
       </div>
     )
@@ -162,7 +163,7 @@ function Dashboard() {
       <div style={styles.errorContainer}>
         <p>Nao foi possivel carregar as informacoes do usuario</p>
         <button onClick={() => navigate('/login')} style={styles.errorButton}>
-          Volver al Login
+          {t('login')}
         </button>
       </div>
     )
@@ -175,27 +176,27 @@ function Dashboard() {
       <div style={styles.header}>
         <div style={styles.welcomeSection}>
           <h1 style={styles.welcomeTitle}>
-            ¡Bienvenido{user?.username !== 'admin' && user?.first_name ? `, ${user.first_name}` : ''}!
+            {t('welcomeBack')}{user?.username !== 'admin' && user?.first_name ? `, ${user.first_name}` : ''}!
           </h1>
           <p style={styles.userRole}>
-            {user?.rol === 'admin' && '⚙️ Administrador'}
-            {user?.rol === 'doctor' && '👨‍⚕️ Médico'}
-            {user?.rol === 'nurse' && '👩‍⚕️ Enfermería'}
-            {user?.rol === 'patient' && '🩺 Paciente'}
+            {user?.rol === 'admin' && '⚙️ ' + t('administrator')}
+            {user?.rol === 'doctor' && '👨‍⚕️ ' + t('doctor')}
+            {user?.rol === 'nurse' && '👩‍⚕️ ' + t('nurse')}
+            {user?.rol === 'patient' && '🩺 ' + t('patient')}
           </p>
           {/* ⬇️ NOTIFICACIONES AÑADIDAS AQUÍ (OPCIÓN 1) ⬇️ */}
           {noLeidas > 0 && (
             <div style={styles.notificacionBanner}>
               <span style={styles.notificacionIcon}>🔔</span>
               <span style={styles.notificacionTexto}>
-                Tienes <strong>{noLeidas}</strong> notificación{noLeidas !== 1 ? 'es' : ''} sin leer
+                {t('unreadNotifications', { count: noLeidas })}
               </span>
             </div>
           )}
         </div>
         <button onClick={handleLogout} style={styles.logoutButton}>
           <span style={styles.logoutIcon}>🚪</span>
-          Cerrar Sesión
+          {t('logout')}
         </button>
       </div>
       
@@ -205,25 +206,25 @@ function Dashboard() {
         <div style={styles.card} className="gradient-card pulse-card">
           <h3 style={styles.cardTitle}>
             <span style={styles.cardIcon}>📋</span>
-            Información Personal
+            {t('personalInfo')}
           </h3>
           <div style={styles.infoGrid}>
             <div style={styles.infoItem}>
-              <span style={styles.infoLabel}>Usuario:</span>
+              <span style={styles.infoLabel}>{t('username')}:</span>
               <span style={styles.infoValue}>{user?.username || 'No disponible'}</span>
             </div>
             <div style={styles.infoItem}>
-              <span style={styles.infoLabel}>Nombre:</span>
+              <span style={styles.infoLabel}>{t('firstName')}:</span>
               <span style={styles.infoValue}>
                 {user?.first_name || ''} {user?.last_name || ''}
               </span>
             </div>
             <div style={styles.infoItem}>
-              <span style={styles.infoLabel}>Email:</span>
+              <span style={styles.infoLabel}>{t('email')}:</span>
               <span style={styles.infoValue}>{user?.email || 'No disponible'}</span>
             </div>
             <div style={styles.infoItem}>
-              <span style={styles.infoLabel}>Teléfono:</span>
+              <span style={styles.infoLabel}>{t('phone')}:</span>
               <span style={styles.infoValue}>{user?.telefono || 'No disponible'}</span>
             </div>
           </div>
@@ -233,26 +234,26 @@ function Dashboard() {
         <div style={styles.statsCard} className="gradient-card pulse-card">
           <h3 style={styles.cardTitle}>
             <span style={styles.cardIcon}>📊</span>
-            Estadísticas Rápidas
+            {t('quickStats')}
           </h3>
           <div style={styles.statsGrid}>
             <div style={styles.statItem}>
               <div style={styles.statNumber}>{stats.totalCitas}</div>
               <div style={styles.statLabel}>
-                {user?.rol === 'patient' ? 'Mis Citas' : 'Total Citas'}
+                {user?.rol === 'patient' ? t('myAppointments') : t('totalAppointments')}
               </div>
             </div>
             <div style={styles.statItem}>
               <div style={styles.statNumber}>{stats.citasProximas}</div>
-              <div style={styles.statLabel}>Citas Próximas</div>
+              <div style={styles.statLabel}>{t('upcomingAppointments')}</div>
             </div>
             <div style={styles.statItem}>
               <div style={styles.statNumber}>{stats.especialidades}</div>
-              <div style={styles.statLabel}>Especialidades</div>
+              <div style={styles.statLabel}>{t('specialty') + 's'}</div>
             </div>
             <div style={styles.statItem}>
               <div style={styles.statNumber}>{stats.doctores}</div>
-              <div style={styles.statLabel}>Doctores</div>
+              <div style={styles.statLabel}>{t('doctors')}</div>
             </div>
           </div>
         </div>
@@ -261,7 +262,7 @@ function Dashboard() {
         <div style={styles.menuCard}>
           <h3 style={styles.cardTitle}>
             <span style={styles.cardIcon}>📌</span>
-            Menú Principal
+            {t('mainMenu')}
           </h3>
           <div style={styles.menuGrid}>
             {/* Mis Citas - Visible para todos */}
@@ -273,7 +274,7 @@ function Dashboard() {
               onKeyPress={(e) => e.key === 'Enter' && handleNavigation('/citas')}
             >
               <span style={styles.menuIcon}>📅</span>
-              <span style={styles.menuLabel}>Mis Citas</span>
+              <span style={styles.menuLabel}>{t('myAppointments')}</span>
               <span style={styles.menuDescription}>Ver y gestionar tus citas</span>
             </div>
 
@@ -286,8 +287,8 @@ function Dashboard() {
               onKeyPress={(e) => e.key === 'Enter' && handleNavigation('/doctores')}
             >
               <span style={styles.menuIcon}>👨‍⚕️</span>
-              <span style={styles.menuLabel}>Doctores</span>
-              <span style={styles.menuDescription}>Ver especialistas disponibles</span>
+              <span style={styles.menuLabel}>{t('doctors')}</span>
+              <span style={styles.menuDescription}>{t('seeSpecialists')}</span>
             </div>
 
             {/* Mi Perfil - Visible para todos */}
@@ -299,8 +300,8 @@ function Dashboard() {
               onKeyPress={(e) => e.key === 'Enter' && handleNavigation('/perfil')}
             >
               <span style={styles.menuIcon}>👤</span>
-              <span style={styles.menuLabel}>Mi Perfil</span>
-              <span style={styles.menuDescription}>Editar tu información personal</span>
+              <span style={styles.menuLabel}>{t('myProfile')}</span>
+              <span style={styles.menuDescription}>{t('editProfile')}</span>
             </div>
 
             {/* Panel Admin - Solo visible para administradores */}
@@ -313,8 +314,8 @@ function Dashboard() {
                 onKeyPress={(e) => e.key === 'Enter' && handleNavigation('/admin')}
               >
                 <span style={styles.menuIcon}>⚙️</span>
-                <span style={styles.menuLabel}>Panel Admin</span>
-                <span style={styles.menuDescription}>Gestionar el sistema</span>
+                <span style={styles.menuLabel}>{t('adminPanel')}</span>
+                <span style={styles.menuDescription}>{t('manageSystem')}</span>
               </div>
             )}
           </div>
@@ -325,7 +326,7 @@ function Dashboard() {
           <div style={styles.notificacionCard}>
             <div style={styles.notificacionCardHeader}>
               <span style={styles.notificacionCardIcon}>🔔</span>
-              <h3 style={styles.notificacionCardTitle}>Notificaciones pendientes</h3>
+              <h3 style={styles.notificacionCardTitle}>{t('notifications')}</h3>
             </div>
             <p style={styles.notificacionCardText}>
               Tienes <strong>{noLeidas}</strong> notificación{noLeidas !== 1 ? 'es' : ''} sin leer.
@@ -402,19 +403,19 @@ function Dashboard() {
                 onClick={() => handleNavigation('/admin?tab=usuarios')}
                 style={styles.quickLink}
               >
-                👥 Gestionar Usuarios
+                👥 {t('manageUsers')}
               </button>
               <button 
                 onClick={() => handleNavigation('/admin?tab=doctores')}
                 style={styles.quickLink}
               >
-                👨‍⚕️ Gestionar Doctores
+                👨‍⚕️ {t('manageDoctors')}
               </button>
               <button 
                 onClick={() => handleNavigation('/admin?tab=enfermeras')}
                 style={styles.quickLink}
               >
-                👩‍⚕️ Gestionar Enfermería
+                👩‍⚕️ {t('manageNurses')}
               </button>
               <button 
                 onClick={() => handleNavigation('/admin?tab=citas')}

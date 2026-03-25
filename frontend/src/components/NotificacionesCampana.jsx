@@ -3,10 +3,12 @@ import { useNotificaciones } from '../context/NotificacionesContext';
 import { useAuth } from '../context/AuthContext';
 import { FaBell, FaCheck, FaTrash, FaClock } from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { ptBR } from 'date-fns/locale';
+import { useLanguage } from '../context/LanguageContext';
 
 const NotificacionesCampana = () => {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
   const { notificaciones, noLeidas, marcarComoLeida, marcarTodasLeidas, eliminarNotificacion } = useNotificaciones();
@@ -45,7 +47,7 @@ const NotificacionesCampana = () => {
       <button 
         onClick={() => setIsOpen(!isOpen)} 
         style={styles.bellButton}
-        aria-label="Notificaciones"
+        aria-label={t('notifications.label')}
       >
         <FaBell style={styles.bellIcon} />
         {noLeidas > 0 && (
@@ -59,14 +61,14 @@ const NotificacionesCampana = () => {
       {isOpen && (
         <div style={styles.dropdown}>
           <div style={styles.dropdownHeader}>
-            <h3 style={styles.dropdownTitle}>Notificaciones</h3>
+            <h3 style={styles.dropdownTitle}>{t('notifications.title')}</h3>
             {notificaciones.length > 0 && (
               <button 
                 onClick={marcarTodasLeidas} 
                 style={styles.markAllButton}
-                title="Marcar todas como leídas"
+                title={t('notifications.markAllRead')}
               >
-                <FaCheck /> Marcar todas
+                <FaCheck /> {t('notifications.markAll')}
               </button>
             )}
           </div>
@@ -74,7 +76,7 @@ const NotificacionesCampana = () => {
           <div style={styles.notificacionesList}>
             {notificaciones.length === 0 ? (
               <div style={styles.emptyState}>
-                <p>No hay notificaciones</p>
+                <p>{t('notifications.noNotifications')}</p>
               </div>
             ) : (
               notificaciones.slice(0, 10).map(notif => (
@@ -96,7 +98,7 @@ const NotificacionesCampana = () => {
                         <FaClock style={styles.clockIcon} />
                         {formatDistanceToNow(new Date(notif.fecha_creacion), { 
                           addSuffix: true,
-                          locale: es 
+                          locale: ptBR 
                         })}
                       </span>
                     </div>
@@ -107,7 +109,7 @@ const NotificacionesCampana = () => {
                         <button 
                           onClick={() => marcarComoLeida(notif.id)}
                           style={styles.actionButton}
-                          title="Marcar como leída"
+                          title={t('notifications.markAsRead')}
                         >
                           <FaCheck />
                         </button>
@@ -115,7 +117,7 @@ const NotificacionesCampana = () => {
                       <button 
                         onClick={() => eliminarNotificacion(notif.id)}
                         style={{...styles.actionButton, ...styles.deleteButton}}
-                        title="Eliminar"
+                        title={t('notifications.delete')}
                       >
                         <FaTrash />
                       </button>
@@ -129,7 +131,7 @@ const NotificacionesCampana = () => {
           {notificaciones.length > 10 && (
             <div style={styles.dropdownFooter}>
               <button style={styles.verTodasButton}>
-                Ver todas ({notificaciones.length})
+                {t('notifications.viewAll')} ({notificaciones.length})
               </button>
             </div>
           )}

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import axiosInstance from '../services/auth'
 import { useNavigate } from 'react-router-dom'
+import { useLanguage } from '../context/LanguageContext'
 import { 
   FaUserNurse, FaHeartbeat, FaThermometerHalf, FaSyringe, 
   FaBandAid, FaFlask, FaClipboardList, FaCheckCircle,
@@ -9,6 +10,7 @@ import {
 } from 'react-icons/fa'
 
 function EnfermeriaDashboard() {
+  const { t } = useLanguage()
   const [user, setUser] = useState(null)
   const [enfermera, setEnfermera] = useState(null)
   const [pacientesHoy, setPacientesHoy] = useState([])
@@ -57,7 +59,7 @@ function EnfermeriaDashboard() {
       
       // Verificar que sea enfermera
       if (userResponse.data.rol !== 'nurse') {
-        mostrarMensaje('Acceso no autorizado', 'error')
+        mostrarMensaje(t('unauthorized'), 'error')
         setTimeout(() => navigate('/dashboard'), 2000)
         return
       }
@@ -78,7 +80,7 @@ function EnfermeriaDashboard() {
 
     } catch (error) {
       console.error('Error cargando datos:', error)
-      mostrarMensaje('Error al cargar el panel', 'error')
+      mostrarMensaje(t('connectionError'), 'error')
     } finally {
       setLoading(false)
     }
@@ -151,7 +153,7 @@ function EnfermeriaDashboard() {
       // Aquí iría la llamada a la API
       console.log('Registrando signos vitales:', { pacienteId, ...signosVitales })
       
-      mostrarMensaje('✅ Signos vitales registrados correctamente', 'success')
+      mostrarMensaje(t('vitalsRegistered'), 'success')
       setSignosVitales({
         temperatura: '',
         presion_sistolica: '',
@@ -167,7 +169,7 @@ function EnfermeriaDashboard() {
       setSelectedPaciente(null)
     } catch (error) {
       console.error('Error registrando signos vitales:', error)
-      mostrarMensaje('Error al registrar signos vitales', 'error')
+      mostrarMensaje(t('errorSaving', { type: t('vitalSigns').toLowerCase() }), 'error')
     } finally {
       setSaving(false)
     }
@@ -177,7 +179,7 @@ function EnfermeriaDashboard() {
     setSaving(true)
     try {
       console.log('Realizando procedimiento:', procedimiento)
-      mostrarMensaje('✅ Procedimiento registrado correctamente', 'success')
+      mostrarMensaje(t('itemCreated', { type: t('procedures').toLowerCase() }), 'success')
       setProcedimiento({
         tipo: 'curacion',
         descripcion: '',
@@ -186,7 +188,7 @@ function EnfermeriaDashboard() {
       })
     } catch (error) {
       console.error('Error realizando procedimiento:', error)
-      mostrarMensaje('Error al registrar procedimiento', 'error')
+      mostrarMensaje(t('errorSaving', { type: t('procedures').toLowerCase() }), 'error')
     } finally {
       setSaving(false)
     }
@@ -203,7 +205,7 @@ function EnfermeriaDashboard() {
 
   // Función para obtener el nombre de la especialidad de enfermería
   const getEspecialidadNombre = () => {
-    if (!enfermera) return 'Enfermería General'
+    if (!enfermera) return t('generalNursing')
     
     if (enfermera.especialidad_nombre) {
       return enfermera.especialidad_nombre
@@ -259,7 +261,7 @@ function EnfermeriaDashboard() {
         <div style={styles.statCard}>
           <FaUserNurse style={styles.statIcon} />
           <div>
-            <h3>Pacientes Hoy</h3>
+            <h3>{t('patientsToday')}</h3>
             <p>{pacientesHoy.length}</p>
           </div>
         </div>
@@ -285,7 +287,7 @@ function EnfermeriaDashboard() {
           style={{...styles.tab, ...(activeTab === 'pacientes' && styles.activeTab)}}
           onClick={() => setActiveTab('pacientes')}
         >
-          <FaUserNurse /> Pacientes del Día
+          <FaUserNurse /> {t('patientsOfDayTitle')}
         </button>
         <button
           style={{...styles.tab, ...(activeTab === 'procedimientos' && styles.activeTab)}}
@@ -303,7 +305,7 @@ function EnfermeriaDashboard() {
 
       {/* Contenido según tab */}
       <div style={styles.content}>
-        {/* Tab: Pacientes del Día */}
+        {/* Tab: {t('patientsOfDayTitle')} */}
         {activeTab === 'pacientes' && (
           <div style={styles.pacientesContainer}>
             <h2>Pacientes con cita hoy</h2>
@@ -349,7 +351,7 @@ function EnfermeriaDashboard() {
                     {selectedPaciente?.id === cita.id && (
                       <div style={styles.modalOverlay} onClick={() => setSelectedPaciente(null)}>
                         <div style={styles.modal} onClick={e => e.stopPropagation()}>
-                          <h3>Registrar Signos Vitales</h3>
+                          <h3>{t('registerVitalsTitle')}</h3>
                           <p style={styles.modalPaciente}>
                             Paciente: {selectedPaciente?.paciente_nombre}
                           </p>

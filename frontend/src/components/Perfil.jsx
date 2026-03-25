@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import axiosInstance from '../services/auth'
 import { useNavigate } from 'react-router-dom'
+import { useLanguage } from '../context/LanguageContext'
 import { 
   FaUser, FaEnvelope, FaPhone, FaAllergies, FaTint, 
   FaUserMd, FaHistory, FaEdit, FaKey, FaSave, FaTimes,
@@ -9,6 +10,7 @@ import {
 } from 'react-icons/fa'
 
 function Perfil() {
+  const { t } = useLanguage()
   const [user, setUser] = useState(null)
   const [paciente, setPaciente] = useState(null)
   const [doctor, setDoctor] = useState(null)
@@ -109,10 +111,10 @@ function Perfil() {
       
       if (error.response) {
         if (error.response.status === 401) {
-          mostrarMensaje('Sesión expirada. Por favor inicia sesión nuevamente.', 'error')
+          mostrarMensaje(t('sessionExpired'), 'error')
           setTimeout(() => navigate('/login'), 2000)
         } else {
-          mostrarMensaje(`Error del servidor: ${error.response.status}`, 'error')
+          mostrarMensaje(t('serverError') + ': ' + error.response.status, 'error')
         }
       } else if (error.request) {
         mostrarMensaje('No se pudo conectar con el servidor', 'error')
@@ -295,7 +297,7 @@ function Perfil() {
         })
       }
 
-      mostrarMensaje('✅ Perfil actualizado correctamente', 'success')
+      mostrarMensaje(t('profileUpdated'), 'success')
       setEditMode(false)
       await fetchUserData() // Recargar datos
     } catch (error) {
@@ -305,9 +307,9 @@ function Perfil() {
         const errors = Object.entries(error.response.data)
           .map(([field, msg]) => `${field}: ${msg}`)
           .join('\n')
-        mostrarMensaje(`Error al actualizar:\n${errors}`, 'error')
+        mostrarMensaje(t('errorSaving', { type: t('profile').toLowerCase() }) + ':\n' + errors, 'error')
       } else {
-        mostrarMensaje('Error al actualizar el perfil', 'error')
+        mostrarMensaje(t('errorSaving', { type: t('profile').toLowerCase() }), 'error')
       }
     } finally {
       setSaving(false)
@@ -368,7 +370,7 @@ function Perfil() {
 
   const formatFecha = (fecha) => {
     try {
-      return new Date(fecha).toLocaleDateString('es-ES', {
+      return new Date(fecha).toLocaleDateString('pt-BR', {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
@@ -379,14 +381,14 @@ function Perfil() {
   }
 
   const getEspecialidadDoctor = () => {
-    if (!doctor) return 'No especificada'
+    if (!doctor) return t('notSpecified')
     if (doctor.especialidad_nombre) return doctor.especialidad_nombre
     if (doctor.otra_especialidad) return doctor.otra_especialidad
-    return 'No especificada'
+    return t('notSpecified')
   }
 
   const getEspecialidadEnfermera = () => {
-    if (!enfermera) return 'No especificada'
+    if (!enfermera) return t('notSpecified')
     if (enfermera.especialidad_nombre) return enfermera.especialidad_nombre
     if (enfermera.otra_especialidad) return enfermera.otra_especialidad
     return 'Enfermería General'
@@ -446,9 +448,9 @@ function Perfil() {
                 <button 
                   onClick={() => setEditMode(true)} 
                   style={styles.editButton}
-                  title="Editar perfil"
+                  title={t('editProfile')}
                 >
-                  <FaEdit /> Editar
+                  <FaEdit /> {t('edit')}
                 </button>
               )}
             </div>
@@ -628,10 +630,10 @@ function Perfil() {
                                     user?.rol === 'doctor' ? 'var(--color-doctor)' :
                                     user?.rol === 'nurse' ? 'var(--color-nurse)' : 'var(--color-patient)'
                     }}>
-                      {user?.rol === 'admin' && 'Administrador'}
-                      {user?.rol === 'doctor' && 'Médico'}
-                      {user?.rol === 'nurse' && 'Enfermería'}
-                      {user?.rol === 'patient' && 'Paciente'}
+                      {user?.rol === 'admin' && t('administrator')}
+                      {user?.rol === 'doctor' && t('doctor')}
+                      {user?.rol === 'nurse' && t('nurse')}
+                      {user?.rol === 'patient' && t('patient')}
                     </span>
                   </div>
                 </div>
@@ -645,8 +647,8 @@ function Perfil() {
                     </h3>
                     <div style={styles.infoGrid}>
                       <div style={styles.infoItem}>
-                        <span style={styles.infoLabel}>Alergias:</span>
-                        <span style={styles.infoValue}>{paciente.alergias || 'No especificadas'}</span>
+                        <span style={styles.infoLabel}>{t('allergies')}:</span>
+                        <span style={styles.infoValue}>{paciente.alergias || t('notSpecified')}</span>
                       </div>
                       <div style={styles.infoItem}>
                         <span style={styles.infoLabel}>Grupo Sanguíneo:</span>
@@ -682,8 +684,8 @@ function Perfil() {
                         <span style={styles.infoValue}>{getEspecialidadDoctor()}</span>
                       </div>
                       <div style={styles.infoItem}>
-                        <span style={styles.infoLabel}>Biografía:</span>
-                        <span style={styles.infoValue}>{doctor.biografia || 'No especificada'}</span>
+                        <span style={styles.infoLabel}>{t('biography')}:</span>
+                        <span style={styles.infoValue}>{doctor.biografia || t('notSpecified')}</span>
                       </div>
                     </div>
                   </div>
@@ -822,7 +824,7 @@ function Perfil() {
             <div style={styles.cardHeader}>
               <div style={styles.cardTitle}>
                 <FaHistory style={styles.cardIcon} />
-                <h2>Historial de Citas</h2>
+                <h2>{t('appointmentHistory')}</h2>
               </div>
               <span style={styles.historialCount}>
                 {historialCitas.length} citas

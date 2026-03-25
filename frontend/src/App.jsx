@@ -7,6 +7,7 @@ import './App.css';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { NotificacionesProvider } from './context/NotificacionesContext';
+import { LanguageProvider } from './context/LanguageContext';
 
 // Components
 import Login from './components/Login';
@@ -19,18 +20,19 @@ import AdminDashboard from './components/AdminDashboard';
 import EnfermeriaDashboard from './components/EnfermeriaDashboard';
 import NotificacionesCampana from './components/NotificacionesCampana';
 import ThemeToggle from './components/ThemeToggle';
-import Footer from './components/Footer';
+import LanguageToggle from './components/LanguageToggle';
 import AnimatedBackground from './components/AnimatedBackground';
+import Footer from './components/Footer';
 import { APP_NAME } from './config/constants';
 
 const styles = {
   appContainer: {
     display: 'flex',
     flexDirection: 'column',
-    minHeight: '100vh',  // Importante para que el footer se pegue abajo
+    minHeight: '100vh',
   },
   contentContainer: {
-    flex: 1,  // El contenido ocupa todo el espacio disponible
+    flex: 1,
   },
   headerBar: {
     position: 'fixed',
@@ -47,37 +49,40 @@ const styles = {
 function App() {
 
   return (
-    <ThemeProvider>
+    <LanguageProvider>
       <AnimatedBackground />
-      <AuthProvider>
-        <NotificacionesProvider>
-          <Router>
-            <div style={styles.appContainer}>
-              <div style={styles.headerBar}>
-                <ThemeToggle />
-                <NotificacionesCampana />
-              </div>
-              
-              <div style={styles.contentContainer}>
-                <Routes>
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/registro" element={<Registro />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/citas" element={<Citas />} />
-                  <Route path="/doctores" element={<Doctores />} />
-                  <Route path="/perfil" element={<Perfil />} />
-                  <Route path="/admin" element={<AdminDashboard />} />
-                  <Route path="/enfermeria" element={<EnfermeriaDashboard />} />
-                  <Route path="/" element={<Navigate to="/login" />} />
-                </Routes>
-              </div>
+      <ThemeProvider>
+        <AuthProvider>
+          <NotificacionesProvider>
+            <Router>
+              <div style={styles.appContainer}>
+                <div style={styles.headerBar}>
+                  <ThemeToggle />
+                  <LanguageToggle />
+                  <NotificacionesCampana />
+                </div>
+                
+                <div style={styles.contentContainer}>
+                  <Routes>
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/registro" element={<Registro />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/citas" element={<Citas />} />
+                    <Route path="/doctores" element={<Doctores />} />
+                    <Route path="/perfil" element={<Perfil />} />
+                    <Route path="/admin" element={<AdminDashboard />} />
+                    <Route path="/enfermeria" element={<EnfermeriaDashboard />} />
+                    <Route path="/" element={<Navigate to="/login" />} />
+                  </Routes>
+                </div>
 
-              <Footer />  {/* <-- FOOTER SIEMPRE VISIBLE */}
-            </div>
-          </Router>
-        </NotificacionesProvider>
-      </AuthProvider>
-    </ThemeProvider>
+                <Footer />
+              </div>
+            </Router>
+          </NotificacionesProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </LanguageProvider>
   );
 }
 
