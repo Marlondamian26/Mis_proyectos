@@ -24,7 +24,7 @@ const ChatIA = ({ token, onClose }) => {
     {
       id: 1,
       tipo: 'ia',
-      texto: 'Ola! 👋 Sou o assistente da Gestao-Saude.\n\nVoce esta procurando agendar uma consulta medica? Posso ajuda-lo a encontrar o medico perfeito para voce.',
+      texto: t('initialGreeting'),
       timestamp: new Date()
     }
   ]);
@@ -32,9 +32,9 @@ const ChatIA = ({ token, onClose }) => {
   const [carregando, setCarregando] = useState(false);
   const [sugerenciasCarregando, setSugestoesCarregando] = useState(false);
   const [sugerencias, setSugerencias] = useState([
-    'Quero agendar uma consulta',
-    'Ver horarios disponiveis',
-    'Tenho uma duvida'
+    t('suggestion1'),
+    t('suggestion2'),
+    t('suggestion3')
   ]);
   const chatEndRef = useRef(null);
 
@@ -100,15 +100,15 @@ const ChatIA = ({ token, onClose }) => {
       // Distinguir entre tipos de errores para dar mejor feedback
       let mensagemErroTexto = '';
       if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
-        mensagemErroTexto = '⏱️ A conexao demorou muito. Por favor, verifique sua internet e tente novamente.';
+        mensagemErroTexto = t('connectionTimeout');
       } else if (error.response?.status === 401) {
-        mensagemErroTexto = '🔐 Sua sessao expirou. Por favor, faca login novamente.';
+        mensagemErroTexto = t('sessionExpired');
       } else if (error.response?.status === 403) {
-        mensagemErroTexto = '🔒 Voce nao tem acesso a esta funcao. Apenas pacientes podem usar o assistente.';
+        mensagemErroTexto = t('noAccess');
       } else if (error.response?.status >= 500) {
-        mensagemErroTexto = '🔧 Ha um problema com o servidor. Por favor, tente mais tarde.';
+        mensagemErroTexto = t('serverError');
       } else {
-        mensagemErroTexto = 'Desculpe, houve um erro ao processar sua mensagem. Por favor, tente novamente.';
+        mensagemErroTexto = t('processingError');
       }
       
       const mensagemErro = {
@@ -144,7 +144,7 @@ const ChatIA = ({ token, onClose }) => {
       <div className="chat-ia-header">
         <div className="chat-ia-title">
           <span className="chat-ia-icon">🤖</span>
-          <span>Assistente de Consultas</span>
+          <span>{t('chatAssistantTitle')}</span>
         </div>
         <button className="chat-ia-close" onClick={onClose}>
           ✕

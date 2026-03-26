@@ -64,7 +64,15 @@ function Doctores() {
     setHorarios([])
   }
 
-  const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+  const diasSemana = [
+    t('monday'),
+    t('tuesday'),
+    t('wednesday'),
+    t('thursday'),
+    t('friday'),
+    t('saturday'),
+    t('sunday')
+  ]
 
   // Función para obtener el nombre de la especialidad
   const getEspecialidadNombre = (doctor) => {
@@ -175,8 +183,8 @@ function Doctores() {
               </div>
 
               <div style={styles.modalSection}>
-                <h4>📞 Contacto</h4>
-                <p><FaPhone /> {doctorSeleccionado.usuario?.telefono || 'No especificado'}</p>
+                <h4>📞 {t('contact')}</h4>
+                <p><FaPhone /> {doctorSeleccionado.usuario?.telefono || t('notSpecified')}</p>
                 <p><FaEnvelope /> {doctorSeleccionado.usuario?.email || 'No especificado'}</p>
               </div>
 
@@ -212,7 +220,7 @@ function Doctores() {
 
       {doctoresFiltrados.length === 0 && !loading && (
         <div style={styles.noResults}>
-          No se encontraron doctores {filtroEspecialidad && `con especialidad "${filtroEspecialidad}"`}
+          {t('noDoctorsFound')} {filtroEspecialidad && `${t('withSpecialty')} "${filtroEspecialidad}"`}
         </div>
       )}
     </div>

@@ -251,7 +251,7 @@ function Citas() {
             </div>
 
             {cargandoHorarios ? (
-              <div style={styles.loadingSmall}>Carregando horarios disponiveis...</div>
+              <div style={styles.loadingSmall}>{t('loadingAvailableTimes')}</div>
             ) : (
               nuevaCita.doctor && nuevaCita.fecha && (
                 <div style={styles.formGroup}>
@@ -296,7 +296,7 @@ function Citas() {
               style={styles.submitButton}
               disabled={!nuevaCita.hora}
             >
-              Confirmar Reserva
+              {t('confirmReservation')}
             </button>
           </form>
         </div>
@@ -304,7 +304,7 @@ function Citas() {
 
       <div style={styles.citasContainer}>
         <div style={styles.section}>
-          <h2>📌 Próximas Citas</h2>
+          <h2>📌 {t('upcomingAppointments')}</h2>
           {citasProximas.length === 0 ? (
             <p style={styles.emptyState}>No tienes citas próximas</p>
           ) : (
@@ -326,7 +326,7 @@ function Citas() {
                 {cita.estado !== 'cancelada' && cita.estado !== 'completada' && (
                   <div style={styles.citaFooter}>
                     <button onClick={() => cancelarCita(cita.id)} style={styles.cancelButton}>
-                      <FaTimes /> Cancelar cita
+                      <FaTimes /> {t('cancelAppointment')}
                     </button>
                   </div>
                 )}

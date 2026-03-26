@@ -234,7 +234,7 @@ function EnfermeriaDashboard() {
             Panel de Enfermería
           </h1>
           <p style={styles.subtitle}>
-            Bienvenida, {user?.first_name} {user?.last_name}
+            {t('welcome')}, {user?.first_name} {user?.last_name}
             {enfermera && ` - ${getEspecialidadNombre()}`}
           </p>
           {enfermera?.numero_licencia && (
@@ -268,7 +268,7 @@ function EnfermeriaDashboard() {
         <div style={styles.statCard}>
           <FaSyringe style={styles.statIcon} />
           <div>
-            <h3>Procedimientos</h3>
+            <h3>{t('procedures')}</h3>
             <p>{procedimientosPendientes.length}</p>
           </div>
         </div>
@@ -293,13 +293,13 @@ function EnfermeriaDashboard() {
           style={{...styles.tab, ...(activeTab === 'procedimientos' && styles.activeTab)}}
           onClick={() => setActiveTab('procedimientos')}
         >
-          <FaSyringe /> Procedimientos
+          <FaSyringe /> {t('procedures')}
         </button>
         <button
           style={{...styles.tab, ...(activeTab === 'registrar' && styles.activeTab)}}
           onClick={() => setActiveTab('registrar')}
         >
-          <FaClipboardList /> Registrar Nuevo
+          <FaClipboardList /> {t('registerNew')}
         </button>
       </div>
 
@@ -308,11 +308,11 @@ function EnfermeriaDashboard() {
         {/* Tab: {t('patientsOfDayTitle')} */}
         {activeTab === 'pacientes' && (
           <div style={styles.pacientesContainer}>
-            <h2>Pacientes con cita hoy</h2>
+            <h2>{t('patientsWithAppointmentToday')}</h2>
             {pacientesHoy.length === 0 ? (
               <div style={styles.emptyState}>
                 <FaCalendarAlt style={styles.emptyIcon} />
-                <p>No hay pacientes programados para hoy</p>
+                <p>{t('patientsScheduled')}</p>
               </div>
             ) : (
               <div style={styles.pacientesList}>
@@ -320,7 +320,7 @@ function EnfermeriaDashboard() {
                   <div key={cita.id || index} style={styles.pacienteCard}>
                     <div style={styles.pacienteHeader}>
                       <div>
-                        <h3>{cita.paciente_nombre || `Paciente #${cita.paciente}`}</h3>
+                        <h3>{cita.paciente_nombre || `${t('patient')} #${cita.paciente}`}</h3>
                         <p style={styles.pacienteHora}>{cita.hora}</p>
                       </div>
                       <span style={styles.pacienteEstado}>{cita.estado}</span>
@@ -337,7 +337,7 @@ function EnfermeriaDashboard() {
                         style={styles.actionButton}
                         onClick={() => setSelectedPaciente(cita)}
                       >
-                        <FaHeartbeat /> Registrar Signos
+                        <FaHeartbeat /> {t('registerSigns')}
                       </button>
                       <button style={styles.actionButton}>
                         <FaBandAid /> Realizar Curación
@@ -353,7 +353,7 @@ function EnfermeriaDashboard() {
                         <div style={styles.modal} onClick={e => e.stopPropagation()}>
                           <h3>{t('registerVitalsTitle')}</h3>
                           <p style={styles.modalPaciente}>
-                            Paciente: {selectedPaciente?.paciente_nombre}
+                            {t('patient')}: {selectedPaciente?.paciente_nombre}
                           </p>
                           
                           <div style={styles.signosForm}>
@@ -491,7 +491,7 @@ function EnfermeriaDashboard() {
                                 disabled={saving}
                               >
                                 {saving ? <FaSpinner style={styles.spinner} /> : <FaCheckCircle />}
-                                Guardar Signos Vitales
+                                {t('saveVitals')}
                               </button>
                               <button 
                                 onClick={() => setSelectedPaciente(null)}
@@ -511,10 +511,10 @@ function EnfermeriaDashboard() {
           </div>
         )}
 
-        {/* Tab: Procedimientos Pendientes */}
+        {/* Tab: {t('pendingProcedures')} */}
         {activeTab === 'procedimientos' && (
           <div style={styles.procedimientosContainer}>
-            <h2>Procedimientos Pendientes</h2>
+            <h2>{t('pendingProcedures')}</h2>
             {procedimientosPendientes.length === 0 ? (
               <div style={styles.emptyState}>
                 <FaCheckCircle style={styles.emptyIcon} />
@@ -540,7 +540,7 @@ function EnfermeriaDashboard() {
                     </div>
                     
                     <p style={styles.procedimientoPaciente}>
-                      <strong>Paciente:</strong> {proc.paciente}
+                      <strong>{t('patient')}:</strong> {proc.paciente}
                     </p>
                     <p style={styles.procedimientoDescripcion}>
                       {proc.descripcion}
@@ -556,10 +556,10 @@ function EnfermeriaDashboard() {
           </div>
         )}
 
-        {/* Tab: Registrar Nuevo */}
+        {/* Tab: {t('registerNew')} */}
         {activeTab === 'registrar' && (
           <div style={styles.registrarContainer}>
-            <h2>Registrar Nuevo Procedimiento</h2>
+            <h2>{t('registerNewProcedure')}</h2>
             
             <div style={styles.registrarForm}>
               <div style={styles.formGroup}>
@@ -579,9 +579,9 @@ function EnfermeriaDashboard() {
               </div>
 
               <div style={styles.formGroup}>
-                <label>Paciente:</label>
+                <label>{t('patient')}:</label>
                 <select style={styles.select}>
-                  <option value="">Seleccionar paciente</option>
+                  <option value="">{t('selectPatient')}</option>
                   {pacientesHoy.map(cita => (
                     <option key={cita.id} value={cita.paciente}>
                       {cita.paciente_nombre} - {cita.hora}
@@ -632,7 +632,7 @@ function EnfermeriaDashboard() {
                 disabled={saving}
               >
                 {saving ? <FaSpinner style={styles.spinner} /> : <FaCheckCircle />}
-                Registrar Procedimiento
+                {t('registerProcedure')}
               </button>
             </div>
           </div>

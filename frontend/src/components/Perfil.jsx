@@ -16,7 +16,7 @@ function Perfil() {
   const [doctor, setDoctor] = useState(null)
   const [enfermera, setEnfermera] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [loadingMessage, setLoadingMessage] = useState('Carregando perfil...')
+  const [loadingMessage, setLoadingMessage] = useState(t('loadingProfile'))
   const [editMode, setEditMode] = useState(false)
   const [changePasswordMode, setChangePasswordMode] = useState(false)
   const [historialCitas, setHistorialCitas] = useState([])
@@ -61,7 +61,7 @@ function Perfil() {
 
   const fetchUserData = async () => {
     setLoading(true)
-    setLoadingMessage('Carregando suas informacoes...')
+    setLoadingMessage(t('loadingYourInfo'))
     
     try {
       // Verificar token primero
@@ -127,7 +127,7 @@ function Perfil() {
   }
 
   const cargarDatosPaciente = async (usuarioId) => {
-    setLoadingMessage('Carregando informacoes medicas...')
+    setLoadingMessage(t('loadingMedicalInfo'))
     
     const pacientesResponse = await axiosInstance.get('pacientes/')
     const pacientesData = Array.isArray(pacientesResponse.data) ? pacientesResponse.data : []
@@ -147,7 +147,7 @@ function Perfil() {
   }
 
   const cargarDatosDoctor = async (usuarioId) => {
-    setLoadingMessage('Carregando informacoes profissionais...')
+    setLoadingMessage(t('loadingProfessionalInfo'))
     
     try {
       const doctorResponse = await axiosInstance.get('mi-perfil-doctor/')
@@ -169,7 +169,7 @@ function Perfil() {
   }
 
   const cargarDatosEnfermera = async (usuarioId) => {
-    setLoadingMessage('Carregando informacoes profissionais...')
+    setLoadingMessage(t('loadingProfessionalInfo'))
     
     try {
       const enfermeraResponse = await axiosInstance.get('mi-perfil-enfermera/')
@@ -191,7 +191,7 @@ function Perfil() {
   }
 
   const cargarHistorialCitas = async () => {
-    setLoadingMessage('Carregando historico de consultas...')
+    setLoadingMessage(t('loadingAppointmentsHistory'))
     
     const citasResponse = await axiosInstance.get('citas/')
     const citasData = Array.isArray(citasResponse.data) ? citasResponse.data : []
@@ -411,13 +411,13 @@ function Perfil() {
         <div style={styles.headerLeft}>
           <h1 style={styles.title}>
             <FaUser style={styles.titleIcon} />
-            Mi Perfil
+            {t('myProfile')}
           </h1>
           <p style={styles.subtitle}>
-            {user?.rol === 'patient' && 'Gestiona tu información personal y médica'}
-            {user?.rol === 'doctor' && 'Información profesional y de contacto'}
-            {user?.rol === 'nurse' && 'Información profesional y de contacto'}
-            {user?.rol === 'admin' && 'Panel de administración de perfil'}
+            {user?.rol === 'patient' && t('profileManagePersonalInfo')}
+            {user?.rol === 'doctor' && t('profileProfessionalContactInfo')}
+            {user?.rol === 'nurse' && t('profileProfessionalContactInfo')}
+            {user?.rol === 'admin' && t('profileAdminPanel')}
           </p>
         </div>
         <button onClick={() => navigate('/dashboard')} style={styles.backButton}>
@@ -442,7 +442,7 @@ function Perfil() {
             <div style={styles.cardHeader}>
               <div style={styles.cardTitle}>
                 <FaUser style={styles.cardIcon} />
-                <h2>Información Personal</h2>
+                <h2>{t('personalInfo')}</h2>
               </div>
               {!editMode && !changePasswordMode && (
                 <button 
@@ -461,7 +461,7 @@ function Perfil() {
                 <div style={styles.formRow}>
                   <div style={styles.formGroup}>
                     <label style={styles.label}>
-                      <FaUser /> Nombre
+                      <FaUser /> {t('fullName')}
                     </label>
                     <input
                       type="text"
@@ -489,7 +489,7 @@ function Perfil() {
 
                 <div style={styles.formGroup}>
                   <label style={styles.label}>
-                    <FaEnvelope /> Email
+                    <FaEnvelope /> {t('email')}
                   </label>
                   <input
                     type="email"
@@ -542,7 +542,7 @@ function Perfil() {
                           onChange={handleEditChange}
                           style={styles.select}
                         >
-                          <option value="">Seleccionar</option>
+                          <option value="">{t('select')}</option>
                           <option value="A+">A+</option>
                           <option value="A-">A-</option>
                           <option value="B+">B+</option>
@@ -558,7 +558,7 @@ function Perfil() {
                     <div style={styles.formRow}>
                       <div style={styles.formGroup}>
                         <label style={styles.label}>
-                          <FaAddressCard /> Contacto de emergencia
+                          <FaAddressCard /> {t('emergencyContact')}
                         </label>
                         <input
                           type="text"
@@ -593,7 +593,7 @@ function Perfil() {
                     disabled={saving}
                   >
                     {saving ? <FaSpinner style={styles.spinner} /> : <FaSave />}
-                    {saving ? 'Guardando...' : 'Guardar Cambios'}
+                    {saving ? t('saving') : t('saveChanges')}
                   </button>
                   <button 
                     onClick={() => setEditMode(false)} 
@@ -611,16 +611,16 @@ function Perfil() {
                   <div style={styles.infoItem}>
                     <span style={styles.infoLabel}>Nombre completo:</span>
                     <span style={styles.infoValue}>
-                      {user?.first_name} {user?.last_name || 'No especificado'}
+                      {user?.first_name} {user?.last_name || t('notSpecified')}
                     </span>
                   </div>
                   <div style={styles.infoItem}>
-                    <span style={styles.infoLabel}>Email:</span>
-                    <span style={styles.infoValue}>{user?.email || 'No especificado'}</span>
+                    <span style={styles.infoLabel}>{t('email')}:</span>
+                    <span style={styles.infoValue}>{user?.email || t('notSpecified')}</span>
                   </div>
                   <div style={styles.infoItem}>
-                    <span style={styles.infoLabel}>Teléfono:</span>
-                    <span style={styles.infoValue}>{user?.telefono || 'No especificado'}</span>
+                    <span style={styles.infoLabel}>{t('phone')}:</span>
+                    <span style={styles.infoValue}>{user?.telefono || t('notSpecified')}</span>
                   </div>
                   <div style={styles.infoItem}>
                     <span style={styles.infoLabel}>Rol:</span>
@@ -643,7 +643,7 @@ function Perfil() {
                   <div style={styles.medicalInfo}>
                     <h3 style={styles.medicalTitle}>
                       <FaHeart style={styles.medicalIcon} />
-                      Información Médica
+                      {t('medicalInfo')}
                     </h3>
                     <div style={styles.infoGrid}>
                       <div style={styles.infoItem}>
@@ -651,21 +651,21 @@ function Perfil() {
                         <span style={styles.infoValue}>{paciente.alergias || t('notSpecified')}</span>
                       </div>
                       <div style={styles.infoItem}>
-                        <span style={styles.infoLabel}>Grupo Sanguíneo:</span>
+                        <span style={styles.infoLabel}>{t('bloodType')}:</span>
                         <span style={{
                           ...styles.grupoSanguineo,
                           backgroundColor: getGrupoSanguineoColor(paciente.grupo_sanguineo)
                         }}>
-                          {paciente.grupo_sanguineo || 'No especificado'}
+                          {paciente.grupo_sanguineo || t('notSpecified')}
                         </span>
                       </div>
                       <div style={styles.infoItem}>
-                        <span style={styles.infoLabel}>Contacto de emergencia:</span>
-                        <span style={styles.infoValue}>{paciente.contacto_emergencia || 'No especificado'}</span>
+                        <span style={styles.infoLabel}>{t('emergencyContact')}:</span>
+                        <span style={styles.infoValue}>{paciente.contacto_emergencia || t('notSpecified')}</span>
                       </div>
                       <div style={styles.infoItem}>
-                        <span style={styles.infoLabel}>Tel. emergencia:</span>
-                        <span style={styles.infoValue}>{paciente.telefono_emergencia || 'No especificado'}</span>
+                        <span style={styles.infoLabel}>{t('emergencyPhone')}:</span>
+                        <span style={styles.infoValue}>{paciente.telefono_emergencia || t('notSpecified')}</span>
                       </div>
                     </div>
                   </div>
@@ -676,11 +676,11 @@ function Perfil() {
                   <div style={styles.medicalInfo}>
                     <h3 style={styles.medicalTitle}>
                       <FaUserMd style={styles.medicalIcon} />
-                      Información Profesional
+                      {t('professionalInfo')}
                     </h3>
                     <div style={styles.infoGrid}>
                       <div style={styles.infoItem}>
-                        <span style={styles.infoLabel}>Especialidad:</span>
+                        <span style={styles.infoLabel}>{t('specialty')}:</span>
                         <span style={styles.infoValue}>{getEspecialidadDoctor()}</span>
                       </div>
                       <div style={styles.infoItem}>
@@ -696,11 +696,11 @@ function Perfil() {
                   <div style={styles.medicalInfo}>
                     <h3 style={styles.medicalTitle}>
                       <FaClipboardList style={styles.medicalIcon} />
-                      Información Profesional
+                      {t('professionalInfo')}
                     </h3>
                     <div style={styles.infoGrid}>
                       <div style={styles.infoItem}>
-                        <span style={styles.infoLabel}>Especialidad:</span>
+                        <span style={styles.infoLabel}>{t('specialty')}:</span>
                         <span style={styles.infoValue}>{getEspecialidadEnfermera()}</span>
                       </div>
                       {enfermera.numero_licencia && (
@@ -768,7 +768,7 @@ function Perfil() {
                 </div>
 
                 <div style={styles.formGroup}>
-                  <label style={styles.label}>Confirmar nova senha:</label>
+                  <label style={styles.label}>{t('confirmNewPassword')}:</label>
                   <input
                     type="password"
                     name="confirm_password"
@@ -827,15 +827,15 @@ function Perfil() {
                 <h2>{t('appointmentHistory')}</h2>
               </div>
               <span style={styles.historialCount}>
-                {historialCitas.length} citas
+                {historialCitas.length} {t('appointments')}
               </span>
             </div>
             
             {historialCitas.length === 0 ? (
               <div style={styles.emptyState}>
                 <FaHistory style={styles.emptyIcon} />
-                <p style={styles.emptyText}>No hay citas en el historial</p>
-                <p style={styles.emptySubtext}>Las citas completadas aparecerán aquí</p>
+                <p style={styles.emptyText}>{t('noAppointmentHistory')}</p>
+                <p style={styles.emptySubtext}>{t('completedAppointmentsAppearHere')}</p>
               </div>
             ) : (
               <div style={styles.historialList}>
@@ -857,7 +857,7 @@ function Perfil() {
                     <div style={styles.historialBody}>
                       <div style={styles.historialDoctor}>
                         <FaUserMd style={styles.historialDoctorIcon} />
-                        Dr. {cita.doctor_nombre || 'No especificado'}
+                        {t('dr')} {cita.doctor_nombre || t('notSpecified')}
                       </div>
                       {cita.motivo && (
                         <div style={styles.historialMotivo}>

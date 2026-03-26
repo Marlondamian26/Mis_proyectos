@@ -291,7 +291,7 @@ function Dashboard() {
               <span style={styles.menuDescription}>{t('seeSpecialists')}</span>
             </div>
 
-            {/* Mi Perfil - Visible para todos */}
+            {/* {t('myProfile')} - Visible para todos */}
             <div 
               style={styles.menuItem} 
               onClick={() => handleNavigation('/perfil')}
@@ -355,7 +355,7 @@ function Dashboard() {
               Recordatorios
             </h3>
             <p style={styles.infoText}>
-              Puedes reservar citas con nuestros especialistas desde la sección "Doctores" o "Mis Citas".
+              {t('managePatients')}
             </p>
           </div>
         )}
@@ -364,20 +364,20 @@ function Dashboard() {
           <div style={styles.infoCard}>
             <h3 style={styles.cardTitle}>
               <span style={styles.cardIcon}>👩‍⚕️</span>
-              Panel de Enfermería
+              {t('nursingDashboard')}
             </h3>
             <div style={styles.adminQuickLinks}>
               <button 
                 onClick={() => handleNavigation('/enfermeria')}
                 style={styles.quickLink}
               >
-                👩‍⚕️ Ir a Panel de Enfermería
+                👩‍⚕️ {t('goToNursingDashboard')}
               </button>
               <button 
                 onClick={() => handleNavigation('/enfermeria?tab=pacientes')}
                 style={styles.quickLink}
               >
-                📋 Pacientes del Día
+                📋 {t('patientsToday')}
               </button>
               <button 
                 onClick={() => handleNavigation('/enfermeria?tab=procedimientos')}
@@ -396,7 +396,7 @@ function Dashboard() {
           <div style={styles.infoCard}>
             <h3 style={styles.cardTitle}>
               <span style={styles.cardIcon}>📊</span>
-              Accesos Rápidos de Administrador
+              {t('quickAccessAdmin')}
             </h3>
             <div style={styles.adminQuickLinks}>
               <button 
@@ -421,7 +421,7 @@ function Dashboard() {
                 onClick={() => handleNavigation('/admin?tab=citas')}
                 style={styles.quickLink}
               >
-                📅 Ver Todas las Citas
+                📅 {t('viewAllAppointments')}
               </button>
             </div>
           </div>

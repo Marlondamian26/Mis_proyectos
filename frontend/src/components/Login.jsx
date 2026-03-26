@@ -47,11 +47,11 @@ function Login() {
     } catch (err) {
       console.error('Error en demo:', err)
       if (err.response?.status === 401) {
-        setError('Demo no disponible. Por favor, use sus propias credenciales o configure las variables de entorno DEMO_PATIENT_USERNAME y DEMO_PATIENT_PASSWORD en el servidor.')
+        setError(t('demoNotAvailable'))
       } else if (err.response?.status === 403) {
-        setError('La cuenta demo no tiene acceso de paciente. Use sus propias credenciales.')
+        setError(t('demoNoAccess'))
       } else {
-        setError('Error al conectar con el servidor')
+        setError(t('serverConnectionError'))
       }
     } finally {
       setLoading(false)
@@ -169,7 +169,7 @@ function Login() {
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
               />
-              Lembrar-me
+              {t('rememberMe')}
             </label>
           </div>
 
@@ -181,7 +181,7 @@ function Login() {
             }}
             disabled={loading}
           >
-            {loading ? 'Entrando...' : 'Entrar'}
+            {loading ? t('loggingIn') : t('login')}
           </button>
 
           {/* ===== BOTÓN DE DEMO ===== */}
@@ -193,7 +193,7 @@ function Login() {
           >
             <span style={styles.demoButtonContent}>
               <span style={styles.demoIcon}>🚀</span>
-              Usar demo (admin)
+              {t('demo')}
             </span>
           </button>
           {/* ========================= */}
@@ -201,9 +201,9 @@ function Login() {
 
         <div style={styles.registerContainer}>
           <p style={styles.registerText}>
-            Nao tem uma conta?{' '}
+            {t('noAccount')}{' '}
             <Link to="/registro" style={styles.registerLink}>
-              Cadastre-se aqui
+              {t('registerHere')}
             </Link>
           </p>
         </div>

@@ -659,7 +659,7 @@ function AdminDashboard() {
           <FaSync /> Tentar novamente
         </button>
         <button onClick={() => navigate('/dashboard')} style={styles.backButton}>
-          ← Volver al Dashboard
+          ← {t('backToDashboard')}
         </button>
       </div>
     )
@@ -671,14 +671,14 @@ function AdminDashboard() {
       <div style={styles.header}>
         <div style={styles.headerLeft}>
           <h1 style={styles.title}>
-            ⚙️ Panel de Administración
+            ⚙️ {t('adminDashboardTitle')}
           </h1>
           <p style={styles.subtitle}>
-            Gestiona todos los aspectos del sistema
+            {t('adminDashboardSubtitle')}
           </p>
         </div>
         <button onClick={() => navigate('/dashboard')} style={styles.backButton}>
-          ← Volver al Dashboard
+          ← {t('backToDashboard')}
         </button>
       </div>
 
@@ -695,21 +695,21 @@ function AdminDashboard() {
         <div style={styles.statCard}>
           <FaUsers style={styles.statIcon} />
           <div>
-            <h3>Total Usuarios</h3>
+            <h3>{t('totalUsers')}</h3>
             <p>{stats.totalUsuarios}</p>
           </div>
         </div>
         <div style={styles.statCard}>
           <FaUserMd style={styles.statIcon} />
           <div>
-            <h3>Doctores</h3>
+            <h3>{t('doctors')}</h3>
             <p>{stats.totalDoctores}</p>
           </div>
         </div>
         <div style={styles.statCard}>
           <FaUserNurse style={styles.statIcon} />
           <div>
-            <h3>Enfermeras</h3>
+            <h3>{t('nurses')}</h3>
             <p>{stats.totalEnfermeras}</p>
           </div>
         </div>
@@ -723,7 +723,7 @@ function AdminDashboard() {
         <div style={styles.statCard}>
           <FaCalendarAlt style={styles.statIcon} />
           <div>
-            <h3>Citas Hoy</h3>
+            <h3>{t('appointmentsToday')}</h3>
             <p>{stats.citasHoy}</p>
           </div>
         </div>
@@ -741,19 +741,19 @@ function AdminDashboard() {
           style={{...styles.tab, ...(activeTab === 'usuarios' && styles.activeTab)}}
           onClick={() => setActiveTab('usuarios')}
         >
-          <FaUsers /> Usuarios ({stats.totalUsuarios})
+          <FaUsers /> {t('manageUsers')} ({stats.totalUsuarios})
         </button>
         <button
           style={{...styles.tab, ...(activeTab === 'doctores' && styles.activeTab)}}
           onClick={() => setActiveTab('doctores')}
         >
-          <FaUserMd /> Doctores ({stats.totalDoctores})
+          <FaUserMd /> {t('manageDoctors')} ({stats.totalDoctores})
         </button>
         <button
           style={{...styles.tab, ...(activeTab === 'enfermeras' && styles.activeTab)}}
           onClick={() => setActiveTab('enfermeras')}
         >
-          <FaUserNurse /> Enfermeras ({stats.totalEnfermeras})
+          <FaUserNurse /> {t('manageNurses')} ({stats.totalEnfermeras})
         </button>
         <button
           style={{...styles.tab, ...(activeTab === 'pacientes' && styles.activeTab)}}
@@ -765,19 +765,19 @@ function AdminDashboard() {
           style={{...styles.tab, ...(activeTab === 'citas' && styles.activeTab)}}
           onClick={() => setActiveTab('citas')}
         >
-          <FaCalendarAlt /> Citas ({stats.citasTotales})
+          <FaCalendarAlt /> {t('appointments')} ({stats.citasTotales})
         </button>
         <button
           style={{...styles.tab, ...(activeTab === 'especialidades' && styles.activeTab)}}
           onClick={() => setActiveTab('especialidades')}
         >
-          <FaStethoscope /> Especialidades ({especialidades.length})
+          <FaStethoscope /> {t('specialties')} ({especialidades.length})
         </button>
         <button
           style={{...styles.tab, ...(activeTab === 'horarios' && styles.activeTab)}}
           onClick={() => setActiveTab('horarios')}
         >
-          <FaClock /> Horarios ({horarios.length})
+          <FaClock /> {t('schedules')} ({horarios.length})
         </button>
       </div>
 
@@ -786,19 +786,19 @@ function AdminDashboard() {
         {/* Tab: Dashboard */}
         {activeTab === 'dashboard' && (
           <div>
-            <h2 style={styles.sectionTitle}>Resumen General</h2>
+            <h2 style={styles.sectionTitle}>{t('generalSummary')}</h2>
             <div style={styles.dashboardGrid}>
               <div style={styles.dashboardCard}>
-                <h4>Usuarios por Rol</h4>
+                <h4>{t('usersByRole')}</h4>
                 <div style={styles.statsList}>
-                  <div><span>Administradores:</span> <strong>{usuarios.filter(u => u.rol === 'admin').length}</strong></div>
-                  <div><span>Doctores:</span> <strong>{stats.totalDoctores}</strong></div>
+                  <div><span>{t('administrators')}:</span> <strong>{usuarios.filter(u => u.rol === 'admin').length}</strong></div>
+                  <div><span>{t('doctors')}:</span> <strong>{stats.totalDoctores}</strong></div>
                   <div><span>{t('nurses')}:</span> <strong>{stats.totalEnfermeras}</strong></div>
                   <div><span>{t('patientsTab')}:</span> <strong>{stats.totalPacientes}</strong></div>
                 </div>
               </div>
               <div style={styles.dashboardCard}>
-                <h4>Citas</h4>
+                <h4>{t('appointments')}</h4>
                 <div style={styles.statsList}>
                   <div><span>Hoy:</span> <strong>{stats.citasHoy}</strong></div>
                   <div><span>Pendientes:</span> <strong>{stats.citasPendientes}</strong></div>
@@ -813,9 +813,9 @@ function AdminDashboard() {
         {activeTab === 'usuarios' && (
           <div>
             <div style={styles.tableHeader}>
-              <h2 style={styles.sectionTitle}>Gestao de Usuarios</h2>
+              <h2 style={styles.sectionTitle}>{t('userManagement')}</h2>
               <button onClick={() => handleCreate('usuarios')} style={styles.createButton}>
-                <FaPlus /> Novo Usuario
+                <FaPlus /> {t('newUser')}
               </button>
             </div>
             {usuarios.length === 0 ? (
@@ -884,9 +884,9 @@ function AdminDashboard() {
                   <thead>
                     <tr>
                       <th>ID</th>
-                      <th>Nombre</th>
-                      <th>Especialidad</th>
-                      <th>Email</th>
+                      <th>{t('name')}</th>
+                      <th>{t('specialty')}</th>
+                      <th>{t('email')}</th>
                       <th>Teléfono</th>
                       <th>Acciones</th>
                     </tr>
@@ -941,9 +941,9 @@ function AdminDashboard() {
                   <thead>
                     <tr>
                       <th>ID</th>
-                      <th>Nombre</th>
-                      <th>Especialidad</th>
-                      <th>Nº Licencia</th>
+                      <th>{t('name')}</th>
+                      <th>{t('specialty')}</th>
+                      <th>{t('licenseNumber')}</th>
                       <th>Email</th>
                       <th>Teléfono</th>
                       <th>Acciones</th>
@@ -985,7 +985,7 @@ function AdminDashboard() {
         {activeTab === 'pacientes' && (
           <div>
             <div style={styles.tableHeader}>
-              <h2 style={styles.sectionTitle}>Gestión de Pacientes</h2>
+              <h2 style={styles.sectionTitle}>{t('patientManagement')}</h2>
               <button onClick={() => handleCreate('pacientes')} style={styles.createButton}>
                 <FaPlus /> {t('newPatient')}
               </button>
@@ -1001,9 +1001,9 @@ function AdminDashboard() {
                     <tr>
                       <th>ID</th>
                       <th>Nombre</th>
-                      <th>Grupo Sanguíneo</th>
-                      <th>Contacto Emergencia</th>
-                      <th>Teléfono Emergencia</th>
+                      <th>{t('bloodType')}</th>
+                      <th>{t('emergencyContact')}</th>
+                      <th>{t('emergencyPhone')}</th>
                       <th>Email</th>
                       <th>Teléfono</th>
                       <th>Acciones</th>
@@ -1043,9 +1043,9 @@ function AdminDashboard() {
         {activeTab === 'citas' && (
           <div>
             <div style={styles.tableHeader}>
-              <h2 style={styles.sectionTitle}>Gestión de Citas</h2>
+              <h2 style={styles.sectionTitle}>{t('appointmentManagement')}</h2>
               <button onClick={() => handleCreate('citas')} style={styles.createButton}>
-                <FaPlus /> Nueva Cita
+                <FaPlus /> {t('newAppointment')}
               </button>
             </div>
             {citas.length === 0 ? (
@@ -1057,14 +1057,14 @@ function AdminDashboard() {
                 <table style={styles.table}>
                   <thead>
                     <tr>
-                      <th>ID</th>
-                      <th>Paciente</th>
-                      <th>Doctor</th>
-                      <th>Fecha</th>
-                      <th>Hora</th>
-                      <th>Estado</th>
-                      <th>Motivo</th>
-                      <th>Acciones</th>
+                      <th>{t('id')}</th>
+                      <th>{t('patient')}</th>
+                      <th>{t('doctor')}</th>
+                      <th>{t('tableDate')}</th>
+                      <th>{t('tableTime')}</th>
+                      <th>{t('status')}</th>
+                      <th>{t('tableReason')}</th>
+                      <th>{t('tableActions')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1101,9 +1101,9 @@ function AdminDashboard() {
         {activeTab === 'especialidades' && (
           <div>
             <div style={styles.tableHeader}>
-              <h2 style={styles.sectionTitle}>Gestión de Especialidades</h2>
+              <h2 style={styles.sectionTitle}>{t('specialtyManagement')}</h2>
               <button onClick={() => handleCreate('especialidades')} style={styles.createButton}>
-                <FaPlus /> Nueva Especialidad
+                <FaPlus /> {t('newSpecialty')}
               </button>
             </div>
             {especialidades.length === 0 ? (
@@ -1115,12 +1115,12 @@ function AdminDashboard() {
                 <table style={styles.table}>
                   <thead>
                     <tr>
-                      <th>ID</th>
-                      <th>Nombre</th>
-                      <th>Tipo</th>
-                      <th>Descripción</th>
-                      <th>Estado</th>
-                      <th>Acciones</th>
+                      <th>{t('tableId')}</th>
+                      <th>{t('tableName')}</th>
+                      <th>{t('tableType')}</th>
+                      <th>{t('tableDescription')}</th>
+                      <th>{t('tableState')}</th>
+                      <th>{t('tableActions')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1140,7 +1140,7 @@ function AdminDashboard() {
                             backgroundColor: esp.activo ? '#27ae60' : '#e74c3c',
                             color: 'white'
                           }}>
-                            {esp.activo ? 'Activo' : 'Inactivo'}
+                            {esp.activo ? t('active') : t('inactive')}
                           </span>
                         </td>
                         <td style={styles.actions}>
@@ -1167,9 +1167,9 @@ function AdminDashboard() {
         {activeTab === 'horarios' && (
           <div>
             <div style={styles.tableHeader}>
-              <h2 style={styles.sectionTitle}>Gestión de Horarios</h2>
+              <h2 style={styles.sectionTitle}>{t('scheduleManagement')}</h2>
               <button onClick={() => handleCreate('horarios')} style={styles.createButton}>
-                <FaPlus /> Nuevo Horario
+                <FaPlus /> {t('newSchedule')}
               </button>
             </div>
             {horarios.length === 0 ? (
@@ -1181,18 +1181,26 @@ function AdminDashboard() {
                 <table style={styles.table}>
                   <thead>
                     <tr>
-                      <th>ID</th>
-                      <th>Doctor</th>
-                      <th>Día</th>
-                      <th>Hora Inicio</th>
-                      <th>Hora Fin</th>
-                      <th>Estado</th>
-                      <th>Acciones</th>
+                      <th>{t('id')}</th>
+                      <th>{t('doctor')}</th>
+                      <th>{t('day')}</th>
+                      <th>{t('tableStartTime')}</th>
+                      <th>{t('tableEndTime')}</th>
+                      <th>{t('tableState')}</th>
+                      <th>{t('tableActions')}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {horarios.map(horario => {
-                      const dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+                      const dias = [
+                        t('monday'),
+                        t('tuesday'),
+                        t('wednesday'),
+                        t('thursday'),
+                        t('friday'),
+                        t('saturday'),
+                        t('sunday')
+                      ]
                       return (
                         <tr key={horario.id}>
                           <td>{horario.id}</td>
@@ -1206,7 +1214,7 @@ function AdminDashboard() {
                               backgroundColor: horario.activo ? '#27ae60' : '#e74c3c',
                               color: 'white'
                             }}>
-                              {horario.activo ? 'Activo' : 'Inactivo'}
+                              {horario.activo ? t('active') : t('inactive')}
                             </span>
                           </td>
                           <td style={styles.actions}>
@@ -1346,7 +1354,7 @@ function AdminDashboard() {
                       <option value="patient">{t('patient')}</option>
                       <option value="doctor">{t('doctor')}</option>
                       <option value="nurse">{t('nurse')}</option>
-                      <option value="admin">Administrador</option>
+                      <option value="admin">{t('administrator')}</option>
                     </select>
                   </div>
                 </>
@@ -1437,10 +1445,10 @@ function AdminDashboard() {
                     />
                   </div>
                   
-                  <h3 style={styles.modalSubtitle}>Datos Profesionales</h3>
+                  <h3 style={styles.modalSubtitle}>{t('professionalData')}</h3>
                   
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>Especialidad *</label>
+                    <label style={styles.label}>{t('specialty')} {t('requiredFieldIndicator')}</label>
                     <select
                       name="especialidad"
                       value={formData.especialidad || ''}
@@ -1448,7 +1456,7 @@ function AdminDashboard() {
                       disabled={modalMode === 'view'}
                       style={styles.select}
                     >
-                      <option value="">Seleccionar especialidad</option>
+                      <option value="">{t('selectSpecialty')}</option>
                       {especialidades.filter(e => e.tipo === 'medica' || e.tipo === 'ambas').map(esp => (
                         <option key={esp.id} value={esp.id}>
                           {esp.nombre}
@@ -1571,10 +1579,10 @@ function AdminDashboard() {
                     />
                   </div>
                   
-                  <h3 style={styles.modalSubtitle}>Datos Profesionales</h3>
+                  <h3 style={styles.modalSubtitle}>{t('professionalData')}</h3>
                   
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>Especialidad (opcional)</label>
+                    <label style={styles.label}>{t('specialty')} ({t('optional')})</label>
                     <select
                       name="especialidad"
                       value={formData.especialidad || ''}
@@ -1718,7 +1726,7 @@ function AdminDashboard() {
                   </div>
 
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>Contacto de Emergencia</label>
+                    <label style={styles.label}>{t('emergencyContact')}</label>
                     <input
                       type="text"
                       name="contacto_emergencia"
@@ -1747,7 +1755,7 @@ function AdminDashboard() {
               {formData.tipo === 'citas' && (
                 <>
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>Paciente *</label>
+                    <label style={styles.label}>{t('patient')} *</label>
                     <select
                       name="paciente"
                       value={formData.paciente || ''}
@@ -1756,7 +1764,7 @@ function AdminDashboard() {
                       style={styles.select}
                       required
                     >
-                      <option value="">Seleccionar paciente</option>
+                      <option value="">{t('selectPatient')}</option>
                       {usuarios.filter(u => u.rol === 'patient').map(u => (
                         <option key={u.id} value={u.id}>
                           {u.first_name} {u.last_name} - {u.username}
@@ -1775,7 +1783,7 @@ function AdminDashboard() {
                       style={styles.select}
                       required
                     >
-                      <option value="">Seleccionar doctor</option>
+                      <option value="">{t('selectDoctor')}</option>
                       {doctores.map(d => (
                         <option key={d.id} value={d.id}>
                           Dr. {d.usuario?.first_name} {d.usuario?.last_name} - {d.especialidad_nombre || d.otra_especialidad || 'Especialidad no especificada'}
@@ -1786,7 +1794,7 @@ function AdminDashboard() {
                   
                   <div style={styles.formRow}>
                     <div style={styles.formGroup}>
-                      <label style={styles.label}>Fecha *</label>
+                      <label style={styles.label}>{t('date')} *</label>
                       <input
                         type="date"
                         name="fecha"
@@ -1799,7 +1807,7 @@ function AdminDashboard() {
                       />
                     </div>
                     <div style={styles.formGroup}>
-                      <label style={styles.label}>Hora *</label>
+                      <label style={styles.label}>{t('time')} *</label>
                       <input
                         type="time"
                         name="hora"
@@ -1813,7 +1821,7 @@ function AdminDashboard() {
                   </div>
                   
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>Estado *</label>
+                    <label style={styles.label}>{t('status')} *</label>
                     <select
                       name="estado"
                       value={formData.estado || 'pendiente'}
@@ -1821,11 +1829,11 @@ function AdminDashboard() {
                       disabled={modalMode === 'view'}
                       style={styles.select}
                     >
-                      <option value="pendiente">🟡 Pendiente</option>
-                      <option value="confirmada">🟢 Confirmada</option>
-                      <option value="completada">🔵 Completada</option>
-                      <option value="cancelada">🔴 Cancelada</option>
-                      <option value="no_asistio">⚫ No Asistió</option>
+                      <option value="pendente">{t('pending')}</option>
+                      <option value="confirmada">{t('confirmed')}</option>
+                      <option value="completada">{t('completed')}</option>
+                      <option value="cancelada">{t('cancelled')}</option>
+                      <option value="no_asistio">{t('noShow')}</option>
                     </select>
                   </div>
                   
@@ -1906,7 +1914,7 @@ function AdminDashboard() {
                         checked={formData.activo || false}
                         onChange={handleInputChange}
                         disabled={modalMode === 'view'}
-                      /> Activo
+                      /> {t('active')}
                     </label>
                   </div>
                 </>
@@ -1925,7 +1933,7 @@ function AdminDashboard() {
                       style={styles.select}
                       required
                     >
-                      <option value="">Seleccionar doctor</option>
+                      <option value="">{t('selectDoctor')}</option>
                       {doctores.map(d => (
                         <option key={d.id} value={d.id}>
                           Dr. {d.usuario?.first_name} {d.usuario?.last_name} - {d.especialidad_nombre || d.otra_especialidad || 'Especialidad no especificada'}
@@ -1935,7 +1943,7 @@ function AdminDashboard() {
                   </div>
                   
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>Día de la semana *</label>
+                    <label style={styles.label}>{t('adminDayOfWeek')} *</label>
                     <select
                       name="dia_semana"
                       value={formData.dia_semana || 0}
@@ -1943,13 +1951,13 @@ function AdminDashboard() {
                       disabled={modalMode === 'view'}
                       style={styles.select}
                     >
-                      <option value="0">Lunes</option>
-                      <option value="1">Martes</option>
-                      <option value="2">Miércoles</option>
-                      <option value="3">Jueves</option>
-                      <option value="4">Viernes</option>
-                      <option value="5">Sábado</option>
-                      <option value="6">Domingo</option>
+                      <option value="0">{t('monday')}</option>
+                      <option value="1">{t('tuesday')}</option>
+                      <option value="2">{t('wednesday')}</option>
+                      <option value="3">{t('thursday')}</option>
+                      <option value="4">{t('friday')}</option>
+                      <option value="5">{t('saturday')}</option>
+                      <option value="6">{t('sunday')}</option>
                     </select>
                   </div>
                   
@@ -2000,7 +2008,7 @@ function AdminDashboard() {
                     disabled={saving}
                   >
                     {saving ? <FaSpinner style={styles.spinner} /> : <FaSave />}
-                    {saving ? 'Guardando...' : 'Guardar'}
+                    {saving ? t('saving') : t('save')}
                   </button>
                   <button 
                     type="button" 

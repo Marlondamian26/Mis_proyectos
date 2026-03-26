@@ -21,7 +21,6 @@ import EnfermeriaDashboard from './components/EnfermeriaDashboard';
 import NotificacionesCampana from './components/NotificacionesCampana';
 import ThemeToggle from './components/ThemeToggle';
 import LanguageToggle from './components/LanguageToggle';
-import AnimatedBackground from './components/AnimatedBackground';
 import Footer from './components/Footer';
 import { APP_NAME } from './config/constants';
 
@@ -50,7 +49,6 @@ function App() {
 
   return (
     <LanguageProvider>
-      <AnimatedBackground />
       <ThemeProvider>
         <AuthProvider>
           <NotificacionesProvider>

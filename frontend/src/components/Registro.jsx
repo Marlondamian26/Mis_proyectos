@@ -93,33 +93,33 @@ function Registro() {
 
     // Validar username
     if (!formData.username.trim()) {
-      newErrors.username = 'O nome de usuario e obrigatorio'
+      newErrors.username = t('usernameRequired')
     } else if (formData.username.length < 3) {
-      newErrors.username = 'O usuario deve ter pelo menos 3 caracteres'
+      newErrors.username = t('usernameTooShort')
     }
 
     // Validar senha
     if (!formData.password) {
-      newErrors.password = 'A senha e obrigatoria'
+      newErrors.password = t('passwordRequired')
     } else if (formData.password.length < 4) {
-      newErrors.password = 'A senha deve ter pelo menos 4 caracteres'
+      newErrors.password = t('passwordTooShort')
     }
 
     // Validar nombre
     if (!formData.first_name.trim()) {
-      newErrors.first_name = 'O nome e obrigatorio'
+      newErrors.first_name = t('firstNameRequired')
     }
 
     // Validar apellido
     if (!formData.last_name.trim()) {
-      newErrors.last_name = 'O sobrenome e obrigatorio'
+      newErrors.last_name = t('lastNameRequired')
     }
 
     // Validar email (opcional para pacientes, obligatorio para otros roles)
     if (formData.rol !== 'patient' && !formData.email.trim()) {
-      newErrors.email = 'O email e obrigatorio'
+      newErrors.email = t('emailRequired')
     } else if (formData.email.trim() && !/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email invalido'
+      newErrors.email = t('invalidEmail')
     }
 
     // Validar teléfono (opcional pero con formato)
@@ -141,7 +141,7 @@ function Registro() {
     
     // Validar formulario
     if (!validateForm()) {
-      setError('Por favor corrija os erros no formulario')
+      setError(t('fixFormErrors'))
       return
     }
 
@@ -174,7 +174,7 @@ function Registro() {
 
       console.log('Respuesta del servidor:', response.data)
       
-      setSuccess('Cadastro realizado com sucesso! Acessando sua conta...')
+      setSuccess(t('registrationSuccess'))
       
       // Salvar tokens se o registro retornar tokens
       if (response.data.access) {
@@ -190,7 +190,7 @@ function Registro() {
 
       // Axios produces different error shapes for cancellations/timeouts.
       if (err?.name === 'AbortError' || err?.name === 'CanceledError' || err?.code === 'ECONNABORTED' || err?.code === 'ERR_CANCELED') {
-        setError('Tempo limite excedido ou requisicao cancelada. Verifique se o servidor esta funcionando.')
+        setError(t('connectionTimeout'))
       } else if (err.response) {
         // Errores del servidor
         console.error('Error response:', err.response.data)
@@ -216,24 +216,24 @@ function Registro() {
             if (errorMessages.length > 0) {
               setError(errorMessages.join('\n'))
             } else {
-              setError('Erro nos dados enviados')
+              setError(t('invalidData'))
             }
           } else {
-            setError(backendErrors.message || 'Erro no cadastro')
+            setError(backendErrors.message || t('registrationError'))
           }
         } else if (err.response.status === 409) {
-          setError('O nome de usuario ja existe')
+          setError(t('usernameExists'))
           setErrors(prev => ({
             ...prev,
             username: 'Este usuario ja esta cadastrado'
           }))
         } else {
-          setError(`Erro do servidor: ${err.response.status}`)
+          setError(`${t('serverError')}: ${err.response.status}`)
         }
       } else if (err.request) {
-        setError('Nao foi possivel conectar com o servidor. Verifique se o backend esta funcionando.')
+        setError(t('cannotConnectServer'))
       } else {
-        setError('Erro ao conectar com o servidor')
+        setError(t('errorConnectingServer'))
       }
     } finally {
       setLoading(false)
@@ -353,14 +353,14 @@ function Registro() {
             {errors.username && (
               <span style={styles.fieldError}>{errors.username}</span>
             )}
-            <span style={styles.inputHint}>Minimo 3 caracteres</span>
+            <span style={styles.inputHint}>{t('minimum3Characters')}</span>
           </div>
 
           {/* Email */}
           <div style={styles.inputGroup}>
             <label style={styles.label}>
               <FaEnvelope style={styles.inputIcon} />
-              Email *
+              Email {t('requiredFieldIndicator')}
             </label>
             <input
               type="email"
@@ -384,7 +384,7 @@ function Registro() {
           <div style={styles.inputGroup}>
             <label style={styles.label}>
               <FaPhone style={styles.inputIcon} />
-              Telefone
+              {t('phone')}
             </label>
             <input
               type="tel"
@@ -408,7 +408,7 @@ function Registro() {
           <div style={styles.inputGroup}>
             <label style={styles.label}>
               <FaLock style={styles.inputIcon} />
-              Senha *
+              {t('passwordLabel')}
             </label>
             <div style={styles.passwordWrapper}>
               <input
@@ -453,7 +453,7 @@ function Registro() {
               </div>
             )}
             
-            <span style={styles.inputHint}>Minimo 4 caracteres</span>
+            <span style={styles.inputHint}>{t('minimum4Characters')}</span>
           </div>
 
           {/* Rol (fijo como patient, oculto) */}
