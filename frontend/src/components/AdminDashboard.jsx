@@ -258,6 +258,23 @@ function AdminDashboard() {
         otra_especialidad: '',
         numero_licencia: ''
       })
+    } else if (tipo === 'pacientes') {
+      setFormData({
+        ...baseForm,
+        // Datos del usuario
+        username: '',
+        password: '',
+        first_name: '',
+        last_name: '',
+        email: '',
+        telefono: '',
+        fecha_nacimiento: '',
+        // Datos médicos del paciente
+        alergias: '',
+        grupo_sanguineo: '',
+        contacto_emergencia: '',
+        telefono_emergencia: ''
+      })
     } else if (tipo === 'especialidades') {
       setFormData({
         tipo: 'especialidades', 
@@ -314,6 +331,16 @@ function AdminDashboard() {
         last_name: item.usuario?.last_name || '',
         email: item.usuario?.email || '',
         telefono: item.usuario?.telefono || ''
+      })
+    } else if (tipo === 'pacientes') {
+      setFormData({
+        ...item,
+        tipo,
+        alergias: item.alergias || '',
+        grupo_sanguineo: item.grupo_sanguineo || '',
+        contacto_emergencia: item.contacto_emergencia || '',
+        telefono_emergencia: item.telefono_emergencia || '',
+        fecha_nacimiento: item.usuario?.fecha_nacimiento || ''
       })
     } else {
       setFormData({ ...item, tipo })
@@ -387,6 +414,43 @@ function AdminDashboard() {
   setErrorBackend('')
   
   console.log('📤 Enviando formulario:', formData)
+  
+  // Validar campos requeridos para pacientes
+  if (formData.tipo === 'pacientes') {
+    // Validar formato de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (formData.email && !emailRegex.test(formData.email)) {
+      setErrorBackend('Por favor ingrese un email válido')
+      mostrarMensaje('Por favor ingrese un email válido', 'error')
+      setSaving(false)
+      return
+    }
+    
+    if (modalMode === 'create') {
+      // En modo creación, validar campos requeridos del usuario
+      if (!formData.username?.trim() || !formData.password?.trim() || !formData.first_name?.trim() || !formData.last_name?.trim()) {
+        setErrorBackend('Por favor complete todos los campos requeridos (Username, Contraseña, Nombre, Apellido)')
+        mostrarMensaje('Por favor complete todos los campos requeridos', 'error')
+        setSaving(false)
+        return
+      }
+      // Validar longitud mínima de contraseña
+      if (formData.password.length < 8) {
+        setErrorBackend('La contraseña debe tener al menos 8 caracteres')
+        mostrarMensaje('La contraseña debe tener al menos 8 caracteres', 'error')
+        setSaving(false)
+        return
+      }
+    } else if (modalMode === 'edit') {
+      // En modo edición, validar campos requeridos del usuario
+      if (!formData.first_name?.trim() || !formData.last_name?.trim()) {
+        setErrorBackend('Por favor complete todos los campos requeridos (Nombre, Apellido)')
+        mostrarMensaje('Por favor complete todos los campos requeridos', 'error')
+        setSaving(false)
+        return
+      }
+    }
+  }
 
   try {
     const tipo = formData.tipo
@@ -461,6 +525,7 @@ function AdminDashboard() {
           last_name: formData.last_name,
           email: formData.email || '',
           telefono: formData.telefono || '',
+          fecha_nacimiento: formData.fecha_nacimiento || null,
           rol: 'patient'
         }
         console.log('👉 Creando usuario paciente:', usuarioData)
@@ -468,16 +533,42 @@ function AdminDashboard() {
         const nuevoUsuario = usuarioRes.data
         console.log('✅ Usuario paciente creado:', nuevoUsuario)
 
-        const pacienteData = {
-          usuario_id: nuevoUsuario.id,
-          grupo_sanguineo: formData.grupo_sanguineo || '',
-          contacto_emergencia: formData.contacto_emergencia || '',
-          telefono_emergencia: formData.telefono_emergencia || ''
+        // El backend crea automáticamente el perfil de paciente via señal
+        // Solo necesitamos actualizar los datos médicos si se proporcionaron
+        let datosMedicosActualizados = true
+        if (formData.grupo_sanguineo || formData.contacto_emergencia || formData.telefono_emergencia || formData.alergias) {
+          try {
+            // Buscar el perfil de paciente creado automáticamente usando filtro
+            const pacientesRes = await axiosInstance.get(`pacientes/?usuario_id=${nuevoUsuario.id}`)
+            const pacientesData = Array.isArray(pacientesRes.data) ? pacientesRes.data : (pacientesRes.data.results || [])
+            const pacienteExistente = pacientesData[0]
+            
+            if (pacienteExistente) {
+              // Actualizar el perfil existente con los datos médicos
+              const pacienteData = {
+                alergias: formData.alergias || '',
+                grupo_sanguineo: formData.grupo_sanguineo || '',
+                contacto_emergencia: formData.contacto_emergencia || '',
+                telefono_emergencia: formData.telefono_emergencia || ''
+              }
+              console.log('👉 Actualizando perfil de paciente:', pacienteData)
+              await axiosInstance.patch(`pacientes/${pacienteExistente.id}/`, pacienteData)
+              console.log('✅ Perfil de paciente actualizado')
+            } else {
+              console.warn('⚠️ No se encontró el perfil de paciente creado automáticamente')
+              datosMedicosActualizados = false
+              mostrarMensaje('⚠️ Paciente creado pero no se encontró el perfil para actualizar datos médicos', 'warning')
+            }
+          } catch (error) {
+            console.warn('⚠️ No se pudieron actualizar los datos médicos:', error)
+            datosMedicosActualizados = false
+            mostrarMensaje('⚠️ Paciente creado pero no se pudieron guardar los datos médicos', 'warning')
+          }
         }
-        console.log('👉 Creando paciente:', pacienteData)
-        const pacienteRes = await axiosInstance.post('pacientes/', pacienteData)
-        console.log('✅ Paciente creado:', pacienteRes.data)
-        mostrarMensaje('✅ ' + t('itemCreated', { type: t('patient') }), 'success')
+        // Solo mostrar mensaje de éxito si los datos médicos se actualizaron correctamente
+        if (datosMedicosActualizados) {
+          mostrarMensaje('✅ ' + t('itemCreated', { type: t('patient') }), 'success')
+        }
       }
       else {
         // ✅ ESTA ES LA PARTE QUE SE EJECUTA PARA especialidades, usuarios, citas, horarios
@@ -539,12 +630,14 @@ function AdminDashboard() {
             first_name: formData.first_name,
             last_name: formData.last_name,
             email: formData.email || '',
-            telefono: formData.telefono || ''
+            telefono: formData.telefono || '',
+            fecha_nacimiento: formData.fecha_nacimiento || null
           }
           await axiosInstance.patch(`usuarios/${selectedItem.usuario.id}/`, usuarioData)
         }
         // Actualizar perfil de paciente
         const pacienteData = {
+          alergias: formData.alergias || '',
           grupo_sanguineo: formData.grupo_sanguineo || '',
           contacto_emergencia: formData.contacto_emergencia || '',
           telefono_emergencia: formData.telefono_emergencia || ''
@@ -1284,7 +1377,7 @@ function AdminDashboard() {
                         onChange={handleInputChange}
                         style={styles.input}
                         required
-                        minLength="4"
+                        minLength="8"
                       />
                     </div>
                   )}
@@ -1388,7 +1481,7 @@ function AdminDashboard() {
                         onChange={handleInputChange}
                         style={styles.input}
                         required
-                        minLength="4"
+                        minLength="8"
                       />
                     </div>
                   )}
@@ -1522,7 +1615,7 @@ function AdminDashboard() {
                         onChange={handleInputChange}
                         style={styles.input}
                         required
-                        minLength="4"
+                        minLength="8"
                       />
                     </div>
                   )}
@@ -1654,7 +1747,7 @@ function AdminDashboard() {
                         onChange={handleInputChange}
                         style={styles.input}
                         required
-                        minLength="4"
+                        minLength="8"
                       />
                     </div>
                   )}
@@ -1711,6 +1804,18 @@ function AdminDashboard() {
                     />
                   </div>
 
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>Fecha de Nacimiento (opcional)</label>
+                    <input
+                      type="date"
+                      name="fecha_nacimiento"
+                      value={formData.fecha_nacimiento || ''}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={styles.input}
+                    />
+                  </div>
+
                   <h3 style={styles.modalSubtitle}>Datos Médicos</h3>
 
                   <div style={styles.formGroup}>
@@ -1722,6 +1827,18 @@ function AdminDashboard() {
                       onChange={handleInputChange}
                       disabled={modalMode === 'view'}
                       style={styles.input}
+                    />
+                  </div>
+
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>Alergias</label>
+                    <textarea
+                      name="alergias"
+                      value={formData.alergias || ''}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={{...styles.input, minHeight: '80px', resize: 'vertical'}}
+                      placeholder="Alergias conocidas del paciente"
                     />
                   </div>
 

@@ -8,9 +8,11 @@ import {
 } from 'react-icons/fa'
 import { APP_NAME, APP_SLOGAN } from '../config/constants'
 import { useLanguage } from '../context/LanguageContext'
+import { useAuth } from '../context/AuthContext'
 
 function Registro() {
   const { t } = useLanguage()
+  const { cargarUsuario } = useAuth()
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -176,14 +178,30 @@ function Registro() {
       
       setSuccess(t('registrationSuccess'))
       
-      // Salvar tokens se o registro retornar tokens
+      // Salvar tokens y cargar usuario en el contexto si el registro retornó tokens
       if (response.data.access) {
         localStorage.setItem('access_token', response.data.access)
         localStorage.setItem('refresh_token', response.data.refresh)
-        // redirigir al dashboard para que complete su información
-        setTimeout(() => navigate('/dashboard'), 1500)
+        
+        // Cargar usuario en el AuthContext para establecer la sesión
+        try {
+          await cargarUsuario()
+          setSuccess(t('registrationSuccess'))
+          // Redirigir al dashboard del paciente con sesión iniciada
+          setTimeout(() => navigate('/dashboard'), 1500)
+        } catch (error) {
+          console.error('Error al cargar usuario después del registro:', error)
+          // Si falla la carga del usuario, mostrar mensaje y redirigir al login
+          setError(t('errorLoadingUser'))
+          setTimeout(() => navigate('/login'), 2000)
+        } finally {
+          setLoading(false)
+        }
       } else {
-        setTimeout(() => navigate('/login'), 1500)
+        // Si no hay tokens, mostrar mensaje informativo y redirigir al login
+        setSuccess(t('registrationSuccess') + '. ' + t('pleaseLogin'))
+        setTimeout(() => navigate('/login'), 2000)
+        setLoading(false)
       }
     } catch (err) {
       console.error('Error detallado:', err)
