@@ -124,7 +124,7 @@ function Registro() {
 
     // Validar teléfono (opcional pero con formato)
     if (formData.telefono && !/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/.test(formData.telefono)) {
-      newErrors.telefono = 'Formato de telefone invalido'
+      newErrors.telefono = t('invalidPhone')
     }
 
     setErrors(newErrors)
@@ -225,7 +225,7 @@ function Registro() {
           setError(t('usernameExists'))
           setErrors(prev => ({
             ...prev,
-            username: 'Este usuario ja esta cadastrado'
+            username: t('userAlreadyRegistered')
           }))
         } else {
           setError(`${t('serverError')}: ${err.response.status}`)
@@ -286,7 +286,7 @@ function Registro() {
             <div style={styles.inputGroup}>
               <label style={styles.label}>
                 <FaUser style={styles.inputIcon} />
-                Nombre *
+                {t('firstName')} *
               </label>
               <input
                 type="text"
@@ -297,7 +297,7 @@ function Registro() {
                   ...styles.input,
                   ...(errors.first_name ? styles.inputError : {})
                 }}
-                placeholder="Tu nombre"
+                placeholder={t('namePlaceholder')}
                 disabled={loading}
                 maxLength="50"
               />
@@ -309,7 +309,7 @@ function Registro() {
             <div style={styles.inputGroup}>
               <label style={styles.label}>
                 <FaUser style={styles.inputIcon} />
-                Apellido *
+                {t('lastName')} *
               </label>
               <input
                 type="text"
@@ -320,7 +320,7 @@ function Registro() {
                   ...styles.input,
                   ...(errors.last_name ? styles.inputError : {})
                 }}
-                placeholder="Tu apellido"
+                placeholder={t('lastNamePlaceholder')}
                 disabled={loading}
                 maxLength="50"
               />
@@ -334,7 +334,7 @@ function Registro() {
           <div style={styles.inputGroup}>
             <label style={styles.label}>
               <FaUser style={styles.inputIcon} />
-              Usuario *
+              {t('username')} *
             </label>
             <input
               type="text"
@@ -345,7 +345,7 @@ function Registro() {
                 ...styles.input,
                 ...(errors.username ? styles.inputError : {})
               }}
-              placeholder="Ej: juan.perez"
+              placeholder={t('usernamePlaceholder')}
               disabled={loading}
               maxLength="30"
               autoComplete="off"
@@ -471,7 +471,7 @@ function Registro() {
             {loading ? (
               <>
                 <FaSpinner style={styles.spinner} />
-                Registrando...
+                {t('registering')}
               </>
             ) : (
               <>
@@ -488,7 +488,7 @@ function Registro() {
               onClick={handleDemoData}
               style={styles.demoButton}
             >
-              🚀 Carregar dados de demo
+              🚀 {t('loadDemoData')}
             </button>
           )}
         </form>
@@ -496,9 +496,9 @@ function Registro() {
         {/* Enlace a login */}
         <div style={styles.loginContainer}>
           <p style={styles.loginText}>
-            ¿Ya tienes una cuenta?{' '}
+            {t('hasAccount')}{' '}
             <Link to="/login" style={styles.loginLink}>
-              Inicia Sesión
+              {t('loginHere')}
             </Link>
           </p>
         </div>
@@ -506,10 +506,10 @@ function Registro() {
         {/* Términos y condiciones */}
         <div style={styles.termsContainer}>
           <p style={styles.termsText}>
-            Ao se cadastrar, voce aceita nossos{' '}
-            <a href="/terminos" style={styles.termsLink}>Termos e Condicoes</a>{' '}
+            {t('termsAndConditions')}{' '}
+            <a href="/terminos" style={styles.termsLink}>{t('termsAndConditions')}</a>{' '}
             e{' '}
-            <a href="/privacidade" style={styles.termsLink}>Politica de Privacidade</a>
+            <a href="/privacidade" style={styles.termsLink}>{t('privacyPolicy')}</a>
           </p>
         </div>
       </div>

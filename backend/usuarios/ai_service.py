@@ -24,7 +24,7 @@ from .models import (
 class EstadoConversacion:
     """Estados do fluxo de conversacao"""
     INICIO = "inicio"
-    ESPECIALIDADE = "especialidade"
+    ESPECIALIDAD = "especialidad"
     DATA = "data"
     HORA = "hora"
     MEDICO = "medico"
@@ -924,29 +924,44 @@ def procesar_chat(paciente_id: int, mensaje: str) -> str:
     """Función principal para procesar un mensaje de chat"""
     logger.info(f"Chat request - Paciente: {paciente_id}, Mensaje: {mensaje[:50]}...")
     
-    servicio = obtener_servicio(paciente_id)
-    
-    if servicio is None:
-        logger.warning(f"Paciente no encontrado: {paciente_id}")
-        return "Error: No se encontró el paciente. Por favor, inicia sesión nuevamente."
-    
-    # Advertir al usuario si su sesión fue restaurada desde backup
-    if servicio.sesion_restaurada:
-        respuesta_inicial = "⚠️ Tu sesión anterior se perdió debido a un problema técnico. Por favor, comienza de nuevo.\n\n"
-        servicio.sesion_restaurada = False  # Resetear el flag después de mostrar el mensaje
-    else:
-        respuesta_inicial = ""
-    
-    respuesta, nuevo_estado = servicio.procesar_mensaje(mensaje)
-    logger.debug(f"Estado cambiado a: {nuevo_estado}")
-    
-    servicio.estado_actual = nuevo_estado
-    
-    # Guardar estado actualizado en cache para persistencia entre requests
-    cache.set(f"{CACHE_KEY_PREFIX}{paciente_id}", 
-              servicio.get_estado_serializable(), 
-              CLEANUP_INTERVAL)
-    
-    logger.info(f"Chat response - Estado: {nuevo_estado}")
-    return respuesta_inicial + respuesta
+    try:
+        servicio = obtener_servicio(paciente_id)
+        
+        if servicio is None:
+            logger.warning(f"Paciente no encontrado: {paciente_id}")
+            return "Error: No se encontró el paciente. Por favor, inicia sesión nuevamente."
+        
+        # Advertir al usuario si su sesión fue restaurada desde backup
+        if servicio.sesion_restaurada:
+            respuesta_inicial = "⚠️ Tu sesión anterior se perdió debido a un problema técnico. Por favor, comienza de nuevo.\n\n"
+            servicio.sesion_restaurada = False  # Resetear el flag después de mostrar el mensaje
+        else:
+            respuesta_inicial = ""
+        
+        respuesta, nuevo_estado = servicio.procesar_mensaje(mensaje)
+        logger.debug(f"Estado cambiado a: {nuevo_estado}")
+        
+        servicio.estado_actual = nuevo_estado
+        
+        # Guardar estado actualizado en cache para persistencia entre requests
+        cache.set(f"{CACHE_KEY_PREFIX}{paciente_id}", 
+                  servicio.get_estado_serializable(), 
+                  CLEANUP_INTERVAL)
+        
+        logger.info(f"Chat response - Estado: {nuevo_estado}")
+        return respuesta_inicial + respuesta
+    except ValueError as e:
+        logger.error(
+            f"Error de valor al procesar chat para paciente {paciente_id}: {str(e)}",
+            exc_info=True,
+            extra={'paciente_id': paciente_id, 'mensaje_length': len(mensaje)}
+        )
+        return "😔 Hubo un problema con los datos proporcionados. Por favor, intenta de nuevo."
+    except Exception as e:
+        logger.error(
+            f"Error inesperado al procesar chat para paciente {paciente_id}: {type(e).__name__}: {str(e)}",
+            exc_info=True,
+            extra={'paciente_id': paciente_id, 'mensaje_length': len(mensaje)}
+        )
+        return "😔 Ocurrió un error inesperado. Por favor, intenta de nuevo o contacta al administrador."
 

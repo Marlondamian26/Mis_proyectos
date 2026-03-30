@@ -93,9 +93,10 @@ def ensure_demo_patient():
     paciente, created = Paciente.objects.get_or_create(
         usuario=demo_user,
         defaults={
-            'telefono': '555-DEMO',
-            'direccion': 'Demo Address 123',
-            'fecha_nacimiento': '1990-01-01',
+            'alergias': 'Ninguna conocida',
+            'grupo_sanguineo': 'O+',
+            'contacto_emergencia': 'Contacto Demo',
+            'telefono_emergencia': '555-DEMO',
         }
     )
     

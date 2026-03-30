@@ -211,7 +211,7 @@ function Dashboard() {
           <div style={styles.infoGrid}>
             <div style={styles.infoItem}>
               <span style={styles.infoLabel}>{t('username')}:</span>
-              <span style={styles.infoValue}>{user?.username || 'No disponible'}</span>
+              <span style={styles.infoValue}>{user?.username || t('noDataAvailable')}</span>
             </div>
             <div style={styles.infoItem}>
               <span style={styles.infoLabel}>{t('firstName')}:</span>
@@ -221,11 +221,11 @@ function Dashboard() {
             </div>
             <div style={styles.infoItem}>
               <span style={styles.infoLabel}>{t('email')}:</span>
-              <span style={styles.infoValue}>{user?.email || 'No disponible'}</span>
+              <span style={styles.infoValue}>{user?.email || t('noDataAvailable')}</span>
             </div>
             <div style={styles.infoItem}>
               <span style={styles.infoLabel}>{t('phone')}:</span>
-              <span style={styles.infoValue}>{user?.telefono || 'No disponible'}</span>
+              <span style={styles.infoValue}>{user?.telefono || t('noDataAvailable')}</span>
             </div>
           </div>
         </div>
@@ -275,7 +275,7 @@ function Dashboard() {
             >
               <span style={styles.menuIcon}>📅</span>
               <span style={styles.menuLabel}>{t('myAppointments')}</span>
-              <span style={styles.menuDescription}>Ver y gestionar tus citas</span>
+              <span style={styles.menuDescription}>{t('myAppointments')}</span>
             </div>
 
             {/* Doctores - Visible para todos */}
@@ -329,8 +329,8 @@ function Dashboard() {
               <h3 style={styles.notificacionCardTitle}>{t('notifications')}</h3>
             </div>
             <p style={styles.notificacionCardText}>
-              Tienes <strong>{noLeidas}</strong> notificación{noLeidas !== 1 ? 'es' : ''} sin leer.
-              Haz clic en la campana 🔔 para verlas.
+              {t('unreadNotifications', { count: noLeidas })}
+              {t('clickToSee')}
             </p>
             <div style={styles.notificacionCardActions}>
               <button 
@@ -341,7 +341,7 @@ function Dashboard() {
                 }}
                 style={styles.notificacionCardButton}
               >
-                Ver notificaciones
+                {t('seeNotifications')}
               </button>
             </div>
           </div>
@@ -352,7 +352,7 @@ function Dashboard() {
           <div style={styles.infoCard}>
             <h3 style={styles.cardTitle}>
               <span style={styles.cardIcon}>💡</span>
-              Recordatorios
+              {t('reminders')}
             </h3>
             <p style={styles.infoText}>
               {t('managePatients')}
@@ -383,11 +383,11 @@ function Dashboard() {
                 onClick={() => handleNavigation('/enfermeria?tab=procedimientos')}
                 style={styles.quickLink}
               >
-                💉 Procedimientos Pendientes
+                💉 {t('pendingProcedures')}
               </button>
             </div>
             <p style={styles.infoText}>
-              Gestiona pacientes, registra signos vitales y realiza procedimientos.
+              {t('managePatientsInfo')}
             </p>
           </div>
         )}
@@ -452,7 +452,7 @@ function Dashboard() {
               flexDirection: 'column',
               gap: '2px'
             }}
-            title="Asistente de Citas"
+            title={t('chatAssistant')}
           >
             <span style={{ fontSize: '24px' }}>🤖</span>
             <span style={{ fontSize: '10px', fontWeight: 'bold' }}>IA</span>

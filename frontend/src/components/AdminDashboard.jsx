@@ -871,7 +871,7 @@ function AdminDashboard() {
             <div style={styles.tableHeader}>
               <h2 style={styles.sectionTitle}>{t('manageDoctors')}</h2>
               <button onClick={() => handleCreate('doctores')} style={styles.createButton}>
-                <FaPlus /> {t('newAppointment')}
+                <FaPlus /> {t('registerNew')}
               </button>
             </div>
             {doctores.length === 0 ? (
@@ -1045,7 +1045,7 @@ function AdminDashboard() {
             <div style={styles.tableHeader}>
               <h2 style={styles.sectionTitle}>{t('appointmentManagement')}</h2>
               <button onClick={() => handleCreate('citas')} style={styles.createButton}>
-                <FaPlus /> {t('newAppointment')}
+                <FaPlus /> {t('registerNew')}
               </button>
             </div>
             {citas.length === 0 ? (

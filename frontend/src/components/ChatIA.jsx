@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './ChatIA.css';
+import { useLanguage } from '../context/LanguageContext';
 
 // Configurable API URL - fallback to current host for development
 // Uses import.meta.env for Vite projects
@@ -20,6 +21,7 @@ const getApiUrl = () => {
 const API_URL = getApiUrl();
 
 const ChatIA = ({ token, onClose }) => {
+  const { t } = useLanguage();
   const [mensajes, setMensajes] = useState([
     {
       id: 1,

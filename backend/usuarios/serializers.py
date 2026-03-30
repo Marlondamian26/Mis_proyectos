@@ -178,31 +178,78 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 class CitaSerializer(serializers.ModelSerializer):
     paciente_nombre = serializers.CharField(source='paciente.usuario.get_full_name', read_only=True)
     doctor_nombre = serializers.CharField(source='doctor.usuario.get_full_name', read_only=True)
+    paciente_id = serializers.PrimaryKeyRelatedField(
+        queryset=Paciente.objects.all(),
+        source='paciente',
+        write_only=True,
+        required=False
+    )
+    doctor_id = serializers.PrimaryKeyRelatedField(
+        queryset=Doctor.objects.all(),
+        source='doctor',
+        write_only=True,
+        required=False
+    )
     
     class Meta:
         model = Cita
         fields = [
-            'id', 'paciente', 'paciente_nombre', 
-            'doctor', 'doctor_nombre',
+            'id', 'paciente', 'paciente_nombre', 'paciente_id',
+            'doctor', 'doctor_nombre', 'doctor_id',
             'fecha', 'hora', 'estado', 'motivo', 'notas_adicionales',
             'fecha_creacion', 'fecha_actualizacion'
         ]
         read_only_fields = ['id', 'fecha_creacion', 'fecha_actualizacion']
 
+    def get_validators(self):
+        """Override to remove UniqueTogetherValidator since we handle it in validate()
+        
+        This is necessary to support partial updates where not all fields are provided.
+        The validate() method handles the uniqueness check with proper fallback to instance values.
+        """
+        validators = super().get_validators()
+        # Remove UniqueTogetherValidator to avoid conflict with custom validation
+        return [v for v in validators if not isinstance(v, serializers.UniqueTogetherValidator)]
+
     def validate(self, data):
+        # Solo validar si se proporcionan doctor, fecha y hora
         doctor = data.get('doctor')
         fecha = data.get('fecha')
         hora = data.get('hora')
         
-        instance_id = self.instance.id if self.instance else None
+        # Si alguno de los campos no está presente, usar el valor de la instancia existente
+        if self.instance:
+            if doctor is None:
+                doctor = self.instance.doctor
+            if fecha is None:
+                fecha = self.instance.fecha
+            if hora is None:
+                hora = self.instance.hora
         
-        citas_existentes = Cita.objects.filter(
-            doctor=doctor, 
-            fecha=fecha, 
-            hora=hora
-        ).exclude(id=instance_id)
-        
-        if citas_existentes.exists():
-            raise serializers.ValidationError("Ya existe una cita para este doctor en esa fecha y hora")
+        # Solo validar si tenemos todos los campos necesarios
+        if doctor and fecha and hora:
+            instance_id = self.instance.id if self.instance else None
+            
+            citas_existentes = Cita.objects.filter(
+                doctor=doctor, 
+                fecha=fecha, 
+                hora=hora
+            ).exclude(id=instance_id)
+            
+            if citas_existentes.exists():
+                raise serializers.ValidationError("Ya existe una cita para este doctor en esa fecha y hora")
         
         return data
+    
+    def update(self, instance, validated_data):
+        """Sobrescribir update para manejar correctamente la actualización"""
+        # Actualizar los campos de la instancia
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        # Run model validation before saving
+        # Exclude fields that are not being updated to avoid validation errors
+        # on required fields that are not present in partial updates
+        exclude_fields = [f for f in validated_data.keys()]
+        instance.full_clean(exclude=exclude_fields)
+        instance.save()
+        return instance
