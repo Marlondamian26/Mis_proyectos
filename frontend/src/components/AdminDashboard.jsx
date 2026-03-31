@@ -653,8 +653,8 @@ function AdminDashboard() {
       }
     }
     
-    setShowModal(false)
     await loadAllData()
+    setShowModal(false)
   } catch (error) {
     console.error('❌ Error en handleSubmit:', error)
     
@@ -677,8 +677,8 @@ function AdminDashboard() {
       setErrorBackend(t('connectionError'))
       mostrarMensaje(t('connectionError'), 'error')
     } else {
-      setErrorBackend(t('errorSaving', { type: tipo }))
-      mostrarMensaje(t('errorSaving', { type: tipo }), 'error')
+      setErrorBackend(t('errorSaving', { type: formData.tipo }))
+      mostrarMensaje(t('errorSaving', { type: formData.tipo }), 'error')
     }
   } finally {
     setSaving(false)
@@ -1550,7 +1550,7 @@ function AdminDashboard() {
                       style={styles.select}
                     >
                       <option value="">{t('selectSpecialty')}</option>
-                      {especialidades.filter(e => e.tipo === 'medica' || e.tipo === 'ambas').map(esp => (
+                      {especialidades.filter(e => e.tipo_especialidad === 'medica' || e.tipo_especialidad === 'ambas').map(esp => (
                         <option key={esp.id} value={esp.id}>
                           {esp.nombre}
                         </option>
@@ -1684,7 +1684,7 @@ function AdminDashboard() {
                       style={styles.select}
                     >
                       <option value="">Sin especialidad</option>
-                      {especialidades.filter(e => e.tipo === 'enfermeria' || e.tipo === 'ambas').map(esp => (
+                      {especialidades.filter(e => e.tipo_especialidad === 'enfermeria' || e.tipo_especialidad === 'ambas').map(esp => (
                         <option key={esp.id} value={esp.id}>
                           {esp.nombre}
                         </option>
@@ -1999,7 +1999,7 @@ function AdminDashboard() {
                     <label style={styles.label}>Tipo *</label>
                     <select
                       name="tipo_especialidad"
-                      value={formData.tipo || 'medica'}
+                      value={formData.tipo_especialidad || 'medica'}
                       onChange={handleInputChange}
                       disabled={modalMode === 'view'}
                       style={styles.select}
@@ -2612,3 +2612,11 @@ const styles = {
 }
 
 export default AdminDashboard
+
+
+
+
+
+
+
+

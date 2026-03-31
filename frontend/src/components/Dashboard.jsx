@@ -249,7 +249,7 @@ function Dashboard() {
             </div>
             <div style={styles.statItem}>
               <div style={styles.statNumber}>{stats.especialidades}</div>
-              <div style={styles.statLabel}>{t('specialty') + 's'}</div>
+              <div style={styles.statLabel}>{t('specialties')}</div>
             </div>
             <div style={styles.statItem}>
               <div style={styles.statNumber}>{stats.doctores}</div>
