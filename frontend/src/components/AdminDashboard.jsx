@@ -15,6 +15,7 @@ function AdminDashboard() {
   const { t } = useLanguage()
   const [activeTab, setActiveTab] = useState('dashboard')
   const [usuarios, setUsuarios] = useState([])
+  const [todosLosUsuarios, setTodosLosUsuarios] = useState([])
   const [doctores, setDoctores] = useState([])
   const [enfermeras, setEnfermeras] = useState([])
   const [pacientes, setPacientes] = useState([])
@@ -50,9 +51,10 @@ function AdminDashboard() {
     const searchParams = new URLSearchParams(location.search)
     const tabFromUrl = searchParams.get('tab')
     if (tabFromUrl && ['dashboard', 'usuarios', 'doctores', 'enfermeras', 'pacientes', 'citas', 'especialidades', 'horarios'].includes(tabFromUrl)) {
+      console.log('🔄 Cambiando tab desde URL:', tabFromUrl)
       setActiveTab(tabFromUrl)
     }
-  }, [location.search])
+  }, [location.search, navigate])
 
   // Cargar datos al iniciar
   useEffect(() => {
@@ -102,13 +104,13 @@ function AdminDashboard() {
       especialidadesRes,
       horariosRes
     ] = await Promise.allSettled([
-      axiosInstance.get('usuarios/'),
-      axiosInstance.get('doctores/'),
-      axiosInstance.get('enfermeras/'),
-      axiosInstance.get('pacientes/'),
-      axiosInstance.get('citas/'),
-      axiosInstance.get('especialidades/'),
-      axiosInstance.get('horarios/')
+      axiosInstance.get('usuarios/?limit=1000'),
+      axiosInstance.get('doctores/?limit=1000'),
+      axiosInstance.get('enfermeras/?limit=1000'),
+      axiosInstance.get('pacientes/?limit=1000'),
+      axiosInstance.get('citas/?limit=1000'),
+      axiosInstance.get('especialidades/?limit=1000'),
+      axiosInstance.get('horarios/?limit=1000')
     ])
 
     // Extraer datos de cada respuesta
@@ -120,32 +122,42 @@ function AdminDashboard() {
     let especialidadesData = []
     let horariosData = []
 
+    // Total de usuarios por tipo (desde la paginación)
+    let totalUsuariosAPI = 0
+    let totalDoctoresAPI = 0
+    let totalEnfermerasAPI = 0
+    let totalPacientesAPI = 0
+
     // ✅ Usuarios (con paginación)
     if (usuariosRes.status === 'fulfilled') {
       const responseData = usuariosRes.value.data
       usuariosData = responseData.results || responseData || []
-      console.log('👥 Usuarios cargados:', usuariosData.length)
+      totalUsuariosAPI = responseData.count || usuariosData.length
+      console.log('👥 Usuarios cargados:', usuariosData.length, 'Total API:', totalUsuariosAPI)
     }
 
     // ✅ Doctores (con paginación)
     if (doctoresRes.status === 'fulfilled') {
       const responseData = doctoresRes.value.data
       doctoresData = responseData.results || responseData || []
-      console.log('👨‍⚕️ Doctores cargados:', doctoresData.length)
+      totalDoctoresAPI = responseData.count || doctoresData.length
+      console.log('👨‍⚕️ Doctores cargados:', doctoresData.length, 'Total API:', totalDoctoresAPI)
     }
 
     // ✅ Enfermeras (con paginación)
     if (enfermerasRes.status === 'fulfilled') {
       const responseData = enfermerasRes.value.data
       enfermerasData = responseData.results || responseData || []
-      console.log('👩‍⚕️ Enfermeras cargadas:', enfermerasData.length)
+      totalEnfermerasAPI = responseData.count || enfermerasData.length
+      console.log('👩‍⚕️ Enfermeras cargadas:', enfermerasData.length, 'Total API:', totalEnfermerasAPI)
     }
 
     // ✅ Pacientes (con paginación)
     if (pacientesRes.status === 'fulfilled') {
       const responseData = pacientesRes.value.data
       pacientesData = responseData.results || responseData || []
-      console.log('🏥 Pacientes cargados:', pacientesData.length)
+      totalPacientesAPI = responseData.count || pacientesData.length
+      console.log('🏥 Pacientes cargados:', pacientesData.length, 'Total API:', totalPacientesAPI)
     }
 
     // ✅ Citas (con paginación)
@@ -171,6 +183,7 @@ function AdminDashboard() {
 
     // Asignar datos al estado
     setUsuarios(usuariosData)
+    setTodosLosUsuarios(usuariosData)
     setDoctores(doctoresData)
     setEnfermeras(enfermerasData)
     setPacientes(pacientesData)
@@ -178,8 +191,53 @@ function AdminDashboard() {
     setEspecialidades(especialidadesData)
     setHorarios(horariosData)
 
-    // Calcular estadísticas con los datos recién cargados (NO con el estado antiguo)
-    calcularEstadisticas(usuariosData, doctoresData, enfermerasData, pacientesData, citasData)
+    // Crear lista combinada de todos los usuarios para la sección de gestión de usuarios
+    const todosUsuarios = [
+      ...usuariosData.map(u => ({ ...u, tipoUsuario: u.rol })),
+      ...doctoresData.map(d => ({ 
+        id: d.id, 
+        username: d.usuario?.username || '',
+        first_name: d.usuario?.first_name || '',
+        last_name: d.usuario?.last_name || '',
+        email: d.usuario?.email || '',
+        telefono: d.usuario?.telefono || '',
+        rol: 'doctor',
+        tipoUsuario: 'doctor'
+      })),
+      ...enfermerasData.map(e => ({ 
+        id: e.id, 
+        username: e.usuario?.username || '',
+        first_name: e.usuario?.first_name || '',
+        last_name: e.usuario?.last_name || '',
+        email: e.usuario?.email || '',
+        telefono: e.usuario?.telefono || '',
+        rol: 'nurse',
+        tipoUsuario: 'nurse'
+      })),
+      ...pacientesData.map(p => ({ 
+        id: p.id, 
+        username: p.usuario?.username || '',
+        first_name: p.usuario?.first_name || '',
+        last_name: p.usuario?.last_name || '',
+        email: p.usuario?.email || '',
+        telefono: p.usuario?.telefono || '',
+        rol: 'patient',
+        tipoUsuario: 'patient'
+      }))
+    ]
+    setTodosLosUsuarios(todosUsuarios)
+
+    // Calcular estadísticas usando la longitud de la lista combinada
+    const totalTodos = todosUsuarios.length
+    setStats({
+      totalUsuarios: totalTodos,
+      totalDoctores: doctoresData.length,
+      totalEnfermeras: enfermerasData.length,
+      totalPacientes: pacientesData.length,
+      citasHoy: citasData.filter(c => c.fecha === new Date().toISOString().split('T')[0]).length,
+      citasPendientes: citasData.filter(c => c.estado === 'pendiente').length,
+      citasTotales: citasData.length
+    })
 
   } catch (error) {
     console.error('Error general:', error)
@@ -190,19 +248,20 @@ function AdminDashboard() {
 }
 
   // Calcular estadísticas
-  const calcularEstadisticas = (usuarios, doctores, enfermeras, pacientes, citas) => {
+  const calcularEstadisticas = (totalUsuariosAPI, totalDoctoresAPI, totalEnfermerasAPI, totalPacientesAPI, citas) => {
     const hoy = new Date().toISOString().split('T')[0]
     const citasArray = Array.isArray(citas) ? citas : []
-    const usuariosArray = Array.isArray(usuarios) ? usuarios : []
     
     const citasHoy = citasArray.filter(c => c.fecha === hoy).length
     const citasPendientes = citasArray.filter(c => c.estado === 'pendiente').length
     
+    const totalUsuarios = totalUsuariosAPI + totalDoctoresAPI + totalEnfermerasAPI + totalPacientesAPI
+    
     setStats({
-      totalUsuarios: usuariosArray.length,
-      totalDoctores: doctores.length,
-      totalEnfermeras: enfermeras.length,
-      totalPacientes: pacientes.length,
+      totalUsuarios,
+      totalDoctores: totalDoctoresAPI,
+      totalEnfermeras: totalEnfermerasAPI,
+      totalPacientes: totalPacientesAPI,
       citasHoy,
       citasPendientes,
       citasTotales: citasArray.length
@@ -493,7 +552,28 @@ function AdminDashboard() {
         console.log('👉 Creando doctor:', doctorData)
         
         const doctorRes = await axiosInstance.post('doctores/', doctorData)
-        console.log('✅ Doctor creado:', doctorRes.data)
+        console.log('Doctor creado:', doctorRes.data)
+        
+        // Si se usó "otra_especialidad" y no se seleccionó una de la lista, crear la nueva especialidad
+        if (formData.otra_especialidad && !formData.especialidad) {
+          try {
+            const nuevaEsp = await axiosInstance.post('especialidades/', {
+              nombre: formData.otra_especialidad,
+              descripcion: `Especialidad médica creada automáticamente para Dr. ${nuevoUsuario.first_name} ${nuevoUsuario.last_name}`,
+              tipo_especialidad: 'medica',
+              activo: true
+            })
+            console.log('Nueva especialidad médica creada:', nuevaEsp.data)
+            // Actualizar el doctor con la nueva especialidad
+            await axiosInstance.patch(`doctores/${doctorRes.data.id}/`, {
+              especialidad: nuevaEsp.data.id,
+              otra_especialidad: ''
+            })
+          } catch (espError) {
+            console.warn('No se pudo crear la especialidad automáticamente:', espError)
+          }
+        }
+        
         mostrarMensaje('✅ ' + t('itemCreated', { type: t('doctor') }), 'success')
       }
       else if (tipo === 'enfermeras') {
@@ -523,7 +603,28 @@ function AdminDashboard() {
         console.log('👉 Creando enfermera:', enfermeraData)
         
         const enfermeraRes = await axiosInstance.post('enfermeras/', enfermeraData)
-        console.log('✅ Enfermera creada:', enfermeraRes.data)
+        console.log('Enfermera creada:', enfermeraRes.data)
+        
+        // Si se usó "otra_especialidad" y no se seleccionó una de la lista, crear la nueva especialidad
+        if (formData.otra_especialidad && !formData.especialidad) {
+          try {
+            const nuevaEsp = await axiosInstance.post('especialidades/', {
+              nombre: formData.otra_especialidad,
+              descripcion: `Especialidad de enfermería creada automáticamente para Enf. ${nuevoUsuario.first_name} ${nuevoUsuario.last_name}`,
+              tipo_especialidad: 'enfermeria',
+              activo: true
+            })
+            console.log('Nueva especialidad de enfermería creada:', nuevaEsp.data)
+            // Actualizar la enfermera con la nueva especialidad
+            await axiosInstance.patch(`enfermeras/${enfermeraRes.data.id}/`, {
+              especialidad: nuevaEsp.data.id,
+              otra_especialidad: ''
+            })
+          } catch (espError) {
+            console.warn('No se pudo crear la especialidad automáticamente:', espError)
+          }
+        }
+        
         mostrarMensaje('✅ ' + t('itemCreated', { type: t('nurse') }), 'success')
       }
       else if (tipo === 'pacientes') {
@@ -608,7 +709,28 @@ function AdminDashboard() {
           biografia: formData.biografia || ''
         }
         const response = await axiosInstance.patch(`${tipo}/${selectedItem.id}/`, doctorData)
-        console.log('✅ Doctor actualizado:', response.data)
+        console.log('Doctor actualizado:', response.data)
+        
+        // Si se usó "otra_especialidad" y no se seleccionó una de la lista, crear la nueva especialidad
+        if (formData.otra_especialidad && !formData.especialidad) {
+          try {
+            const nuevaEsp = await axiosInstance.post('especialidades/', {
+              nombre: formData.otra_especialidad,
+              descripcion: `Especialidad médica actualizada automáticamente para Dr. ${selectedItem.usuario?.first_name} ${selectedItem.usuario?.last_name}`,
+              tipo_especialidad: 'medica',
+              activo: true
+            })
+            console.log('Nueva especialidad médica creada:', nuevaEsp.data)
+            // Actualizar el doctor con la nueva especialidad
+            await axiosInstance.patch(`doctores/${selectedItem.id}/`, {
+              especialidad: nuevaEsp.data.id,
+              otra_especialidad: ''
+            })
+          } catch (espError) {
+            console.warn('No se pudo crear la especialidad automáticamente:', espError)
+          }
+        }
+        
         mostrarMensaje('✅ ' + t('itemUpdated', { type: t('doctor') }), 'success')
       }
       else if (tipo === 'enfermeras') {
@@ -630,7 +752,28 @@ function AdminDashboard() {
           numero_licencia: formData.numero_licencia || ''
         }
         const response = await axiosInstance.patch(`${tipo}/${selectedItem.id}/`, enfermeraData)
-        console.log('✅ Enfermera actualizada:', response.data)
+        console.log('Enfermera actualizada:', response.data)
+        
+        // Si se usó "otra_especialidad" y no se seleccionó una de la lista, crear la nueva especialidad
+        if (formData.otra_especialidad && !formData.especialidad) {
+          try {
+            const nuevaEsp = await axiosInstance.post('especialidades/', {
+              nombre: formData.otra_especialidad,
+              descripcion: `Especialidad de enfermería actualizada automáticamente para Enf. ${selectedItem.usuario?.first_name} ${selectedItem.usuario?.last_name}`,
+              tipo_especialidad: 'enfermeria',
+              activo: true
+            })
+            console.log('Nueva especialidad de enfermería creada:', nuevaEsp.data)
+            // Actualizar la enfermera con la nueva especialidad
+            await axiosInstance.patch(`enfermeras/${selectedItem.id}/`, {
+              especialidad: nuevaEsp.data.id,
+              otra_especialidad: ''
+            })
+          } catch (espError) {
+            console.warn('No se pudo crear la especialidad automáticamente:', espError)
+          }
+        }
+        
         mostrarMensaje('✅ ' + t('itemUpdated', { type: t('nurse') }), 'success')
       }
       else if (tipo === 'pacientes') {
@@ -921,7 +1064,7 @@ function AdminDashboard() {
                 <FaPlus /> {t('newUser')}
               </button>
             </div>
-            {usuarios.length === 0 ? (
+            {todosLosUsuarios.length === 0 ? (
               <div style={styles.emptyState}>
                 <p>Nao ha usuarios cadastrados</p>
               </div>
@@ -940,7 +1083,7 @@ function AdminDashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {usuarios.map(user => (
+                    {todosLosUsuarios.map(user => (
                       <tr key={user.id}>
                         <td>{user.id}</td>
                         <td>{user.username}</td>
