@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import axiosInstance from '../services/auth'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext'
 import { 
   FaUsers, FaUserMd, FaUserNurse, FaCalendarAlt, 
@@ -43,6 +43,16 @@ function AdminDashboard() {
   const [mensaje, setMensaje] = useState({ texto: '', tipo: '' })
 
   const navigate = useNavigate()
+  const location = useLocation()
+
+  // Leer parámetro tab de la URL y establecer activeTab
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search)
+    const tabFromUrl = searchParams.get('tab')
+    if (tabFromUrl && ['dashboard', 'usuarios', 'doctores', 'enfermeras', 'pacientes', 'citas', 'especialidades', 'horarios'].includes(tabFromUrl)) {
+      setActiveTab(tabFromUrl)
+    }
+  }, [location.search])
 
   // Cargar datos al iniciar
   useEffect(() => {
@@ -476,7 +486,7 @@ function AdminDashboard() {
         // Crear perfil de doctor
         const doctorData = {
           usuario_id: nuevoUsuario.id,
-          especialidad: formData.especialidad || null,
+          especialidad: formData.especialidad || '',
           otra_especialidad: formData.otra_especialidad || '',
           biografia: formData.biografia || ''
         }
@@ -506,7 +516,7 @@ function AdminDashboard() {
         // Crear perfil de enfermera
         const enfermeraData = {
           usuario_id: nuevoUsuario.id,
-          especialidad: formData.especialidad || null,
+          especialidad: formData.especialidad || '',
           otra_especialidad: formData.otra_especialidad || '',
           numero_licencia: formData.numero_licencia || ''
         }
@@ -593,7 +603,7 @@ function AdminDashboard() {
         
         // Actualizar perfil de doctor
         const doctorData = {
-          especialidad: formData.especialidad || null,
+          especialidad: formData.especialidad || '',
           otra_especialidad: formData.otra_especialidad || '',
           biografia: formData.biografia || ''
         }
@@ -615,7 +625,7 @@ function AdminDashboard() {
         
         // Actualizar perfil de enfermera
         const enfermeraData = {
-          especialidad: formData.especialidad || null,
+          especialidad: formData.especialidad || '',
           otra_especialidad: formData.otra_especialidad || '',
           numero_licencia: formData.numero_licencia || ''
         }

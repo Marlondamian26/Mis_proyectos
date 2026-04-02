@@ -64,8 +64,8 @@ class DoctorSerializer(serializers.ModelSerializer):
         source='usuario',
         write_only=True
     )
-    especialidad_nombre = serializers.CharField(source='especialidad.nombre', read_only=True)
-    especialidad_detalle = EspecialidadSerializer(source='especialidad', read_only=True)
+    especialidad_nombre = serializers.SerializerMethodField()
+    especialidad_detalle = serializers.SerializerMethodField()
 
     class Meta:
         model = Doctor
@@ -76,6 +76,16 @@ class DoctorSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id']
 
+    def get_especialidad_nombre(self, obj):
+        """Obtener nombre de especialidad, manejando caso None"""
+        return obj.especialidad.nombre if obj.especialidad else None
+    
+    def get_especialidad_detalle(self, obj):
+        """Obtener detalle de especialidad, manejando caso None"""
+        if obj.especialidad:
+            return EspecialidadSerializer(obj.especialidad).data
+        return None
+    
     def validate(self, data):
         """Validar que al menos una especialidad esté presente"""
         if not data.get('especialidad') and not data.get('otra_especialidad'):
@@ -90,8 +100,8 @@ class EnfermeraSerializer(serializers.ModelSerializer):
         source='usuario',
         write_only=True
     )
-    especialidad_nombre = serializers.CharField(source='especialidad.nombre', read_only=True)
-    especialidad_detalle = EspecialidadSerializer(source='especialidad', read_only=True)
+    especialidad_nombre = serializers.SerializerMethodField()
+    especialidad_detalle = serializers.SerializerMethodField()
 
     class Meta:
         model = Enfermera
@@ -101,6 +111,16 @@ class EnfermeraSerializer(serializers.ModelSerializer):
             'otra_especialidad', 'numero_licencia'
         ]
         read_only_fields = ['id']
+    
+    def get_especialidad_nombre(self, obj):
+        """Obtener nombre de especialidad, manejando caso None"""
+        return obj.especialidad.nombre if obj.especialidad else None
+    
+    def get_especialidad_detalle(self, obj):
+        """Obtener detalle de especialidad, manejando caso None"""
+        if obj.especialidad:
+            return EspecialidadSerializer(obj.especialidad).data
+        return None
 
 
 class PacienteSerializer(serializers.ModelSerializer):
@@ -122,7 +142,7 @@ class PacienteSerializer(serializers.ModelSerializer):
 
 
 class HorarioSerializer(serializers.ModelSerializer):
-    doctor_nombre = serializers.CharField(source='doctor.usuario.get_full_name', read_only=True)
+    doctor_nombre = serializers.CharField(source='doctor.usuario.get_full_name', read_only=True, required=False, allow_null=True)
     
     class Meta:
         model = Horario
@@ -176,8 +196,8 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 
 class CitaSerializer(serializers.ModelSerializer):
-    paciente_nombre = serializers.CharField(source='paciente.usuario.get_full_name', read_only=True)
-    doctor_nombre = serializers.CharField(source='doctor.usuario.get_full_name', read_only=True)
+    paciente_nombre = serializers.CharField(source='paciente.usuario.get_full_name', read_only=True, required=False, allow_null=True)
+    doctor_nombre = serializers.CharField(source='doctor.usuario.get_full_name', read_only=True, required=False, allow_null=True)
     paciente_id = serializers.PrimaryKeyRelatedField(
         queryset=Paciente.objects.all(),
         source='paciente',
