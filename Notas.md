@@ -4,7 +4,8 @@
 #
 # ---
 # ## 1. Preparar el entorno
-#
+# 0.  ```powershell
+#      python -m venv venv    <----- para crear el entorno virtual en caso de no existir.
 # 1. Activa el virtualenv (Windows PowerShell):
 #    ```powershell
 #    .\venv\Scripts\Activate.ps1   # o .\venv\Scripts\activate
