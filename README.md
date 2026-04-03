@@ -1,10 +1,10 @@
-# Belkis-saúde 🏥
+# Gestion-Saude 🏥
 
-> Sistema de Gestión para Consultorio Médico (Dra. Belkis)
+> Sistema de Gestión para Consultorio Médico o Clínica
 
 Este repositorio contiene la versión activa de la aplicación web que permite
 administrar pacientes, doctores, enfermeras, notificaciones y agendamiento de
-citas en un consultorio médico en Luanda, Angola. El proyecto se compone de un
+citas en un consultorio médico o clínica en Luanda, Angola. El proyecto se compose de un
 backend Django/DRF y un frontend React/Vite.
 
 ---
