@@ -188,12 +188,12 @@ function Registro() {
           await cargarUsuario()
           setSuccess(t('registrationSuccess'))
           // Redirigir al dashboard del paciente con sesión iniciada
-          setTimeout(() => navigate('/dashboard'), 1500)
+          setTimeout(() => navigate('/dashboard', { replace: true }), 1500)
         } catch (error) {
           console.error('Error al cargar usuario después del registro:', error)
           // Si falla la carga del usuario, mostrar mensaje y redirigir al login
           setError(t('errorLoadingUser'))
-          setTimeout(() => navigate('/login'), 2000)
+          setTimeout(() => navigate('/login', { replace: true }), 2000)
         } finally {
           setLoading(false)
         }

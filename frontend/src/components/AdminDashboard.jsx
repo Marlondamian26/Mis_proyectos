@@ -192,39 +192,65 @@ function AdminDashboard() {
     setHorarios(horariosData)
 
     // Crear lista combinada de todos los usuarios para la sección de gestión de usuarios
-    const todosUsuarios = [
-      ...usuariosData.map(u => ({ ...u, tipoUsuario: u.rol })),
-      ...doctoresData.map(d => ({ 
-        id: d.id, 
-        username: d.usuario?.username || '',
-        first_name: d.usuario?.first_name || '',
-        last_name: d.usuario?.last_name || '',
-        email: d.usuario?.email || '',
-        telefono: d.usuario?.telefono || '',
-        rol: 'doctor',
-        tipoUsuario: 'doctor'
-      })),
-      ...enfermerasData.map(e => ({ 
-        id: e.id, 
-        username: e.usuario?.username || '',
-        first_name: e.usuario?.first_name || '',
-        last_name: e.usuario?.last_name || '',
-        email: e.usuario?.email || '',
-        telefono: e.usuario?.telefono || '',
-        rol: 'nurse',
-        tipoUsuario: 'nurse'
-      })),
-      ...pacientesData.map(p => ({ 
-        id: p.id, 
-        username: p.usuario?.username || '',
-        first_name: p.usuario?.first_name || '',
-        last_name: p.usuario?.last_name || '',
-        email: p.usuario?.email || '',
-        telefono: p.usuario?.telefono || '',
-        rol: 'patient',
-        tipoUsuario: 'patient'
-      }))
-    ]
+    // Filtrar duplicados: los doctores/enfermeras/pacientes también tienen entrada en usuarios
+    const usuariosPorId = new Map()
+    
+    // Primero agregar usuarios base
+    usuariosData.forEach(u => {
+      usuariosPorId.set(u.id, { ...u, tipoUsuario: u.rol })
+    })
+    
+    // Luego agregar sobrescribiendo solo si es un perfil específico (doctor/nurse/patient)
+    // para evitar duplicados
+    doctoresData.forEach(d => {
+      const usuarioId = d.usuario?.id
+      if (usuarioId) {
+        usuariosPorId.set(usuarioId, { 
+          id: usuarioId, 
+          username: d.usuario?.username || '',
+          first_name: d.usuario?.first_name || '',
+          last_name: d.usuario?.last_name || '',
+          email: d.usuario?.email || '',
+          telefono: d.usuario?.telefono || '',
+          rol: 'doctor',
+          tipoUsuario: 'doctor'
+        })
+      }
+    })
+    
+    enfermerasData.forEach(e => {
+      const usuarioId = e.usuario?.id
+      if (usuarioId) {
+        usuariosPorId.set(usuarioId, { 
+          id: usuarioId, 
+          username: e.usuario?.username || '',
+          first_name: e.usuario?.first_name || '',
+          last_name: e.usuario?.last_name || '',
+          email: e.usuario?.email || '',
+          telefono: e.usuario?.telefono || '',
+          rol: 'nurse',
+          tipoUsuario: 'nurse'
+        })
+      }
+    })
+    
+    pacientesData.forEach(p => {
+      const usuarioId = p.usuario?.id
+      if (usuarioId) {
+        usuariosPorId.set(usuarioId, { 
+          id: usuarioId, 
+          username: p.usuario?.username || '',
+          first_name: p.usuario?.first_name || '',
+          last_name: p.usuario?.last_name || '',
+          email: p.usuario?.email || '',
+          telefono: p.usuario?.telefono || '',
+          rol: 'patient',
+          tipoUsuario: 'patient'
+        })
+      }
+    })
+    
+    const todosUsuarios = Array.from(usuariosPorId.values())
     setTodosLosUsuarios(todosUsuarios)
 
     // Calcular estadísticas usando la longitud de la lista combinada

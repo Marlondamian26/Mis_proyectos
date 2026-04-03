@@ -19,10 +19,10 @@ function Login() {
   const navigate = useNavigate()
   const { login } = useAuth()
 
-  // Verificar si ya hay sesión activa
+  // Verificar si ya hay sesión activa solo al montar
   useEffect(() => {
     const token = localStorage.getItem('access_token')
-    if (token) {
+    if (token && !loading) {
       navigate('/dashboard')
     }
   }, [navigate])
@@ -43,7 +43,7 @@ function Login() {
       // Estas credenciales deben estar configuradas en el backend
       // Si no están configuradas, el login fallará
       await login(DEMO_USERNAME, DEMO_PASSWORD)
-      navigate('/dashboard')
+      navigate('/dashboard', { replace: true })
     } catch (err) {
       console.error('Error en demo:', err)
       if (err.response?.status === 401) {
@@ -94,7 +94,7 @@ function Login() {
       if (rememberMe) {
         localStorage.setItem('remember_me', 'true')
       }
-      navigate('/dashboard')
+      navigate('/dashboard', { replace: true })
     } catch (err) {
       console.error('Error:', err)
       if (err.response?.status === 401) {

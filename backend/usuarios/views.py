@@ -88,19 +88,46 @@ def cambiar_contrasena(request):
 @permission_classes([IsAuthenticated])
 def especialidades_publicas(request):
     """Endpoint público para ver especialidades activas"""
+    from django.core.cache import cache
+    
+    # Try cache first
+    cache_key = 'especialidades_activas'
+    cached_data = cache.get(cache_key)
+    if cached_data is not None:
+        return Response(cached_data)
+    
     especialidades = Especialidad.objects.filter(activo=True)
     serializer = EspecialidadSerializer(especialidades, many=True)
-    return Response(serializer.data)
+    data = serializer.data
+    
+    # Cache por 5 minutos
+    cache.set(cache_key, data, 300)
+    
+    return Response(data)
 
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def doctores_publicos(request):
     """Endpoint público para ver doctores activos"""
+    from django.core.cache import cache
+    
+    # Try cache first
+    cache_key = 'doctores_publicos'
+    cached_data = cache.get(cache_key)
+    if cached_data is not None:
+        return Response(cached_data)
+    
     # Obtener solo los doctores (no admin ni enfermeras ni pacientes)
-    doctores = Doctor.objects.select_related('usuario').all()
+    # Optimizado con select_related para evitar N+1 queries
+    doctores = Doctor.objects.select_related('usuario', 'especialidad').all()
     serializer = DoctorSerializer(doctores, many=True)
-    return Response(serializer.data)
+    data = serializer.data
+    
+    # Cache por 5 minutos
+    cache.set(cache_key, data, 300)
+    
+    return Response(data)
 
 
 @api_view(['GET'])
@@ -352,6 +379,45 @@ class HorarioViewSet(viewsets.ModelViewSet):
     serializer_class = HorarioSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        doctor_id = self.request.query_params.get('doctor')
+        if doctor_id:
+            queryset = queryset.filter(doctor_id=doctor_id)
+        return queryset
+
+    @action(detail=False, methods=['get'])
+    def disponibles(self, request):
+        """Obtener horarios disponibles para un doctor en una fecha específica"""
+        doctor_id = request.query_params.get('doctor')
+        fecha = request.query_params.get('fecha')
+        
+        if not doctor_id:
+            return Response({'error': 'Se requiere el parámetro doctor'}, status=400)
+        
+        try:
+            doctor = Doctor.objects.get(id=doctor_id)
+        except Doctor.DoesNotExist:
+            return Response({'error': 'Doctor no encontrado'}, status=404)
+        
+        if fecha:
+            from datetime import datetime
+            try:
+                fecha_date = datetime.strptime(fecha, '%Y-%m-%d').date()
+                dia_semana = fecha_date.weekday()
+                horarios = Horario.objects.filter(
+                    doctor=doctor,
+                    dia_semana=dia_semana,
+                    activo=True
+                )
+            except ValueError:
+                return Response({'error': 'Formato de fecha inválido. Use YYYY-MM-DD'}, status=400)
+        else:
+            horarios = Horario.objects.filter(doctor=doctor, activo=True)
+        
+        serializer = HorarioSerializer(horarios, many=True)
+        return Response(serializer.data)
 
 class CitaViewSet(viewsets.ModelViewSet):
     queryset = Cita.objects.all()

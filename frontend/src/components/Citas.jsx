@@ -66,8 +66,9 @@ function Citas() {
   const fetchHorariosDisponibles = async () => {
     setCargandoHorarios(true)
     try {
-      const response = await axiosInstance.get(`horarios/?doctor=${nuevaCita.doctor}`)
+      const response = await axiosInstance.get(`horarios/disponibles/?doctor=${nuevaCita.doctor}&fecha=${nuevaCita.fecha}`)
       const horariosData = Array.isArray(response.data) ? response.data : []
+      console.log('Horarios recibidos:', horariosData)
       
       const citasResponse = await axiosInstance.get('citas/', {
         params: {
