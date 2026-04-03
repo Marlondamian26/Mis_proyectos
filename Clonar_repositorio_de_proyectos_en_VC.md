@@ -130,6 +130,12 @@
 #   npm install
 #   npm run dev
 
+# Pasos para renombrar ramas de mi repositorio de proyectos
+# git branch -m belkis-saude Gestion-Saude
+# git push -u origin Gestion-Saude
+# git push origin --delete belkis-saude
+
+
 # ============================================================
 # FIN DEL RESUMEN
 # ============================================================
