@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import './ChatIA.css';
 import { useLanguage } from '../context/LanguageContext';
@@ -15,7 +15,7 @@ const getApiUrl = () => {
 const API_URL = getApiUrl();
 
 const ChatIA = ({ token, onClose }) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const chatEndRef = useRef(null);
   
   const [estado, setEstado] = useState('inicio');
@@ -33,47 +33,69 @@ const ChatIA = ({ token, onClose }) => {
   const [especialidades, setEspecialidades] = useState([]);
   const [doctores, setDoctores] = useState([]);
   const [horariosDisponibles, setHorariosDisponibles] = useState([]);
+  const messageIdRef = useRef(0);
   
-  const axiosInstance = axios.create({
+  const axiosInstance = useRef(axios.create({
     baseURL: API_URL,
     headers: {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
     }
-  });
+  }));
 
-  const inicializar = async () => {
+  const inicializar = useCallback(async (resetChat = false) => {
+    if (resetChat) {
+      setHistorial([]);
+      setEstado('inicio');
+      setDatos({ especialidad: null, doctor: null, fecha: null, hora: null });
+      messageIdRef.current = 0;
+    }
     setLoading(true);
     try {
-      const espResponse = await axiosInstance.get('especialidades-publicas/');
-      setEspecialidades(espResponse.data || []);
+      const espResponse = await axiosInstance.current.get('especialidades-publicas/');
+      const espData = Array.isArray(espResponse.data) ? espResponse.data : (espResponse.data.results || []);
+      setEspecialidades(espData);
       
-      const docResponse = await axiosInstance.get('doctores-publicos/');
-      setDoctores(docResponse.data || []);
+      const docResponse = await axiosInstance.current.get('doctores-publicos/');
+      const docData = Array.isArray(docResponse.data) ? docResponse.data : (docResponse.data.results || []);
+      setDoctores(docData);
       
       setOpciones([
-        { id: 'agendar', texto: t('scheduleAppointment') || 'Agendar cita médica' },
-        { id: 'mis_citas', texto: t('myAppointments') || 'Mis citas' },
-        { id: 'ayuda', texto: t('needHelp') || 'Necesito ayuda' }
+        { id: 'agendar', texto: t('scheduleAppointment') },
+        { id: 'mis_citas', texto: t('myAppointments') },
+        { id: 'ayuda', texto: t('needHelp') }
       ]);
     } catch (error) {
       console.error('Error inicializando:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
+
+  const previousLanguageRef = useRef(language);
+  
+  useEffect(() => {
+    if (previousLanguageRef.current !== language) {
+      previousLanguageRef.current = language;
+      inicializar(true);
+    }
+  }, [language, inicializar]);
 
   useEffect(() => {
-    inicializar();
-  }, []);
+    if (historial.length === 0 && opciones.length === 0) {
+      inicializar(false);
+    }
+  }, [inicializar]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [historial]);
 
-  const agregarMensaje = (texto, tipo = 'ia') => {
-    setHistorial(prev => [...prev, { id: Date.now(), tipo, texto, timestamp: new Date() }]);
-  };
+  const agregarMensaje = useCallback((texto, tipo = 'ia') => {
+    messageIdRef.current += 1;
+    const newId = messageIdRef.current;
+    setHistorial(prev => [...prev, { id: newId, tipo, texto, timestamp: new Date() }]);
+  }, []);
 
   const seleccionarOpcion = async (opcionId) => {
     agregarMensaje(opciones.find(o => o.id === opcionId)?.texto || opcionId, 'usuario');
@@ -83,21 +105,21 @@ const ChatIA = ({ token, onClose }) => {
       switch (opcionId) {
         case 'agendar':
           if (especialidades.length === 0) {
-            agregarMensaje('Lo siento, no hay especialidades disponibles en este momento.');
+            agregarMensaje(t('noDataAvailable') || 'Lo siento, no hay especialidades disponibles en este momento.');
             setEstado('inicio');
             setOpciones([
-              { id: 'agendar', texto: t('scheduleAppointment') || 'Agendar cita médica' },
-              { id: 'mis_citas', texto: t('myAppointments') || 'Mis citas' }
+              { id: 'agendar', texto: t('scheduleAppointment') },
+              { id: 'mis_citas', texto: t('myAppointments') }
             ]);
           } else {
-            agregarMensaje('¿Qué especialidad necesitas?');
+            agregarMensaje(t('whatSpecialty'));
             setEstado('elegir_especialidad');
             setOpciones(especialidades.map(esp => ({
               id: esp.id,
               texto: esp.nombre
             })));
             if (especialidades.length > 0) {
-              agregarMensaje('Selecciona una especialidad:', 'ia');
+              agregarMensaje(t('selectSpecialtyOption'), 'ia');
             }
           }
           break;
@@ -113,15 +135,15 @@ const ChatIA = ({ token, onClose }) => {
             );
             
             if (doctoresFiltrados.length === 0) {
-              agregarMensaje(`No hay doctores disponibles de ${espSeleccionada.nombre}.`);
-              agregarMensaje('¿Qué especialidad necesitas?');
+              agregarMensaje(`${t('noDoctorsAvailable')} ${espSeleccionada.nombre}.`);
+              agregarMensaje(t('chooseSpecialty'));
               setEstado('elegir_especialidad');
               setOpciones(especialidades.map(esp => ({
                 id: esp.id,
                 texto: esp.nombre
               })));
             } else {
-              agregarMensaje(`¿Con qué doctor quieres la cita?`);
+              agregarMensaje(t('whichDoctor'));
               setEstado('elegir_doctor');
               setOpciones(doctoresFiltrados.map(d => ({
                 id: d.id,
@@ -135,12 +157,12 @@ const ChatIA = ({ token, onClose }) => {
           const doctorSeleccionado = doctores.find(d => d.id === parseInt(opcionId));
           if (doctorSeleccionado) {
             setDatos(prev => ({ ...prev, doctor: doctorSeleccionado }));
-            agregarMensaje('¿Qué fecha te conviene? ( formato: YYYY-MM-DD )');
+            agregarMensaje(t('whatDate'));
             setEstado('elegir_fecha');
             setOpciones([
-              { id: 'hoy', texto: 'Hoy' },
-              { id: 'manana', texto: 'Mañana' },
-              { id: 'otra', texto: 'Otra fecha' }
+              { id: 'hoy', texto: t('today') },
+              { id: 'manana', texto: t('tomorrow') },
+              { id: 'otra', texto: t('otherDate') }
             ]);
           }
           break;
@@ -155,7 +177,7 @@ const ChatIA = ({ token, onClose }) => {
             setDatos(prev => ({ ...prev, fecha: manana }));
             await cargarHorarios(datos.doctor?.id, manana);
           } else {
-            agregarMensaje('Por favor ingresa una fecha en formato YYYY-MM-DD');
+            agregarMensaje(t('otherDate') + ' (YYYY-MM-DD)');
             setEstado('esperando_fecha');
           }
           break;
@@ -166,7 +188,7 @@ const ChatIA = ({ token, onClose }) => {
             setDatos(prev => ({ ...prev, fecha: fechaValida }));
             await cargarHorarios(datos.doctor?.id, fechaValida);
           } else {
-            agregarMensaje('Formato de fecha inválido. Use YYYY-MM-DD');
+            agregarMensaje(t('invalidDateFormat'));
           }
           break;
 
@@ -182,36 +204,36 @@ const ChatIA = ({ token, onClose }) => {
           if (datos.especialidad && datos.doctor && datos.fecha && datos.hora) {
             await crearCita();
           } else {
-            agregarMensaje('Faltan datos. Vamos a empezar de nuevo.');
+            agregarMensaje(t('missingData'));
             setEstado('inicio');
             setDatos({ especialidad: null, doctor: null, fecha: null, hora: null });
             setOpciones([
-              { id: 'agendar', texto: t('scheduleAppointment') || 'Agendar cita médica' },
-              { id: 'mis_citas', texto: t('myAppointments') || 'Mis citas' }
+              { id: 'agendar', texto: t('scheduleAppointment') },
+              { id: 'mis_citas', texto: t('myAppointments') }
             ]);
           }
           break;
 
         case 'cancelar':
-          agregarMensaje('Entendido. ¿En qué más puedo ayudarte?');
+          agregarMensaje(t('understood'));
           setEstado('inicio');
           setDatos({ especialidad: null, doctor: null, fecha: null, hora: null });
           setOpciones([
-            { id: 'agendar', texto: t('scheduleAppointment') || 'Agendar cita médica' },
-            { id: 'mis_citas', texto: t('myAppointments') || 'Mis citas' }
+            { id: 'agendar', texto: t('scheduleAppointment') },
+            { id: 'mis_citas', texto: t('myAppointments') }
           ]);
           break;
 
         case 'mis_citas':
           setLoading(true);
           try {
-            const misCitasResponse = await axiosInstance.get('mis-citas/');
-            const misCitas = misCitasResponse.data || [];
+            const misCitasResponse = await axiosInstance.current.get('mis-citas/');
+            const misCitas = Array.isArray(misCitasResponse.data) ? misCitasResponse.data : (misCitasResponse.data.results || []);
             
             if (misCitas.length === 0) {
-              agregarMensaje('No tienes citas programadas.');
+              agregarMensaje(t('noAppointments'));
             } else {
-              agregarMensaje('Tus citas programadas:', 'ia');
+              agregarMensaje(t('yourAppointments'), 'ia');
               misCitas.forEach(cita => {
                 agregarMensaje(
                   `- ${cita.fecha} a las ${cita.hora} con Dr. ${cita.doctor_nombre} (${cita.estado})`,
@@ -221,21 +243,21 @@ const ChatIA = ({ token, onClose }) => {
             }
           } catch (error) {
             console.error('Error cargando citas:', error);
-            agregarMensaje('Error al cargar tus citas.');
+            agregarMensaje(t('errorLoadingAppointments'));
           }
           setEstado('inicio');
           setOpciones([
-            { id: 'agendar', texto: t('scheduleAppointment') || 'Agendar cita médica' },
-            { id: 'ayuda', texto: t('needHelp') || 'Necesito ayuda' }
+            { id: 'agendar', texto: t('scheduleAppointment') },
+            { id: 'ayuda', texto: t('needHelp') }
           ]);
           break;
 
         case 'ayuda':
-          agregarMensaje('¿En qué puedo ayudarte?');
+          agregarMensaje(t('howCanHelp'));
           setOpciones([
-            { id: 'info', texto: 'Información de la clínica' },
-            { id: 'contacto', texto: 'Contactar a soporte' },
-            { id: 'volver', texto: 'Volver al menú principal' }
+            { id: 'info', texto: t('clinicInfo') },
+            { id: 'contacto', texto: t('contactSupport') },
+            { id: 'volver', texto: t('backToMain') }
           ]);
           setEstado('ayuda');
           break;
@@ -253,7 +275,7 @@ const ChatIA = ({ token, onClose }) => {
       }
     } catch (error) {
       console.error('Error:', error);
-      agregarMensaje('Ocurrió un error. Por favor intenta de nuevo.');
+      agregarMensaje(t('loadingError'));
     } finally {
       setLoading(false);
     }
@@ -262,13 +284,12 @@ const ChatIA = ({ token, onClose }) => {
   const cargarHorarios = async (doctorId, fecha) => {
     setLoading(true);
     try {
-      const response = await axiosInstance.get(`horarios/disponibles/?doctor=${doctorId}&fecha=${fecha}`);
-      const horariosData = response.data || [];
+      const response = await axiosInstance.current.get(`horarios/disponibles/?doctor=${doctorId}&fecha=${fecha}`);
       
-      const citasResponse = await axiosInstance.get('citas/', {
+      const citasResponse = await axiosInstance.current.get('citas/', {
         params: { doctor: doctorId, fecha }
       });
-      const citasOcupadas = citasResponse.data || [];
+      const citasOcupadas = Array.isArray(citasResponse.data) ? citasResponse.data : (citasResponse.data.results || []);
       const horasOcupadas = citasOcupadas.map(c => c.hora);
 
       const slots = [];
@@ -296,71 +317,74 @@ const ChatIA = ({ token, onClose }) => {
       setHorariosDisponibles(slots);
       
       if (slots.length === 0) {
-        agregarMensaje('No hay horarios disponibles para esa fecha.');
+        agregarMensaje(t('noAvailableSlots'));
         setEstado('elegir_fecha');
         setOpciones([
-          { id: 'hoy', texto: 'Hoy' },
-          { id: 'manana', texto: 'Mañana' },
-          { id: 'otra', texto: 'Otra fecha' }
+          { id: 'hoy', texto: t('today') },
+          { id: 'manana', texto: t('tomorrow') },
+          { id: 'otra', texto: t('otherDate') }
         ]);
       } else {
         setDatos(prev => ({ ...prev, fecha }));
-        agregarMensaje('Selecciona un horario:');
+        agregarMensaje(t('selectTime'));
         setEstado('elegir_hora');
         setOpciones(slots.map(h => ({ id: h, texto: h })));
       }
     } catch (error) {
       console.error('Error cargando horarios:', error);
-      agregarMensaje('Error al cargar horarios. Intenta con otra fecha.');
+      agregarMensaje(t('loadingError'));
     } finally {
       setLoading(false);
     }
   };
 
   const confirmarCita = () => {
-    const resumen = `
-📋 Resumen de tu cita:
+    const doctorName = datos.doctor?.usuario?.first_name && datos.doctor?.usuario?.last_name 
+      ? `${datos.doctor.usuario.first_name} ${datos.doctor.usuario.last_name}`
+      : '';
+    
+    const resumen = `${t('appointmentSummary')}:
 
-👨‍⚕️ Doctor: Dr. ${datos.doctor?.usuario?.first_name} ${datos.doctor?.usuario?.last_name}
-📅 Fecha: ${datos.fecha}
-⏰ Hora: ${datos.hora}
+${t('doctor')}: Dr. ${doctorName}
+${t('date')}: ${datos.fecha}
+${t('time')}: ${datos.hora}
 
-¿Confirmas esta cita?
-    `.trim();
+${t('confirmAppointment')}`;
     
     agregarMensaje(resumen);
     setEstado('confirmar');
     setOpciones([
-      { id: 'confirmar', texto: '✅ Confirmar cita' },
-      { id: 'cancelar', texto: '❌ Cancelar' }
+      { id: 'confirmar', texto: t('confirm') },
+      { id: 'cancelar', texto: t('cancel') }
     ]);
   };
 
   const crearCita = async () => {
     setLoading(true);
     try {
-      await axiosInstance.post('citas/', {
+      await axiosInstance.current.post('citas/', {
         doctor: datos.doctor.id,
         fecha: datos.fecha,
         hora: datos.hora,
         motivo: ''
       });
 
-      agregarMensaje('🎉 ¡Cita confirmada exitosamente!');
-      agregarMensaje(`Tu cita con Dr. ${datos.doctor?.usuario?.first_name} el ${datos.fecha} a las ${datos.hora} ha sido agendada.`);
+      agregarMensaje(t('appointmentConfirmed'));
+      const doctorName = `${datos.doctor?.usuario?.first_name || ''} ${datos.doctor?.usuario?.last_name || ''}`;
+      agregarMensaje(t('appointmentBooked', { doctorName, date: datos.fecha, time: datos.hora }));
       
       setEstado('inicio');
       setDatos({ especialidad: null, doctor: null, fecha: null, hora: null });
       setOpciones([
-        { id: 'agendar', texto: t('scheduleAppointment') || 'Agendar otra cita' },
-        { id: 'mis_citas', texto: t('myAppointments') || 'Ver mis citas' }
+        { id: 'agendar', texto: t('bookAnother') },
+        { id: 'mis_citas', texto: t('viewMyAppointments') }
       ]);
     } catch (error) {
       console.error('Error creando cita:', error);
       if (error.response?.data) {
         agregarMensaje(`Error: ${JSON.stringify(error.response.data)}`);
       } else {
-        agregarMensaje('Error al crear la cita. Intenta de nuevo.');
+        agregarMensaje(t('loadingError'));
       }
     } finally {
       setLoading(false);
@@ -390,7 +414,7 @@ const ChatIA = ({ token, onClose }) => {
           <div key={msg.id} className={`chat-message ${msg.tipo}`}>
             <div className="message-content">
               {msg.texto.split('\n').map((linea, i) => (
-                <p key={i}>{linea}</p>
+                <p key={`${msg.id}-${i}`}>{linea}</p>
               ))}
             </div>
           </div>
