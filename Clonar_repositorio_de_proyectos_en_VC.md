@@ -12,6 +12,8 @@
 
 # Verificar que VS Code reconoce Git:
 #   git --version
+#   git config --global user.name "Marlondamian26"
+#   git config --global user.email "monterreymorejonm@gmail.com"
 # (Si responde, VS Code está conectado a Git)
 
 # ------------------------------------------------------------
