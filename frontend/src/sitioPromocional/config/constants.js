@@ -1,92 +1,119 @@
-export const CLINIC_NAME = 'Clínica Dra. Belkis Morejón Acosta';
+// src/sitioPromocional/config/constants.js
+export const CLINIC_NAME = 'Consultorio Dra. Belkis Morejón Acosta';
 export const CLINIC_LOCATION = 'Benfica, Luanda, Angola';
-export const CLINIC_ADDRESS = 'Bemfica, Luanda, Angola';
-export const CLINIC_PHONE = '+244 900 000 000';
-export const CLINIC_EMAIL = 'contacto@clinicabelkis.co.ao';
-export const CLINIC_WHATSAPP = '+244 900 000 000';
+export const CLINIC_ADDRESS = 'Benfica, Luanda';
+export const CLINIC_PHONE = '+244 923 456 789';
+export const CLINIC_EMAIL = 'contacto@drabelkismorejon.co.ao';
+export const CLINIC_WHATSAPP = '+244923456789';
 
 export const DOCTOR_NAME = 'Dra. Belkis Morejón Acosta';
 export const DOCTOR_TITLE = 'Médica Especialista';
 export const DOCTOR_SPECIALTY = 'Medicina General';
 
+export const PLATFORM_URL = '/login';
+export const REGISTRO_URL = '/registro';
+
 export const CONFIG = {
-  name: CLINIC_NAME,
-  doctorName: DOCTOR_NAME,
-  doctorTitle: DOCTOR_TITLE,
-  specialty: DOCTOR_SPECIALTY,
-  location: CLINIC_LOCATION,
-  address: CLINIC_ADDRESS,
-  phone: CLINIC_PHONE,
-  email: CLINIC_EMAIL,
-  whatsapp: CLINIC_WHATSAPP,
-  workingHours: {
-    monday: '08:00 - 18:00',
-    tuesday: '08:00 - 18:00',
-    wednesday: '08:00 - 18:00',
-    thursday: '08:00 - 18:00',
-    friday: '08:00 - 18:00',
-    saturday: '09:00 - 14:00',
-    sunday: 'Cerrado'
+  hero: {
+    badge: 'Atención Médica de Calidad',
+    title: 'Cuidamos de tu salud con profesionalismo y dedicación',
+    subtitle: 'En nuestro consultorio encontrarás una atención médica integral, personalizada y humana. Tu bienestar y el de tu familia son nuestra máxima prioridad.'
   },
   services: [
     {
       id: 1,
-      title: 'Consultas Médicas',
-      description: 'Atención médica general y especializada para todas las edades.',
+      title: 'Consulta Médica General',
+      description: 'Atención integral para todas las edades. Diagnóstico, tratamiento y seguimiento de enfermedades comunes.',
       icon: 'stethoscope'
     },
     {
       id: 2,
-      title: 'Control de Salud',
-      description: 'Chequeos prevents y seguimiento de condiciones crónicas.',
+      title: 'Cardiología',
+      description: 'Evaluación y tratamiento de enfermedades del corazón y sistema cardiovascular.',
       icon: 'heart'
     },
     {
       id: 3,
       title: 'Atención de Emergencias',
-      description: 'Servicio de atención médica urgente para casos prioritarios.',
+      description: 'Servicio de urgencias médicas disponible para casos que requieren atención inmediata.',
       icon: 'emergency'
     },
     {
       id: 4,
       title: 'Vacunación',
-      description: 'Programa completo de vacunaciónpara niños y adultos.',
+      description: 'Programa de vacunación para adultos y niños. Todas las vacunas del esquema nacional.',
       icon: 'syringe'
     },
     {
       id: 5,
       title: 'Análisis Clínicos',
-      description: 'Tomas de muestras y exámenes de laboratorio.',
+      description: 'Servicio de laboratorio para exámenes de sangre, orina y otros análisis diagnósticos.',
       icon: 'flask'
     },
     {
       id: 6,
       title: 'Certificados Médicos',
-      description: 'Emisión de certificados de salud y aptitud física.',
+      description: 'Emitimos certificados médicos para trabajo, escuela, trámites administrativos y más.',
       icon: 'document'
     }
   ],
+  about: {
+    title: 'Comprometidos con tu Salud y Bienestar',
+    description: 'Desde nuestra fundación, nos hemos dedicado a proporcionar atención médica de excelencia a la comunidad de Benfica, Luanda. Nuestra misión es proporcionar atención médica integral, humana y personalizada a cada paciente.',
+    doctorDescription: 'La Dra. Belkis Morejón Acosta lidera nuestro equipo con una visión clara: ofrecer atención médica accesible, de calidad y centrada en el paciente. Nuestro equipo está comprometido con tu bienestar integral.',
+    stats: {
+      years: '5',
+      patients: '2000',
+      satisfaction: '98%',
+      emergency: '24/7'
+    }
+  },
   testimonials: [
     {
       id: 1,
-      name: 'Maria João',
-      text: 'Excelente atención. La Dra. Belkis es muy profesional y cálida con los pacientes.',
-      rating: 5
+      name: 'María García',
+      text: 'Excelente atención. La Dra. Belkis es muy profesional y dedicada. Siempre me siento bien atendida en cada consulta.'
     },
     {
       id: 2,
-      name: 'Carlos Manuel',
-      text: 'La clínica tiene un ambiente muy acogedor y el servicio es excelente.',
-      rating: 5
+      name: 'João Pedro',
+      text: 'Muy buen servicio. El consultorio está bien equipado y el personal es muy amable. Recomendado.'
     },
     {
       id: 3,
-      name: 'Ana Paula',
-      text: 'Muy recomendada. Siempre atenderon todas mis dudas con paciencia.',
-      rating: 5
+      name: 'Ana Cristina',
+      text: 'La Dra. Morejón es una excelente médica. Me ha ayudado mucho con mi tratamiento. Gracias por su dedicación.'
     }
-  ]
+  ],
+  contact: {
+    title: 'Contáctenos',
+    subtitle: 'Estamos listos para atenderte. Puedes visitarnos, llamarnos o escribirnos.',
+    address: 'Benfica, Luanda, Angola',
+    phone: '+244 923 456 789',
+    email: 'contacto@drabelkismorejon.co.ao',
+    hours: 'Lunes a Viernes: 8:00 - 18:00'
+  },
+  cta: {
+    title: '¿Listo para cuidar tu salud?',
+    subtitle: 'Regístrate en nuestra plataforma para gestionar tus citas y acceder a tu historial médico.',
+    loginText: 'Iniciar Sesión',
+    registerText: 'Registrarse'
+  },
+  footer: {
+    description: 'Consultorio médico de la Dra. Belkis Morejón Acosta. Comprometidos con tu salud y bienestar en Benfica, Luanda.',
+    quickLinks: [
+      { text: 'Inicio', url: '#inicio' },
+      { text: 'Servicios', url: '#servicios' },
+      { text: 'Sobre Nosotros', url: '#sobre-nosotros' },
+      { text: 'Contacto', url: '#contacto' }
+    ],
+    services: [
+      'Consulta Médica',
+      'Cardiología',
+      'Emergencias',
+      'Vacunación',
+      'Análisis Clínicos'
+    ],
+    copyright: `© ${new Date().getFullYear()} ${CLINIC_NAME}. Todos los derechos reservados.`
+  }
 };
-
-export const PLATFORM_URL = '/login';
-export const REGISTRO_URL = '/registro';
