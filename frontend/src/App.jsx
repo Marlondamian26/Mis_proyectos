@@ -24,6 +24,9 @@ import LanguageToggle from './components/LanguageToggle';
 import Footer from './components/Footer';
 import { APP_NAME } from './config/constants';
 
+// Sitio Promocional Components
+import SitioPromocionalLanding from './sitioPromocional/components/LandingWrapper';
+
 const styles = {
   appContainer: {
     display: 'flex',
@@ -62,6 +65,7 @@ function App() {
                 
                 <div style={styles.contentContainer}>
                   <Routes>
+                    <Route path="/promocional" element={<SitioPromocionalLanding />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/registro" element={<Registro />} />
                     <Route path="/dashboard" element={<Dashboard />} />
