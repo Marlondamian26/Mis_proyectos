@@ -4,8 +4,10 @@
 
 Este repositorio contiene la versión activa de la aplicación web que permite
 administrar pacientes, doctores, enfermeras, notificaciones y agendamiento de
-citas en un consultorio médico o clínica en Luanda, Angola. El proyecto se compose de un
+citas en un consultorio médico o clínica. El proyecto se compose de un
 backend Django/DRF y un frontend React/Vite.
+
+También, como parte del proyecto, se cuenta con el código del sitio web Consultorio Dra. Belkis Morejón Acosta, como ejemplo de establecimiento en Luanda-Angola que utiliza la plataforma de gestión médica en cuestión. 
 
 ---
 ## 🧩 Arquitectura
@@ -104,17 +106,19 @@ instalen paquetes nuevos.
 - Usa `npm update` o edita `package.json`/`package-lock.json` para el frontend.
 
 ---
-## 🌱 Futuro: inteligencia artificial para reservas
+## 🌱 Bot programado para gestión de citas
 
-Próximamente se planea integrar funciones de IA que ayuden a los pacientes a
+Próximamente se planea integrar funciones que ayuden a los pacientes a
 reservar citas de forma inteligente:
 
 - Un asistente conversacional (chatbot) podría sugerir horarios libres según
   preferencias y urgencia.
-- Un modelo de recomendaciones podría priorizar turnos en base a la especialidad
+
 del médico y al historial del paciente.
-- Esto requerirá exponer algoritmos/servicios nuevos en el backend y quizá un
-  componente de voz/Texto en el frontend.
+- Requiere exponer algoritmos/servicios nuevos en el backend y un
+  componente de texto en el frontend.
+
+- Con vistas al futuro con IA: Un modelo de recomendaciones podría priorizar turnos en base a la especialidad
 
 Mientras planificamos, considera cómo estructuraremos los datos (por ejemplo,
 almacenar tags de síntomas en las citas) y qué endpoints adicionales necesitaremos
