@@ -1,10 +1,10 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import './index.css';
 import './App.css';
 
 // Context
-import { ThemeProvider, useTheme } from './context/ThemeContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { NotificacionesProvider } from './context/NotificacionesContext';
 import { LanguageProvider } from './context/LanguageContext';
@@ -48,6 +48,48 @@ const styles = {
   },
 };
 
+function HeaderBar({ isPromocional }) {
+  if (isPromocional) {
+    return null;
+  }
+  
+  return (
+    <div style={styles.headerBar}>
+      <ThemeToggle />
+      <LanguageToggle />
+      <NotificacionesCampana />
+    </div>
+  );
+}
+
+function AppContent() {
+  const location = useLocation();
+  const isPromocional = location.pathname === '/' || location.pathname === '/promocional';
+  
+  return (
+    <div style={styles.appContainer}>
+      <HeaderBar isPromocional={isPromocional} />
+      
+      <div style={styles.contentContainer}>
+        <Routes>
+          <Route path="/promocional" element={<SitioPromocionalLanding />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/registro" element={<Registro />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/citas" element={<Citas />} />
+          <Route path="/doctores" element={<Doctores />} />
+          <Route path="/perfil" element={<Perfil />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/enfermeria" element={<EnfermeriaDashboard />} />
+          <Route path="/" element={<SitioPromocionalLanding />} />
+        </Routes>
+      </div>
+
+      <Footer />
+    </div>
+  );
+}
+
 function App() {
 
   return (
@@ -56,30 +98,7 @@ function App() {
         <AuthProvider>
           <NotificacionesProvider>
             <Router>
-              <div style={styles.appContainer}>
-                <div style={styles.headerBar}>
-                  <ThemeToggle />
-                  <LanguageToggle />
-                  <NotificacionesCampana />
-                </div>
-                
-                <div style={styles.contentContainer}>
-                  <Routes>
-                    <Route path="/promocional" element={<SitioPromocionalLanding />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/registro" element={<Registro />} />
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/citas" element={<Citas />} />
-                    <Route path="/doctores" element={<Doctores />} />
-                    <Route path="/perfil" element={<Perfil />} />
-                    <Route path="/admin" element={<AdminDashboard />} />
-                    <Route path="/enfermeria" element={<EnfermeriaDashboard />} />
-                    <Route path="/" element={<SitioPromocionalLanding />} />
-                  </Routes>
-                </div>
-
-                <Footer />
-              </div>
+              <AppContent />
             </Router>
           </NotificacionesProvider>
         </AuthProvider>
