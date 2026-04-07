@@ -1,6 +1,7 @@
 /* src/sitioPromocional/styles/promocional.css */
 
 :root {
+  /* Tema Claro */
   --promo-primary: #00a896;
   --promo-primary-dark: #008f7f;
   --promo-primary-light: #02c4ac;
@@ -14,6 +15,23 @@
   --promo-border: #e9ecef;
   --promo-shadow: rgba(0, 0, 0, 0.08);
   --promo-gradient: linear-gradient(135deg, #00a896 0%, #02c4ac 100%);
+}
+
+/* Tema Oscuro */
+[data-theme="dark"] {
+  --promo-primary: #02c4ac;
+  --promo-primary-dark: #00a896;
+  --promo-primary-light: #05e0c7;
+  --promo-secondary: #1a1d21;
+  --promo-accent: #f97316;
+  --promo-text: #f1f5f9;
+  --promo-text-light: #94a3b8;
+  --promo-white: #1a1d21;
+  --promo-bg: #0f1114;
+  --promo-card-bg: #1e2228;
+  --promo-border: #2d3439;
+  --promo-shadow: rgba(0, 0, 0, 0.3);
+  --promo-gradient: linear-gradient(135deg, #02c4ac 0%, #05e0c7 100%);
 }
 
 .sitio-promocional {
