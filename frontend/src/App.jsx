@@ -74,7 +74,7 @@ function App() {
                     <Route path="/perfil" element={<Perfil />} />
                     <Route path="/admin" element={<AdminDashboard />} />
                     <Route path="/enfermeria" element={<EnfermeriaDashboard />} />
-                    <Route path="/" element={<Navigate to="/login" />} />
+                    <Route path="/" element={<SitioPromocionalLanding />} />
                   </Routes>
                 </div>
 

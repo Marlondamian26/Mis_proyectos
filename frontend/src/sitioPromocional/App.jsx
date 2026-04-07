@@ -4,7 +4,6 @@ import '../styles/theme.css';
 import '../index.css';
 import './styles/promocional.css';
 
-import { ThemeProvider } from '../context/ThemeContext';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Servicios from './components/Servicios';
@@ -19,8 +18,10 @@ import Registro from '../components/Registro';
 import { CLINIC_NAME } from './config/constants';
 
 function LandingPage() {
+  const { theme } = useTheme();
+  
   return (
-    <div className="sitio-promocional" data-theme="light">
+    <div className="sitio-promocional" data-theme={theme}>
       <Navbar />
       
       <main>
@@ -46,15 +47,13 @@ function LandingPage() {
 
 function App() {
   return (
-    <ThemeProvider>
-      <Router basename="/promocional">
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/registro" element={<Registro />} />
-        </Routes>
-      </Router>
-    </ThemeProvider>
+    <Router basename="/promocional">
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/registro" element={<Registro />} />
+      </Routes>
+    </Router>
   );
 }
 

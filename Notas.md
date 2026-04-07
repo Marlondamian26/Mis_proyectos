@@ -1,3 +1,18 @@
+# # Rutas de la aplicacion
+#
+# | Ruta | Descripcion |
+# |------|-------------|
+# | / | Sitio promocional (pagina principal por defecto) |
+# | /login | Pagina de inicio de sesion |
+# | /registro | Pagina de registro de pacientes |
+# | /dashboard | Panel del paciente |
+# | /admin | Panel de administracion |
+# | /enfermeria | Panel de enfermeria |
+# | /citas | Gestion de citas |
+# | /doctores | Lista de doctores |
+# | /perfil | Perfil del usuario |
+#
+# ---
 # # Guía de mantenimiento y reinicio 🧹
 #
 # Este archivo concentra un conjunto de comandos útiles para administrar el proyecto Django y, en particular, para **vaciar la base de datos y volver a partir de cero mientras se conserva al superusuario principal**.

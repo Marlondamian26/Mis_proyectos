@@ -1,14 +1,47 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FaFacebook, FaInstagram, FaWhatsapp, FaStethoscope, FaArrowRight } from 'react-icons/fa';
+import { useLanguage } from '../../context/LanguageContext';
 import { CLINIC_NAME, CLINIC_ADDRESS, CLINIC_PHONE, CLINIC_EMAIL, PLATFORM_URL, REGISTRO_URL } from '../config/constants';
 
 function Footer() {
+  const { language } = useLanguage();
   const currentYear = new Date().getFullYear();
   
   const formatWhatsApp = (phone) => {
     return phone.replace(/\s/g, '');
   };
+
+  const t = (key) => {
+    const translations = {
+      pt: {
+        footerDescription: 'Consultorio medico da Dra. Belkis Morejon Acosta. Comprometidos com a sua saude e bem-estar em Benfica, Luanda.',
+        quickLinks: { inicio: 'Inicio', servicos: 'Servicos', sobreNos: 'Sobre Nos', contacto: 'Contacto' },
+        services: { consulta: 'Consulta Medica', cardiologia: 'Cardiologia', emergencias: 'Emergencias', vacinacao: 'Vacinacao', analisis: 'Analises Clinicas' },
+        navLogin: 'Entrar',
+        navRegister: 'Registrar'
+      },
+      es: {
+        footerDescription: 'Consultorio medico de la Dra. Belkis Morejon Acosta. Comprometidos con tu salud y bienestar en Benfica, Luanda.',
+        quickLinks: { inicio: 'Inicio', servicos: 'Servicios', sobreNos: 'Sobre Nosotros', contacto: 'Contacto' },
+        services: { consulta: 'Consulta Medica', cardiologia: 'Cardiologia', emergencias: 'Emergencias', vacinacion: 'Vacunacion', analisis: 'Analisis Clinicos' },
+        navLogin: 'Iniciar Sesion',
+        navRegister: 'Registrarse'
+      },
+      en: {
+        footerDescription: 'Medical office of Dr. Belkis Morejon Acosta. Committed to your health and well-being in Benfica, Luanda.',
+        quickLinks: { inicio: 'Home', servicos: 'Services', sobreNos: 'About Us', contacto: 'Contact' },
+        services: { consulta: 'Medical Consultation', cardiologia: 'Cardiology', emergencies: 'Emergencies', vacinacion: 'Vaccination', analisis: 'Clinical Analysis' },
+        navLogin: 'Login',
+        navRegister: 'Register'
+      }
+    };
+    return translations[language]?.[key] || translations.es[key] || key;
+  };
+
+  const footerDesc = t('footerDescription');
+  const ql = t('quickLinks');
+  const svc = t('services');
 
   return (
     <footer className="promo-footer">
@@ -19,8 +52,7 @@ function Footer() {
             {CLINIC_NAME}
           </h3>
           <p>
-            Tu salud es nuestra prioridad. Estamos comprometidos a proporcionarte 
-            la mejor atención médica con professionalism y humanidad.
+            {footerDesc}
           </p>
           <div className="promo-footer-social">
             <a href="#" aria-label="Facebook">
@@ -36,23 +68,23 @@ function Footer() {
         </div>
         
         <div className="promo-footer-section">
-          <h4>Enlaces Rápidos</h4>
+          <h4>Enlaces Rapidos</h4>
           <div className="promo-footer-links">
             <Link to={PLATFORM_URL}>
               <FaArrowRight style={{ marginRight: '0.5rem', fontSize: '0.75rem' }} />
-              Iniciar Sesión
+              {t('navLogin')}
             </Link>
             <Link to={REGISTRO_URL}>
               <FaArrowRight style={{ marginRight: '0.5rem', fontSize: '0.75rem' }} />
-              Registrarse
+              {t('navRegister')}
             </Link>
             <a href="#servicios">
               <FaArrowRight style={{ marginRight: '0.5rem', fontSize: '0.75rem' }} />
-              Servicios
+              {ql.servicos}
             </a>
             <a href="#contacto">
               <FaArrowRight style={{ marginRight: '0.5rem', fontSize: '0.75rem' }} />
-              Contacto
+              {ql.contacto}
             </a>
           </div>
         </div>
@@ -60,10 +92,11 @@ function Footer() {
         <div className="promo-footer-section">
           <h4>Servicios</h4>
           <div className="promo-footer-links">
-            <a href="#servicios">Consultas Médicas</a>
-            <a href="#servicios">Control de Salud</a>
-            <a href="#servicios">Emergencias</a>
-            <a href="#servicios">Vacunación</a>
+            <a href="#servicios">{svc.consulta}</a>
+            <a href="#servicios">{svc.cardiologia}</a>
+            <a href="#servicios">{svc.emergencias}</a>
+            <a href="#servicios">{svc.vacinacion}</a>
+            <a href="#servicios">{svc.analisis}</a>
           </div>
         </div>
         
