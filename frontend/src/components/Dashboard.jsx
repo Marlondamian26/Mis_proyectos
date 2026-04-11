@@ -455,7 +455,7 @@ function Dashboard() {
             title={t('chatAssistant')}
           >
             <span style={{ fontSize: '24px' }}>🤖</span>
-            <span style={{ fontSize: '10px', fontWeight: 'bold' }}>IA</span>
+            <span style={{ fontSize: '10px', fontWeight: 'bold' }}>Chat</span>
           </button>
 
           {mostrarChatIA && (

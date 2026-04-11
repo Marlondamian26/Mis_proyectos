@@ -63,6 +63,8 @@ const ChatIA = ({ token, onClose }) => {
       setOpciones([
         { id: 'agendar', texto: t('scheduleAppointment') },
         { id: 'mis_citas', texto: t('myAppointments') },
+        { id: 'cancelar_cita', texto: t('cancelAppointmentOption') },
+        { id: 'posponer', texto: t('postponeAppointmentOption') },
         { id: 'ayuda', texto: t('needHelp') }
       ]);
     } catch (error) {
@@ -214,16 +216,6 @@ const ChatIA = ({ token, onClose }) => {
           }
           break;
 
-        case 'cancelar':
-          agregarMensaje(t('understood'));
-          setEstado('inicio');
-          setDatos({ especialidad: null, doctor: null, fecha: null, hora: null });
-          setOpciones([
-            { id: 'agendar', texto: t('scheduleAppointment') },
-            { id: 'mis_citas', texto: t('myAppointments') }
-          ]);
-          break;
-
         case 'mis_citas':
           setLoading(true);
           try {
@@ -260,6 +252,79 @@ const ChatIA = ({ token, onClose }) => {
             { id: 'volver', texto: t('backToMain') }
           ]);
           setEstado('ayuda');
+          break;
+
+        case 'cancelar':
+          if (estado === 'confirmar') {
+            agregarMensaje(t('understood'));
+            setEstado('inicio');
+            setDatos({ especialidad: null, doctor: null, fecha: null, hora: null });
+            setOpciones([
+              { id: 'agendar', texto: t('scheduleAppointment') },
+              { id: 'mis_citas', texto: t('myAppointments') },
+              { id: 'cancelar_cita', texto: t('cancelAppointmentOption') },
+              { id: 'posponer', texto: t('postponeAppointmentOption') },
+              { id: 'ayuda', texto: t('needHelp') }
+            ]);
+          } else {
+            await mostrarCitasParaAccion('cancelar');
+          }
+          break;
+
+        case 'cancelar_cita':
+          await mostrarCitasParaAccion('cancelar');
+          break;
+
+        case 'posponer':
+          await mostrarCitasParaAccion('posponer');
+          break;
+
+        case 'elegir_cita_cancelar':
+          await procesarCancelacion(parseInt(opcionId));
+          break;
+
+        case 'elegir_cita_posponer':
+          await procesarPosponer(parseInt(opcionId));
+          break;
+
+        case 'confirmar_cancelacion':
+          if (opcionId === 'si') {
+            await ejecutarCancelacion();
+          } else {
+            agregarMensaje(t('understood'));
+            setEstado('inicio');
+            setOpciones([
+              { id: 'agendar', texto: t('scheduleAppointment') },
+              { id: 'mis_citas', texto: t('myAppointments') },
+              { id: 'cancelar_cita', texto: t('cancelAppointmentOption') },
+              { id: 'posponer', texto: t('postponeAppointmentOption') },
+              { id: 'ayuda', texto: t('needHelp') }
+            ]);
+          }
+          break;
+
+        case 'elegir_nueva_fecha':
+          await procesarNuevaFecha(opcionId);
+          break;
+
+        case 'elegir_nueva_hora':
+          await procesarNuevaHora(opcionId);
+          break;
+
+        case 'confirmar_posposicion':
+          if (opcionId === 'si') {
+            await ejecutarPosposicion();
+          } else {
+            agregarMensaje(t('understood'));
+            setEstado('inicio');
+            setOpciones([
+              { id: 'agendar', texto: t('scheduleAppointment') },
+              { id: 'mis_citas', texto: t('myAppointments') },
+              { id: 'cancelar_cita', texto: t('cancelAppointmentOption') },
+              { id: 'posponer', texto: t('postponeAppointmentOption') },
+              { id: 'ayuda', texto: t('needHelp') }
+            ]);
+          }
           break;
 
         default:
@@ -396,6 +461,221 @@ ${t('confirmAppointment')}`;
     if (mensaje.trim() && estado === 'esperando_fecha') {
       seleccionarOpcion(mensaje.trim());
       setMensaje('');
+    }
+  };
+
+  const [citasDisponibles, setCitasDisponibles] = useState([]);
+  const [citaSeleccionada, setCitaSeleccionada] = useState(null);
+  const [nuevaFecha, setNuevaFecha] = useState(null);
+  const [nuevaHora, setNuevaHora] = useState(null);
+  const [horariosNuevos, setHorariosNuevos] = useState([]);
+
+  const mostrarCitasParaAccion = async (accion) => {
+    setLoading(true);
+    try {
+      const response = await axiosInstance.current.get('mis-citas/');
+      const misCitas = Array.isArray(response.data) ? response.data : (response.data.results || []);
+      const citasPendentes = misCitas.filter(c => c.estado === 'pendiente' || c.estado === 'confirmada');
+      
+      setCitasDisponibles(citasPendentes);
+      
+      if (citasPendentes.length === 0) {
+        agregarMensaje(accion === 'cancelar' ? t('noCitasToCancel') : t('noCitasToPostpone'));
+        setEstado('inicio');
+setOpciones([
+        { id: 'agendar', texto: t('scheduleAppointment') },
+        { id: 'mis_citas', texto: t('myAppointments') },
+        { id: 'cancelar_cita', texto: t('cancelAppointmentOption') },
+        { id: 'posponer', texto: t('postponeAppointmentOption') },
+        { id: 'ayuda', texto: t('needHelp') }
+      ]);
+      } else {
+        agregarMensaje(accion === 'cancelar' ? t('selectAppointmentToCancel') : t('selectAppointmentToPostpone'));
+        setEstado(accion === 'cancelar' ? 'elegir_cita_cancelar' : 'elegir_cita_posponer');
+        setOpciones(citasPendentes.map(c => ({
+          id: c.id,
+          texto: `${c.fecha} - ${c.hora} con Dr. ${c.doctor_nombre}`
+        })));
+      }
+    } catch (error) {
+      console.error('Error cargando citas:', error);
+      agregarMensaje(t('loadingError'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const procesarCancelacion = async (citaId) => {
+    const cita = citasDisponibles.find(c => c.id === citaId);
+    if (cita) {
+      setCitaSeleccionada(cita);
+      agregarMensaje(`${t('confirmCancellation')}\n\n📅 ${cita.fecha} - ${cita.hora}\n👨‍⚕️ Dr. ${cita.doctor_nombre}`);
+      setEstado('confirmar_cancelacion');
+      setOpciones([
+        { id: 'si', texto: t('yes') },
+        { id: 'no', texto: t('no') }
+      ]);
+    }
+  };
+
+  const procesarPosponer = async (citaId) => {
+    const cita = citasDisponibles.find(c => c.id === citaId);
+    if (cita) {
+      setCitaSeleccionada(cita);
+      agregarMensaje(t('selectNewDate'));
+      setEstado('elegir_nueva_fecha');
+      setOpciones([
+        { id: 'hoy', texto: t('today') },
+        { id: 'manana', texto: t('tomorrow') },
+        { id: 'otra', texto: t('otherDate') }
+      ]);
+    }
+  };
+
+  const procesarNuevaFecha = async (opcionId) => {
+    let fechaSeleccionada;
+    if (opcionId === 'hoy') {
+      fechaSeleccionada = new Date().toISOString().split('T')[0];
+    } else if (opcionId === 'manana') {
+      fechaSeleccionada = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+    } else {
+      agregarMensaje(t('otherDate') + ' (YYYY-MM-DD)');
+      setEstado('esperando_nueva_fecha');
+      return;
+    }
+    
+    setNuevaFecha(fechaSeleccionada);
+    await cargarHorariosNuevos(citaSeleccionada.doctor, fechaSeleccionada);
+  };
+
+  const cargarHorariosNuevos = async (doctorId, fecha) => {
+    setLoading(true);
+    try {
+      const citasResponse = await axiosInstance.current.get('citas/', {
+        params: { doctor: doctorId, fecha }
+      });
+      const citasOcupadas = Array.isArray(citasResponse.data) ? citasResponse.data : (citasResponse.data.results || []);
+      const horasOcupadas = citasOcupadas.map(c => c.hora);
+
+      const slots = [];
+      const horariosData = [
+        { hora_inicio: '08:00', hora_fin: '12:00', activo: true },
+        { hora_inicio: '14:00', hora_fin: '18:00', activo: true }
+      ];
+      
+      horariosData.forEach(horario => {
+        if (!horario.activo) return;
+        
+        const [horaInicio, minInicio] = horario.hora_inicio.split(':').map(Number);
+        const [horaFin, minFin] = horario.hora_fin.split(':').map(Number);
+        
+        let horaActual = new Date();
+        horaActual.setHours(horaInicio, minInicio, 0);
+        
+        const horaFinal = new Date();
+        horaFinal.setHours(horaFin, minFin, 0);
+        
+        while (horaActual < horaFinal) {
+          const horaStr = horaActual.toTimeString().slice(0, 5);
+          if (!horasOcupadas.includes(horaStr)) {
+            slots.push(horaStr);
+          }
+          horaActual.setMinutes(horaActual.getMinutes() + 30);
+        }
+      });
+
+      setHorariosNuevos(slots);
+      
+      if (slots.length === 0) {
+        agregarMensaje(t('noAvailableSlots'));
+        setOpciones([
+          { id: 'hoy', texto: t('today') },
+          { id: 'manana', texto: t('tomorrow') },
+          { id: 'otra', texto: t('otherDate') }
+        ]);
+      } else {
+        setNuevaFecha(fecha);
+        agregarMensaje(t('selectNewTime'));
+        setEstado('elegir_nueva_hora');
+        setOpciones(slots.map(h => ({ id: h, texto: h })));
+      }
+    } catch (error) {
+      console.error('Error cargando horarios:', error);
+      agregarMensaje(t('loadingError'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const procesarNuevaHora = async (horaSeleccionada) => {
+    setNuevaHora(horaSeleccionada);
+    const resumen = `${t('appointmentSummary')}:
+
+📅 ${nuevaFecha}
+⏰ ${horaSeleccionada}
+👨‍⚕️ Dr. ${citaSeleccionada?.doctor_nombre}
+
+${t('confirmPostponement')}`;
+    
+    agregarMensaje(resumen);
+    setEstado('confirmar_posposicion');
+    setOpciones([
+      { id: 'si', texto: t('yes') },
+      { id: 'no', texto: t('no') }
+    ]);
+  };
+
+  const ejecutarCancelacion = async () => {
+    setLoading(true);
+    try {
+      await axiosInstance.current.post(`citas/${citaSeleccionada.id}/cancelar/`);
+      
+      agregarMensaje(t('appointmentCancelled'));
+      
+      setEstado('inicio');
+      setCitaSeleccionada(null);
+      setOpciones([
+        { id: 'agendar', texto: t('scheduleAppointment') },
+        { id: 'mis_citas', texto: t('myAppointments') },
+        { id: 'cancelar_cita', texto: t('cancelAppointmentOption') },
+        { id: 'posponer', texto: t('postponeAppointmentOption') },
+        { id: 'ayuda', texto: t('needHelp') }
+      ]);
+    } catch (error) {
+      console.error('Error cancelando cita:', error);
+      agregarMensaje(t('loadingError'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const ejecutarPosposicion = async () => {
+    setLoading(true);
+    try {
+      await axiosInstance.current.patch(`citas/${citaSeleccionada.id}/`, {
+        fecha: nuevaFecha,
+        hora: nuevaHora
+      });
+      
+      agregarMensaje(t('appointmentPostponed'));
+      agregarMensaje(`📅 ${nuevaFecha} a las ${nuevaHora}`);
+      
+      setEstado('inicio');
+      setCitaSeleccionada(null);
+      setNuevaFecha(null);
+      setNuevaHora(null);
+      setOpciones([
+        { id: 'agendar', texto: t('scheduleAppointment') },
+        { id: 'mis_citas', texto: t('myAppointments') },
+        { id: 'cancelar_cita', texto: t('cancelAppointmentOption') },
+        { id: 'posponer', texto: t('postponeAppointmentOption') },
+        { id: 'ayuda', texto: t('needHelp') }
+      ]);
+    } catch (error) {
+      console.error('Error posponiendo cita:', error);
+      agregarMensaje(t('loadingError'));
+    } finally {
+      setLoading(false);
     }
   };
 
