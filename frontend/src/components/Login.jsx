@@ -4,7 +4,10 @@ import axiosInstance from '../services/auth'
 import { useNavigate, Link } from 'react-router-dom'
 import { APP_NAME, APP_SLOGAN } from '../config/constants'
 import { useAuth } from '../context/AuthContext'
-import { useLanguage } from '../context/LanguageContext'  
+import { useLanguage } from '../context/LanguageContext'
+import PromocionalToggle from './PromocionalToggle'
+import ThemeToggle from './ThemeToggle'
+import LanguageToggle from './LanguageToggle'  
 
 function Login() {
   const { t } = useLanguage()
@@ -109,6 +112,11 @@ function Login() {
 
   return (
     <div style={styles.container} className="fade-in-up slide-in-bottom">
+      <div style={styles.headerBar}>
+        <PromocionalToggle />
+        <ThemeToggle />
+        <LanguageToggle />
+      </div>
       <div style={styles.card}>
         <div style={styles.logoContainer}>
           <h1 style={styles.title}>{APP_NAME}</h1>
@@ -214,6 +222,16 @@ function Login() {
 
 // Estilos 
 const styles = {
+  headerBar: {
+    position: 'fixed',
+    top: '20px',
+    right: '20px',
+    zIndex: 1000,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '15px',
+    alignItems: 'flex-end',
+  },
   container: {
     display: 'flex',
     justifyContent: 'center',

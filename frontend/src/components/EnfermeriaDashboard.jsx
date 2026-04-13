@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react'
 import axiosInstance from '../services/auth'
 import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext'
+import PromocionalToggle from './PromocionalToggle';
+import ThemeToggle from './ThemeToggle';
+import LanguageToggle from './LanguageToggle';
 import { 
   FaUserNurse, FaHeartbeat, FaThermometerHalf, FaSyringe, 
   FaBandAid, FaFlask, FaClipboardList, FaCheckCircle,
@@ -226,6 +229,11 @@ function EnfermeriaDashboard() {
 
   return (
     <div style={styles.container}>
+      <div style={styles.headerBar}>
+        <PromocionalToggle />
+        <ThemeToggle />
+        <LanguageToggle />
+      </div>
       {/* Header */}
       <div style={styles.header}>
         <div style={styles.headerLeft}>
@@ -644,6 +652,16 @@ function EnfermeriaDashboard() {
 
 // Estilos (se mantienen igual, solo añadimos un estilo nuevo para licenciaInfo)
 const styles = {
+  headerBar: {
+    position: 'fixed',
+    top: '20px',
+    right: '20px',
+    zIndex: 1000,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '15px',
+    alignItems: 'flex-end',
+  },
   container: {
     padding: '20px',
     maxWidth: '1200px',

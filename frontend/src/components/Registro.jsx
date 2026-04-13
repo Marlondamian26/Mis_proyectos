@@ -9,6 +9,9 @@ import {
 import { APP_NAME, APP_SLOGAN } from '../config/constants'
 import { useLanguage } from '../context/LanguageContext'
 import { useAuth } from '../context/AuthContext'
+import PromocionalToggle from './PromocionalToggle'
+import ThemeToggle from './ThemeToggle'
+import LanguageToggle from './LanguageToggle'
 
 function Registro() {
   const { t } = useLanguage()
@@ -274,6 +277,11 @@ function Registro() {
 
   return (
     <div style={styles.container} className="fade-in-scale slide-in-top">
+      <div style={styles.headerBar}>
+        <PromocionalToggle />
+        <ThemeToggle />
+        <LanguageToggle />
+      </div>
       <div style={styles.card}>
         {/* Logo y título */}
         <div style={styles.header}>
@@ -537,6 +545,16 @@ function Registro() {
 
 // Estilos
 const styles = {
+  headerBar: {
+    position: 'fixed',
+    top: '20px',
+    right: '20px',
+    zIndex: 1000,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '15px',
+    alignItems: 'flex-end',
+  },
   container: {
     display: 'flex',
     justifyContent: 'center',
