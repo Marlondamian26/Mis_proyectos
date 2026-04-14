@@ -1,11 +1,39 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FaStethoscope, FaHeart, FaMapMarkerAlt, FaArrowRight, FaWhatsapp } from 'react-icons/fa';
 import { useLanguage } from '../../context/LanguageContext';
 import { DOCTOR_NAME, DOCTOR_SPECIALTY, CLINIC_LOCATION, CLINIC_PHONE, PLATFORM_URL, REGISTRO_URL } from '../config/constants';
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
+
 function Hero() {
   const { language } = useLanguage();
+  const [heroImage, setHeroImage] = useState(null);
+  const [loadingImage, setLoadingImage] = useState(true);
+
+  useEffect(() => {
+    fetchHeroImage();
+  }, []);
+
+  const fetchHeroImage = async () => {
+    try {
+      setLoadingImage(true);
+      const response = await fetch(`${API_URL}/sitio-imagenes/hero/`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch hero image');
+      }
+      
+      const data = await response.json();
+      if (data && data.imagen) {
+        setHeroImage(data);
+      }
+    } catch (err) {
+      console.error('Error fetching hero image:', err);
+    } finally {
+      setLoadingImage(false);
+    }
+  };
 
   const handleWhatsApp = () => {
     window.open(`https://wa.me/${CLINIC_PHONE.replace(/\s/g, '')}`, '_blank');
@@ -74,21 +102,53 @@ function Hero() {
         </div>
         
         <div className="promo-hero-image">
-          <div className="promo-hero-card">
-            <div className="promo-hero-doctor">
-              <div className="promo-doctor-avatar">
-                <FaStethoscope />
-              </div>
-              <div className="promo-doctor-info">
-                <h3>{DOCTOR_NAME}</h3>
-                <p className="promo-doctor-specialty">{DOCTOR_SPECIALTY}</p>
-                <p className="promo-doctor-location">
-                  <FaMapMarkerAlt />
-                  {CLINIC_LOCATION}
-                </p>
+          {loadingImage ? (
+            <div className="promo-hero-card">
+              <div className="promo-hero-doctor">
+                <div className="promo-doctor-avatar">
+                  <FaStethoscope />
+                </div>
+                <div className="promo-doctor-info">
+                  <h3>{DOCTOR_NAME}</h3>
+                  <p className="promo-doctor-specialty">{DOCTOR_SPECIALTY}</p>
+                  <p className="promo-doctor-location">
+                    <FaMapMarkerAlt />
+                    {CLINIC_LOCATION}
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
+          ) : heroImage ? (
+            <div className="promo-hero-card promo-hero-card-image">
+              <img 
+                src={heroImage.imagen} 
+                alt={heroImage.titulo || 'Hero image'} 
+                className="promo-hero-img"
+              />
+              {heroImage.titulo && (
+                <div className="promo-hero-img-overlay">
+                  <h3>{heroImage.titulo}</h3>
+                  {heroImage.descripcion && <p>{heroImage.descripcion}</p>}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="promo-hero-card">
+              <div className="promo-hero-doctor">
+                <div className="promo-doctor-avatar">
+                  <FaStethoscope />
+                </div>
+                <div className="promo-doctor-info">
+                  <h3>{DOCTOR_NAME}</h3>
+                  <p className="promo-doctor-specialty">{DOCTOR_SPECIALTY}</p>
+                  <p className="promo-doctor-location">
+                    <FaMapMarkerAlt />
+                    {CLINIC_LOCATION}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </section>

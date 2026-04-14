@@ -10,7 +10,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import update_session_auth_hash  # <-- NUEVO IMPORT
-from .models import Usuario, Doctor, Enfermera, Paciente, Especialidad, Horario, Cita
+from .models import Usuario, Doctor, Enfermera, Paciente, Especialidad, Horario, Cita, SitioImagen
 
 # custom token endpoint to allow login via email/telefono or username
 from .serializers import CustomTokenObtainPairSerializer
@@ -20,7 +20,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 from .serializers import (
     UsuarioSerializer, RegistroUsuarioSerializer, DoctorSerializer,
     EnfermeraSerializer, PacienteSerializer, EspecialidadSerializer,
-    HorarioSerializer, CitaSerializer
+    HorarioSerializer, CitaSerializer, SitioImagenSerializer
 )
 from rest_framework.decorators import action
 
@@ -479,3 +479,40 @@ class CitaViewSet(viewsets.ModelViewSet):
         
         serializer = self.get_serializer(cita)
         return Response(serializer.data)
+
+
+class SitioImagenViewSet(viewsets.ModelViewSet):
+    """ViewSet para gestionar imágenes del sitio promocional"""
+    queryset = SitioImagen.objects.all()
+    serializer_class = SitioImagenSerializer
+    
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return [AllowAny()]
+        return [IsAuthenticated()]
+    
+    def get_queryset(self):
+        queryset = SitioImagen.objects.all()
+        tipo = self.request.query_params.get('tipo')
+        if tipo:
+            queryset = queryset.filter(tipo=tipo)
+        activo = self.request.query_params.get('activo')
+        if activo is not None:
+            queryset = queryset.filter(activo=activo.lower() == 'true')
+        return queryset
+    
+    @action(detail=False, methods=['get'])
+    def carousel(self, request):
+        """Obtener imágenes del carrusel"""
+        imagenes = self.get_queryset().filter(tipo='carousel', activo=True).order_by('orden', '-fecha_creacion')
+        serializer = self.get_serializer(imagenes, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'])
+    def hero(self, request):
+        """Obtener imagen hero"""
+        imagen = self.get_queryset().filter(tipo='hero', activo=True).first()
+        if imagen:
+            serializer = self.get_serializer(imagen)
+            return Response(serializer.data)
+        return Response(None)

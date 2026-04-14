@@ -11,6 +11,7 @@ router.register(r'pacientes', views.PacienteViewSet)
 router.register(r'especialidades', views.EspecialidadViewSet)
 router.register(r'horarios', views.HorarioViewSet)
 router.register(r'citas', views.CitaViewSet)
+router.register(r'sitio-imagenes', views.SitioImagenViewSet)
 
 urlpatterns = [
     # Rutas del router (genera automáticamente /api/doctores/, /api/doctores/1/, etc.)

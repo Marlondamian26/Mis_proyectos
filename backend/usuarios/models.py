@@ -346,5 +346,32 @@ class Cita(models.Model):
         return f"{self.paciente} con {self.doctor} - {self.fecha} {self.hora}"
 
 
+class SitioImagen(models.Model):
+    """
+    Imágenes para el sitio promocional (carrusel, hero, etc.)
+    """
+    TIPO_IMAGEN = (
+        ('hero', 'Imagen Hero (Inicio)'),
+        ('carousel', ' imagen del Carrusel'),
+        ('galeria', 'Galería'),
+    )
+    
+    titulo = models.CharField(max_length=100, blank=True, verbose_name='Título')
+    descripcion = models.TextField(blank=True, verbose_name='Descripción')
+    imagen = models.ImageField(upload_to='sitio/', verbose_name='Archivo de imagen')
+    tipo = models.CharField(max_length=20, choices=TIPO_IMAGEN, default='carousel')
+    orden = models.IntegerField(default=0, verbose_name='Orden de visualización')
+    activo = models.BooleanField(default=True, verbose_name='Activo')
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['tipo', 'orden', '-fecha_creacion']
+        verbose_name = 'Imagen del Sitio'
+        verbose_name_plural = 'Imágenes del Sitio'
+    
+    def __str__(self):
+        return f"{self.tipo} - {self.titulo or self.imagen.name}"
+
+
 
 

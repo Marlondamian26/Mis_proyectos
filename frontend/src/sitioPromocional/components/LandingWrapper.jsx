@@ -5,6 +5,7 @@ import { FaSun, FaMoon, FaAdjust } from 'react-icons/fa';
 import '../styles/promocional.css';
 
 import Navbar from './Navbar';
+import Carousel from './Carousel';
 import Hero from './Hero';
 import Servicios from './Servicios';
 import SobreNosotros from './SobreNosotros';
@@ -149,6 +150,8 @@ function LandingWrapper() {
       <Navbar />
       
       <main style={{ marginTop: '80px' }}>
+        <Carousel />
+        
         <section id="inicio">
           <Hero />
         </section>

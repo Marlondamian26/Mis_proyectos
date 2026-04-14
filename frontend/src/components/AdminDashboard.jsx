@@ -11,7 +11,7 @@ import {
   FaEdit, FaTrash, FaEye, FaCheck, FaTimes, FaSpinner,
   FaExclamationTriangle, FaSync, FaSave, FaBan,
   FaEnvelope, FaPhone, FaIdCard, FaVenusMars, FaCalendarCheck,
-  FaUserInjured
+  FaUserInjured, FaImage, FaUpload
 } from 'react-icons/fa'
 
 function AdminDashboard() {
@@ -25,6 +25,7 @@ function AdminDashboard() {
   const [citas, setCitas] = useState([])
   const [especialidades, setEspecialidades] = useState([])
   const [horarios, setHorarios] = useState([])
+  const [imagenesSitio, setImagenesSitio] = useState([])
   const [loading, setLoading] = useState(true)
   const [loadingError, setLoadingError] = useState(null)
   const [saving, setSaving] = useState(false)
@@ -56,7 +57,7 @@ function AdminDashboard() {
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search)
     const tabFromUrl = searchParams.get('tab')
-    if (tabFromUrl && ['dashboard', 'usuarios', 'doctores', 'enfermeras', 'pacientes', 'citas', 'especialidades', 'horarios'].includes(tabFromUrl)) {
+    if (tabFromUrl && ['dashboard', 'usuarios', 'doctores', 'enfermeras', 'pacientes', 'citas', 'especialidades', 'horarios', 'sitio'].includes(tabFromUrl)) {
       console.log('🔄 Cambiando tab desde URL:', tabFromUrl)
       setActiveTab(tabFromUrl)
     }
@@ -108,7 +109,8 @@ function AdminDashboard() {
       pacientesRes,
       citasRes,
       especialidadesRes,
-      horariosRes
+      horariosRes,
+      imagenesSitioRes
     ] = await Promise.allSettled([
       axiosInstance.get('usuarios/?limit=1000'),
       axiosInstance.get('doctores/?limit=1000'),
@@ -116,7 +118,8 @@ function AdminDashboard() {
       axiosInstance.get('pacientes/?limit=1000'),
       axiosInstance.get('citas/?limit=1000'),
       axiosInstance.get('especialidades/?limit=1000'),
-      axiosInstance.get('horarios/?limit=1000')
+      axiosInstance.get('horarios/?limit=1000'),
+      axiosInstance.get('sitio-imagenes/?limit=1000')
     ])
 
     // Extraer datos de cada respuesta
@@ -127,6 +130,7 @@ function AdminDashboard() {
     let citasData = []
     let especialidadesData = []
     let horariosData = []
+    let imagenesSitioData = []
 
     // Total de usuarios por tipo (desde la paginación)
     let totalUsuariosAPI = 0
@@ -187,6 +191,13 @@ function AdminDashboard() {
       console.log('⏰ Horarios cargados:', horariosData.length)
     }
 
+    // ✅ Imágenes del Sitio
+    if (imagenesSitioRes.status === 'fulfilled') {
+      const responseData = imagenesSitioRes.value.data
+      imagenesSitioData = responseData.results || responseData || []
+      console.log('🖼️ Imágenes del sitio cargadas:', imagenesSitioData.length)
+    }
+
     // Asignar datos al estado
     setUsuarios(usuariosData)
     setTodosLosUsuarios(usuariosData)
@@ -196,6 +207,7 @@ function AdminDashboard() {
     setCitas(citasData)
     setEspecialidades(especialidadesData)
     setHorarios(horariosData)
+    setImagenesSitio(imagenesSitioData)
 
     // Crear lista combinada de todos los usuarios para la sección de gestión de usuarios
     // Filtrar duplicados: los doctores/enfermeras/pacientes también tienen entrada en usuarios
@@ -393,6 +405,16 @@ function AdminDashboard() {
         hora_fin: '17:00',
         activo: true
       })
+    } else if (tipo === 'imagenes-sitio') {
+      setFormData({
+        ...baseForm,
+        titulo: '',
+        descripcion: '',
+        imagen: null,
+        tipo: 'carousel',
+        orden: 0,
+        activo: true
+      })
     } else if (tipo === 'citas') {
       setFormData({
         ...baseForm,
@@ -449,6 +471,18 @@ function AdminDashboard() {
       const nombrePaciente = pacienteInfo ? `${pacienteInfo.first_name || ''} ${pacienteInfo.last_name || ''}`.trim() : ''
       setPatientSearchQuery(nombrePaciente)
       setFormData({ ...item, tipo })
+    } else if (tipo === 'imagenes-sitio') {
+      setFormData({
+        ...item,
+        tipo: 'imagenes-sitio',
+        imagen: item.imagen,
+        imagenFile: null,
+        titulo: item.titulo || '',
+        descripcion: item.descripcion || '',
+        tipo_imagen: item.tipo || 'carousel',
+        orden: item.orden || 0,
+        activo: item.activo
+      })
     } else {
       setFormData({ ...item, tipo })
     }
@@ -499,6 +533,27 @@ function AdminDashboard() {
     } catch (error) {
       console.error('Error eliminando:', error)
       mostrarMensaje(error.response?.data?.message || t('errorDeleting', { type: tipo }), 'error')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  // Alternar estado activo
+  const handleToggleActive = async (item, tipo) => {
+    try {
+      setSaving(true)
+      const newActivo = !item.activo
+      if (tipo === 'imagenes-sitio') {
+        await axiosInstance.patch(`sitio-imagenes/${item.id}/`, { activo: newActivo })
+        mostrarMensaje(newActivo ? t('imageActivated') : t('imageDeactivated'), 'success')
+      } else {
+        await axiosInstance.patch(`${tipo}/${item.id}/`, { activo: newActivo })
+        mostrarMensaje(newActivo ? t('itemActivated') : t('itemDeactivated'), 'success')
+      }
+      await loadAllData()
+    } catch (error) {
+      console.error('Error toggling active:', error)
+      mostrarMensaje(t('errorTogglingActive'), 'error')
     } finally {
       setSaving(false)
     }
@@ -760,6 +815,22 @@ function AdminDashboard() {
           mostrarMensaje('✅ ' + t('itemCreated', { type: t('patient') }), 'success')
         }
       }
+      else if (tipo === 'imagenes-sitio') {
+        const formDataObj = new FormData()
+        formDataObj.append('titulo', formData.titulo || '')
+        formDataObj.append('descripcion', formData.descripcion || '')
+        formDataObj.append('tipo', formData.tipo_imagen || 'carousel')
+        formDataObj.append('orden', formData.orden || 0)
+        formDataObj.append('activo', formData.activo)
+        if (formData.imagenFile) {
+          formDataObj.append('imagen', formData.imagenFile)
+        }
+        const response = await axiosInstance.post('sitio-imagenes/', formDataObj, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        })
+        console.log('✅ Imagen creada:', response.data)
+        mostrarMensaje('✅ ' + t('imageUploaded'), 'success')
+      }
       else {
         // ✅ ESTA ES LA PARTE QUE SE EJECUTA PARA especialidades, usuarios, citas, horarios
         // ✅ Usa formData.tipo que DEBE ser 'especialidades', 'usuarios', 'citas', 'horarios'
@@ -877,6 +948,22 @@ function AdminDashboard() {
         const response = await axiosInstance.patch(`${tipo}/${selectedItem.id}/`, pacienteData)
         console.log('✅ Paciente actualizado:', response.data)
         mostrarMensaje('✅ ' + t('itemUpdated', { type: t('patient') }), 'success')
+      }
+      else if (tipo === 'imagenes-sitio') {
+        const formDataObj = new FormData()
+        formDataObj.append('titulo', formData.titulo || '')
+        formDataObj.append('descripcion', formData.descripcion || '')
+        formDataObj.append('tipo', formData.tipo_imagen || 'carousel')
+        formDataObj.append('orden', formData.orden || 0)
+        formDataObj.append('activo', formData.activo)
+        if (formData.imagenFile) {
+          formDataObj.append('imagen', formData.imagenFile)
+        }
+        const response = await axiosInstance.patch(`sitio-imagenes/${selectedItem.id}/`, formDataObj, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        })
+        console.log('✅ Imagen actualizada:', response.data)
+        mostrarMensaje('✅ ' + t('imageUpdated'), 'success')
       }
       else {
         const response = await axiosInstance.patch(`${tipo}/${selectedItem.id}/`, formData)
@@ -1108,6 +1195,12 @@ function AdminDashboard() {
           onClick={() => setActiveTab('horarios')}
         >
           <FaClock /> {t('schedules')} ({horarios.length})
+        </button>
+        <button
+          style={{...styles.tab, ...(activeTab === 'sitio' && styles.activeTab)}}
+          onClick={() => setActiveTab('sitio')}
+        >
+          <FaImage /> {t('siteImages')} ({imagenesSitio.length})
         </button>
       </div>
 
@@ -1563,6 +1656,82 @@ function AdminDashboard() {
                     })}
                   </tbody>
                 </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Tab: Sitio - Gestión de Imágenes */}
+        {activeTab === 'sitio' && (
+          <div>
+            <div style={styles.tableHeader}>
+              <h2 style={styles.sectionTitle}>{t('siteImageManagement')}</h2>
+              <button onClick={() => handleCreate('imagenes-sitio')} style={styles.createButton}>
+                <FaPlus /> {t('uploadImage')}
+              </button>
+            </div>
+            {imagenesSitio.length === 0 ? (
+              <div style={styles.emptyState}>
+                <FaImage style={{ fontSize: '48px', marginBottom: '16px', opacity: 0.3 }} />
+                <p>{t('noSiteImages')}</p>
+                <button onClick={() => handleCreate('imagenes-sitio')} style={styles.createButton}>
+                  <FaPlus /> {t('uploadFirstImage')}
+                </button>
+              </div>
+            ) : (
+              <div style={styles.imagesGrid}>
+                {imagenesSitio.map(imagen => (
+                  <div key={imagen.id} style={styles.imageCard}>
+                    <div style={styles.imagePreview}>
+                      {imagen.imagen ? (
+                        <img 
+                          src={imagen.imagen} 
+                          alt={imagen.titulo || 'Imagen'} 
+                          style={styles.imageThumb}
+                        />
+                      ) : (
+                        <FaImage style={{ fontSize: '48px', opacity: 0.3 }} />
+                      )}
+                    </div>
+                    <div style={styles.imageInfo}>
+                      <strong>{imagen.titulo || t('untitled')}</strong>
+                      <span style={styles.imageType}>
+                        {imagen.tipo === 'hero' && t('typeHero')}
+                        {imagen.tipo === 'carousel' && t('typeCarousel')}
+                        {imagen.tipo === 'galeria' && t('typeGallery')}
+                      </span>
+                      <span style={{ 
+                        ...styles.imageStatus,
+                        color: imagen.activo ? '#22c55e' : '#ef4444'
+                      }}>
+                        {imagen.activo ? t('active') : t('inactive')}
+                      </span>
+                    </div>
+                    <div style={styles.imageActions}>
+                      <button 
+                        onClick={() => handleEdit(imagen, 'imagenes-sitio')} 
+                        style={styles.actionButton}
+                        title={t('edit')}
+                      >
+                        <FaEdit />
+                      </button>
+                      <button 
+                        onClick={() => handleToggleActive(imagen, 'imagenes-sitio')}
+                        style={{...styles.actionButton, color: imagen.activo ? '#ef4444' : '#22c55e'}}
+                        title={imagen.activo ? t('deactivate') : t('activate')}
+                      >
+                        {imagen.activo ? <FaTimes /> : <FaCheck />}
+                      </button>
+                      <button 
+                        onClick={() => handleDelete('sitio-imagenes', imagen.id)}
+                        style={{...styles.actionButton, color: '#ef4444'}}
+                        title={t('delete')}
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
@@ -2384,6 +2553,102 @@ function AdminDashboard() {
                 </>
               )}
 
+              {/* Modal para IMÁGENES DEL SITIO */}
+              {formData.tipo === 'imagenes-sitio' && (
+                <>
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>{t('imageTitle')} (opcional)</label>
+                    <input
+                      type='text'
+                      name='titulo'
+                      value={formData.titulo || ''}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={styles.input}
+                      placeholder={t('imageTitlePlaceholder')}
+                    />
+                  </div>
+                  
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>{t('imageDescription')} (opcional)</label>
+                    <textarea
+                      name='descripcion'
+                      value={formData.descripcion || ''}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={{...styles.input, minHeight: '80px'}}
+                      placeholder={t('imageDescriptionPlaceholder')}
+                    />
+                  </div>
+                  
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>{t('imageType')} *</label>
+                    <select
+                      name='tipo_imagen'
+                      value={formData.tipo_imagen || 'carousel'}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={styles.select}
+                    >
+                      <option value='hero'>{t('typeHero')}</option>
+                      <option value='carousel'>{t('typeCarousel')}</option>
+                      <option value='galeria'>{t('typeGallery')}</option>
+                    </select>
+                  </div>
+                  
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>{t('displayOrder')}</label>
+                    <input
+                      type='number'
+                      name='orden'
+                      value={formData.orden || 0}
+                      onChange={handleInputChange}
+                      disabled={modalMode === 'view'}
+                      style={styles.input}
+                      min='0'
+                    />
+                  </div>
+                  
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>{t('imageFile')} {modalMode === 'create' && '*'}</label>
+                    <input
+                      type='file'
+                      accept='image/*'
+                      onChange={(e) => {
+                        const file = e.target.files[0]
+                        if (file) {
+                          setFormData({ ...formData, imagenFile: file })
+                        }
+                      }}
+                      disabled={modalMode === 'view'}
+                      style={styles.input}
+                    />
+                    {formData.imagen && (
+                      <div style={styles.imagePreview}>
+                        <img 
+                          src={formData.imagen} 
+                          alt={formData.titulo || 'Imagen actual'} 
+                          style={styles.previewImage}
+                        />
+                        <p style={styles.currentImageLabel}>{t('currentImage')}</p>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div style={styles.formGroup}>
+                    <label style={styles.checkboxLabel}>
+                      <input
+                        type='checkbox'
+                        name='activo'
+                        checked={formData.activo || false}
+                        onChange={handleInputChange}
+                        disabled={modalMode === 'view'}
+                      /> {t('activeImage')}
+                    </label>
+                  </div>
+                </>
+              )}
+
               {modalMode !== 'view' && (
                 <div style={styles.modalButtons}>
                   <button 
@@ -2928,6 +3193,74 @@ const styles = {
   },
   spinner: {
     animation: 'spin 1s linear infinite'
+  },
+  imagesGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+    gap: '20px'
+  },
+  imageCard: {
+    backgroundColor: 'var(--bg-tertiary)',
+    padding: '15px',
+    borderRadius: '10px',
+    border: '1px solid var(--border-color)',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '10px'
+  },
+  imagePreview: {
+    width: '100%',
+    aspectRatio: '16/9',
+    backgroundColor: 'var(--bg-primary)',
+    borderRadius: '8px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden'
+  },
+  imageThumb: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover'
+  },
+  previewImage: {
+    maxWidth: '100%',
+    maxHeight: '200px',
+    objectFit: 'contain',
+    borderRadius: '4px'
+  },
+  imageInfo: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '4px'
+  },
+  imageType: {
+    fontSize: '12px',
+    color: 'var(--color-admin)',
+    fontWeight: '500'
+  },
+  imageStatus: {
+    fontSize: '12px',
+    fontWeight: '500'
+  },
+  imageActions: {
+    display: 'flex',
+    gap: '8px',
+    justifyContent: 'flex-end'
+  },
+  actionButton: {
+    background: 'transparent',
+    border: 'none',
+    cursor: 'pointer',
+    padding: '8px',
+    borderRadius: '4px',
+    color: 'var(--text-primary)',
+    transition: 'all 0.2s'
+  },
+  currentImageLabel: {
+    fontSize: '12px',
+    color: 'var(--text-secondary)',
+    marginTop: '8px'
   }
 }
 
