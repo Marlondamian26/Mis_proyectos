@@ -45,6 +45,9 @@ function AdminDashboard() {
   const [selectedItem, setSelectedItem] = useState(null)
   const [formData, setFormData] = useState({})
   const [mensaje, setMensaje] = useState({ texto: '', tipo: '' })
+  const [patientSearchQuery, setPatientSearchQuery] = useState('')
+  const [patientSuggestions, setPatientSuggestions] = useState([])
+  const [showPatientSuggestions, setShowPatientSuggestions] = useState(false)
 
   const navigate = useNavigate()
   const location = useLocation()
@@ -402,6 +405,7 @@ function AdminDashboard() {
       })
     }
     
+    setPatientSearchQuery('')
     setShowModal(true)
   }
 
@@ -440,6 +444,11 @@ function AdminDashboard() {
         telefono_emergencia: item.telefono_emergencia || '',
         fecha_nacimiento: item.usuario?.fecha_nacimiento || ''
       })
+    } else if (tipo === 'citas') {
+      const pacienteInfo = usuarios.find(u => u.id === item.paciente && u.rol === 'patient')
+      const nombrePaciente = pacienteInfo ? `${pacienteInfo.first_name || ''} ${pacienteInfo.last_name || ''}`.trim() : ''
+      setPatientSearchQuery(nombrePaciente)
+      setFormData({ ...item, tipo })
     } else {
       setFormData({ ...item, tipo })
     }
@@ -503,6 +512,47 @@ function AdminDashboard() {
       [name]: type === 'checkbox' ? checked : value
     }))
     setErrorBackend('')
+  }
+
+  // Manejar búsqueda de paciente en autocomplete
+  const handlePatientSearchChange = (e) => {
+    const query = e.target.value
+    setPatientSearchQuery(query)
+    
+    if (formData.tipo === 'citas') {
+      setFormData(prev => ({ ...prev, paciente: '' }))
+    }
+    
+    if (query.length > 0) {
+      const pacientesFiltrados = usuarios
+        .filter(u => u.rol === 'patient')
+        .filter(u => {
+          const nombreCompleto = `${u.first_name || ''} ${u.last_name || ''} ${u.username || ''}`.toLowerCase()
+          return nombreCompleto.includes(query.toLowerCase())
+        })
+        .slice(0, 10)
+      setPatientSuggestions(pacientesFiltrados)
+      setShowPatientSuggestions(true)
+    } else {
+      setPatientSuggestions([])
+      setShowPatientSuggestions(false)
+    }
+  }
+
+  // Seleccionar paciente de las sugerencias
+  const selectPatient = (paciente) => {
+    const nombreCompleto = `${paciente.first_name || ''} ${paciente.last_name || ''}`.trim()
+    setPatientSearchQuery(nombreCompleto)
+    setFormData(prev => ({ ...prev, paciente: paciente.id }))
+    setShowPatientSuggestions(false)
+    setPatientSuggestions([])
+  }
+
+  // Cerrar sugerencias al hacer clic fuera
+  const closePatientSuggestions = () => {
+    setTimeout(() => {
+      setShowPatientSuggestions(false)
+    }, 200)
   }
 
   // Guardar (crear o actualizar)
@@ -2060,21 +2110,51 @@ function AdminDashboard() {
                 <>
                   <div style={styles.formGroup}>
                     <label style={styles.label}>{t('patient')} *</label>
-                    <select
-                      name="paciente"
-                      value={formData.paciente || ''}
-                      onChange={handleInputChange}
-                      disabled={modalMode === 'view'}
-                      style={styles.select}
-                      required
-                    >
-                      <option value="">{t('selectPatient')}</option>
-                      {usuarios.filter(u => u.rol === 'patient').map(u => (
-                        <option key={u.id} value={u.id}>
-                          {u.first_name} {u.last_name} - {u.username}
-                        </option>
-                      ))}
-                    </select>
+                    <div style={styles.autocompleteContainer}>
+                      <input
+                        type="text"
+                        name="pacienteSearch"
+                        value={patientSearchQuery}
+                        onChange={handlePatientSearchChange}
+                        onFocus={() => {
+                          if (patientSearchQuery.length > 0) {
+                            setShowPatientSuggestions(true)
+                          }
+                        }}
+                        onBlur={closePatientSuggestions}
+                        disabled={modalMode === 'view'}
+                        style={styles.input}
+                        placeholder={t('typeToSearchPatient')}
+                        autoComplete="off"
+                      />
+                      {showPatientSuggestions && (
+                        <div style={styles.suggestionsList}>
+                          {patientSuggestions.length > 0 ? (
+                            patientSuggestions.map(paciente => (
+                              <div
+                                key={paciente.id}
+                                style={styles.suggestionItem}
+                                onClick={() => selectPatient(paciente)}
+                              >
+                                <span style={styles.suggestionName}>
+                                  {paciente.first_name} {paciente.last_name}
+                                </span>
+                                <span style={styles.suggestionUsername}>
+                                  @{paciente.username}
+                                </span>
+                              </div>
+                            ))
+                          ) : (
+                            <div style={styles.noResults}>
+                              {t('noPatientsFound')}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    {!formData.paciente && modalMode !== 'view' && (
+                      <span style={styles.fieldHint}>{t('selectPatient')}</span>
+                    )}
                   </div>
                   
                   <div style={styles.formGroup}>
@@ -2737,6 +2817,49 @@ const styles = {
     fontSize: '14px',
     backgroundColor: 'var(--bg-primary)',
     color: 'var(--text-primary)'
+  },
+  autocompleteContainer: {
+    position: 'relative'
+  },
+  suggestionsList: {
+    position: 'absolute',
+    top: '100%',
+    left: 0,
+    right: 0,
+    backgroundColor: 'var(--bg-secondary)',
+    border: '1px solid var(--border-color)',
+    borderRadius: '6px',
+    maxHeight: '200px',
+    overflowY: 'auto',
+    zIndex: 1000,
+    boxShadow: 'var(--box-shadow)'
+  },
+  suggestionItem: {
+    padding: '10px',
+    cursor: 'pointer',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderBottom: '1px solid var(--border-color)',
+    transition: 'background-color 0.2s'
+  },
+  suggestionName: {
+    fontWeight: '500',
+    color: 'var(--text-primary)'
+  },
+  suggestionUsername: {
+    color: 'var(--text-muted)',
+    fontSize: '12px'
+  },
+  noResults: {
+    padding: '10px',
+    textAlign: 'center',
+    color: 'var(--text-muted)'
+  },
+  fieldHint: {
+    fontSize: '11px',
+    color: 'var(--text-muted)',
+    marginTop: '4px'
   },
   hint: {
     fontSize: '12px',
