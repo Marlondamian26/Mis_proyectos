@@ -1,20 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import axios from 'axios';
+import axiosInstance from '../services/auth';
 import './ChatIA.css';
 import { useLanguage } from '../context/LanguageContext';
 
-const getApiUrl = () => {
-  if (typeof import.meta !== 'undefined' && import.meta.env) {
-    const envUrl = import.meta.env.VITE_API_URL;
-    if (envUrl) return envUrl;
-  }
-  const port = window.location.port ? `:${window.location.port}` : '';
-  return `${window.location.protocol}//${window.location.hostname}${port}/api`;
-};
-
-const API_URL = getApiUrl();
-
-const ChatIA = ({ token, onClose }) => {
+const ChatIA = ({ onClose }) => {
   const { t, language } = useLanguage();
   const chatEndRef = useRef(null);
   
@@ -34,14 +23,6 @@ const ChatIA = ({ token, onClose }) => {
   const [doctores, setDoctores] = useState([]);
   const [horariosDisponibles, setHorariosDisponibles] = useState([]);
   const messageIdRef = useRef(0);
-  
-  const axiosInstance = useRef(axios.create({
-    baseURL: API_URL,
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    }
-  }));
 
   const inicializar = useCallback(async (resetChat = false) => {
     if (resetChat) {
@@ -52,11 +33,11 @@ const ChatIA = ({ token, onClose }) => {
     }
     setLoading(true);
     try {
-      const espResponse = await axiosInstance.current.get('especialidades-publicas/');
+      const espResponse = await axiosInstance.get('especialidades-publicas/');
       const espData = Array.isArray(espResponse.data) ? espResponse.data : (espResponse.data.results || []);
       setEspecialidades(espData);
       
-      const docResponse = await axiosInstance.current.get('doctores-publicos/');
+      const docResponse = await axiosInstance.get('doctores-publicos/');
       const docData = Array.isArray(docResponse.data) ? docResponse.data : (docResponse.data.results || []);
       setDoctores(docData);
       
@@ -219,7 +200,7 @@ const ChatIA = ({ token, onClose }) => {
         case 'mis_citas':
           setLoading(true);
           try {
-            const misCitasResponse = await axiosInstance.current.get('mis-citas/');
+            const misCitasResponse = await axiosInstance.get('mis-citas/');
             const misCitas = Array.isArray(misCitasResponse.data) ? misCitasResponse.data : (misCitasResponse.data.results || []);
             
             if (misCitas.length === 0) {
@@ -349,9 +330,9 @@ const ChatIA = ({ token, onClose }) => {
   const cargarHorarios = async (doctorId, fecha) => {
     setLoading(true);
     try {
-      const response = await axiosInstance.current.get(`horarios/disponibles/?doctor=${doctorId}&fecha=${fecha}`);
+      const response = await axiosInstance.get(`horarios/disponibles/?doctor=${doctorId}&fecha=${fecha}`);
       
-      const citasResponse = await axiosInstance.current.get('citas/', {
+      const citasResponse = await axiosInstance.get('citas/', {
         params: { doctor: doctorId, fecha }
       });
       const citasOcupadas = Array.isArray(citasResponse.data) ? citasResponse.data : (citasResponse.data.results || []);
@@ -427,7 +408,7 @@ ${t('confirmAppointment')}`;
   const crearCita = async () => {
     setLoading(true);
     try {
-      await axiosInstance.current.post('citas/', {
+      await axiosInstance.post('citas/', {
         doctor: datos.doctor.id,
         fecha: datos.fecha,
         hora: datos.hora,
@@ -473,7 +454,7 @@ ${t('confirmAppointment')}`;
   const mostrarCitasParaAccion = async (accion) => {
     setLoading(true);
     try {
-      const response = await axiosInstance.current.get('mis-citas/');
+      const response = await axiosInstance.get('mis-citas/');
       const misCitas = Array.isArray(response.data) ? response.data : (response.data.results || []);
       const citasPendentes = misCitas.filter(c => c.estado === 'pendiente' || c.estado === 'confirmada');
       
@@ -551,7 +532,7 @@ setOpciones([
   const cargarHorariosNuevos = async (doctorId, fecha) => {
     setLoading(true);
     try {
-      const citasResponse = await axiosInstance.current.get('citas/', {
+      const citasResponse = await axiosInstance.get('citas/', {
         params: { doctor: doctorId, fecha }
       });
       const citasOcupadas = Array.isArray(citasResponse.data) ? citasResponse.data : (citasResponse.data.results || []);
@@ -628,7 +609,7 @@ ${t('confirmPostponement')}`;
   const ejecutarCancelacion = async () => {
     setLoading(true);
     try {
-      await axiosInstance.current.post(`citas/${citaSeleccionada.id}/cancelar/`);
+      await axiosInstance.post(`citas/${citaSeleccionada.id}/cancelar/`);
       
       agregarMensaje(t('appointmentCancelled'));
       
@@ -652,7 +633,7 @@ ${t('confirmPostponement')}`;
   const ejecutarPosposicion = async () => {
     setLoading(true);
     try {
-      await axiosInstance.current.patch(`citas/${citaSeleccionada.id}/`, {
+      await axiosInstance.patch(`citas/${citaSeleccionada.id}/`, {
         fecha: nuevaFecha,
         hora: nuevaHora
       });

@@ -460,7 +460,6 @@ function Dashboard() {
 
           {mostrarChatIA && (
             <ChatIA
-              token={getToken()}
               onClose={() => setMostrarChatIA(false)}
             />
           )}
