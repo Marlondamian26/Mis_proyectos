@@ -2,9 +2,6 @@ import React, { useEffect, useState } from 'react'
 import axiosInstance from '../services/auth'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext'
-import PromocionalToggle from './PromocionalToggle';
-import ThemeToggle from './ThemeToggle';
-import LanguageToggle from './LanguageToggle';
 import { 
   FaUsers, FaUserMd, FaUserNurse, FaCalendarAlt, 
   FaChartBar, FaStethoscope, FaClock, FaPlus, 
@@ -411,7 +408,9 @@ function AdminDashboard() {
         titulo: '',
         descripcion: '',
         imagen: null,
-        tipo: 'carousel',
+        imagenFile: null,
+        imagenPreview: null,
+        tipo_imagen: 'carousel',
         orden: 0,
         activo: true
       })
@@ -477,6 +476,7 @@ function AdminDashboard() {
         tipo: 'imagenes-sitio',
         imagen: item.imagen,
         imagenFile: null,
+        imagenPreview: null,
         titulo: item.titulo || '',
         descripcion: item.descripcion || '',
         tipo_imagen: item.tipo || 'carousel',
@@ -816,6 +816,14 @@ function AdminDashboard() {
         }
       }
       else if (tipo === 'imagenes-sitio') {
+        // Validar que se haya seleccionado un archivo para crear nueva imagen
+        if (modalMode === 'create' && !formData.imagenFile) {
+          setErrorBackend('Por favor selecciona un archivo de imagen')
+          mostrarMensaje('Por favor selecciona un archivo de imagen', 'error')
+          setSaving(false)
+          return
+        }
+        
         const formDataObj = new FormData()
         formDataObj.append('titulo', formData.titulo || '')
         formDataObj.append('descripcion', formData.descripcion || '')
@@ -1001,11 +1009,19 @@ function AdminDashboard() {
     }
   } finally {
     setSaving(false)
+    // Limpiar object URLs después del envío (éxito o error)
+    if (formData.imagenPreview) {
+      URL.revokeObjectURL(formData.imagenPreview)
+    }
   }
 }
 
   // Cerrar modal
   const handleCloseModal = () => {
+    // Limpiar object URLs para evitar memory leaks
+    if (formData.imagenPreview) {
+      URL.revokeObjectURL(formData.imagenPreview)
+    }
     setShowModal(false)
     setSelectedItem(null)
     setFormData({})
@@ -1079,11 +1095,6 @@ function AdminDashboard() {
 
   return (
     <div style={styles.container}>
-      <div style={styles.headerBar}>
-        <PromocionalToggle />
-        <ThemeToggle />
-        <LanguageToggle />
-      </div>
       {/* Header */}
       <div style={styles.header}>
         <div style={styles.headerLeft}>
@@ -2612,18 +2623,33 @@ function AdminDashboard() {
                   <div style={styles.formGroup}>
                     <label style={styles.label}>{t('imageFile')} {modalMode === 'create' && '*'}</label>
                     <input
+                      key={`file-input-${modalMode}-${showModal}`}
                       type='file'
                       accept='image/*'
                       onChange={(e) => {
                         const file = e.target.files[0]
                         if (file) {
-                          setFormData({ ...formData, imagenFile: file })
+                          // Crear preview URL para el archivo seleccionado
+                          const previewUrl = URL.createObjectURL(file)
+                          setFormData({ 
+                            ...formData, 
+                            imagenFile: file,
+                            imagenPreview: previewUrl
+                          })
+                        } else {
+                          // Limpiar preview si no hay archivo
+                          setFormData({ 
+                            ...formData, 
+                            imagenFile: null,
+                            imagenPreview: null
+                          })
                         }
                       }}
                       disabled={modalMode === 'view'}
-                      style={styles.input}
+                      style={styles.fileInput}
                     />
-                    {formData.imagen && (
+                    {/* Preview de imagen existente */}
+                    {formData.imagen && !formData.imagenFile && (
                       <div style={styles.imagePreview}>
                         <img 
                           src={formData.imagen} 
@@ -2631,6 +2657,17 @@ function AdminDashboard() {
                           style={styles.previewImage}
                         />
                         <p style={styles.currentImageLabel}>{t('currentImage')}</p>
+                      </div>
+                    )}
+                    {/* Preview de archivo nuevo seleccionado */}
+                    {formData.imagenPreview && (
+                      <div style={styles.imagePreview}>
+                        <img 
+                          src={formData.imagenPreview} 
+                          alt={formData.titulo || 'Nueva imagen'} 
+                          style={styles.previewImage}
+                        />
+                        <p style={styles.currentImageLabel}>{t('newImageSelected')}</p>
                       </div>
                     )}
                   </div>
@@ -2689,16 +2726,6 @@ function AdminDashboard() {
 
 // ===== ESTILOS =====
 const styles = {
-  headerBar: {
-    position: 'fixed',
-    top: '20px',
-    right: '20px',
-    zIndex: 1000,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '15px',
-    alignItems: 'flex-end',
-  },
   container: {
     padding: '20px',
     maxWidth: '1400px',
@@ -2787,7 +2814,9 @@ const styles = {
     padding: '25px',
     borderRadius: '15px',
     boxShadow: 'var(--box-shadow)',
-    border: '1px solid var(--border-color)'
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: 'var(--border-color)'
   },
   headerLeft: {
     display: 'flex',
@@ -2813,7 +2842,9 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '10px',
-    border: '1px solid #c3e6cb'
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: '#c3e6cb'
   },
   errorMessage: {
     backgroundColor: 'var(--color-error-bg)',
@@ -2824,7 +2855,9 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '10px',
-    border: '1px solid #f5c6cb'
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: '#f5c6cb'
   },
   messageText: {
     fontSize: '14px',
@@ -2839,7 +2872,9 @@ const styles = {
     display: 'flex',
     alignItems: 'flex-start',
     gap: '10px',
-    border: '1px solid #f5c6cb',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: '#f5c6cb',
     fontSize: '13px',
     maxHeight: '200px',
     overflowY: 'auto'
@@ -2855,7 +2890,9 @@ const styles = {
     padding: '20px',
     borderRadius: '12px',
     boxShadow: 'var(--box-shadow)',
-    border: '1px solid var(--border-color)',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: 'var(--border-color)',
     display: 'flex',
     alignItems: 'center',
     gap: '15px',
@@ -2874,7 +2911,9 @@ const styles = {
   tab: {
     padding: '12px 20px',
     backgroundColor: 'var(--bg-secondary)',
-    border: '1px solid var(--border-color)',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: 'var(--border-color)',
     borderRadius: '8px',
     cursor: 'pointer',
     display: 'flex',
@@ -2895,7 +2934,9 @@ const styles = {
     padding: '25px',
     borderRadius: '15px',
     boxShadow: 'var(--box-shadow)',
-    border: '1px solid var(--border-color)',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: 'var(--border-color)',
     minHeight: '400px'
   },
   sectionTitle: {
@@ -2912,7 +2953,9 @@ const styles = {
     backgroundColor: 'var(--bg-tertiary)',
     padding: '20px',
     borderRadius: '10px',
-    border: '1px solid var(--border-color)',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: 'var(--border-color)',
     color: 'var(--text-primary)'
   },
   statsList: {
@@ -3003,7 +3046,9 @@ const styles = {
     color: 'var(--text-muted)',
     backgroundColor: 'var(--bg-tertiary)',
     borderRadius: '8px',
-    border: '1px solid var(--border-color)'
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: 'var(--border-color)'
   },
   modalOverlay: {
     position: 'fixed',
@@ -3025,21 +3070,27 @@ const styles = {
     width: '90%',
     maxHeight: '80vh',
     overflowY: 'auto',
-    border: '1px solid var(--border-color)'
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: 'var(--border-color)'
   },
   modalTitle: {
     fontSize: '20px',
     color: 'var(--text-primary)',
     marginBottom: '20px',
     paddingBottom: '10px',
-    borderBottom: '1px solid var(--border-color)'
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: 'var(--border-color)'
   },
   modalSubtitle: {
     fontSize: '16px',
     color: 'var(--color-admin)',
     margin: '20px 0 10px 0',
     paddingBottom: '5px',
-    borderBottom: '1px solid var(--border-color)'
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: 'var(--border-color)'
   },
   formRow: {
     display: 'grid',
@@ -3059,15 +3110,31 @@ const styles = {
   },
   input: {
     padding: '10px',
-    border: '1px solid var(--border-color)',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: 'var(--border-color)',
     borderRadius: '6px',
     fontSize: '14px',
     backgroundColor: 'var(--bg-primary)',
     color: 'var(--text-primary)'
   },
+  fileInput: {
+    padding: '10px',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: 'var(--border-color)',
+    borderRadius: '6px',
+    fontSize: '14px',
+    backgroundColor: 'var(--bg-primary)',
+    color: 'var(--text-primary)',
+    width: '100%',
+    cursor: 'pointer'
+  },
   textarea: {
     padding: '10px',
-    border: '1px solid var(--border-color)',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: 'var(--border-color)',
     borderRadius: '6px',
     fontSize: '14px',
     resize: 'vertical',
@@ -3077,7 +3144,9 @@ const styles = {
   },
   select: {
     padding: '10px',
-    border: '1px solid var(--border-color)',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: 'var(--border-color)',
     borderRadius: '6px',
     fontSize: '14px',
     backgroundColor: 'var(--bg-primary)',
@@ -3092,7 +3161,9 @@ const styles = {
     left: 0,
     right: 0,
     backgroundColor: 'var(--bg-secondary)',
-    border: '1px solid var(--border-color)',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: 'var(--border-color)',
     borderRadius: '6px',
     maxHeight: '200px',
     overflowY: 'auto',
@@ -3105,7 +3176,9 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    borderBottom: '1px solid var(--border-color)',
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: 'var(--border-color)',
     transition: 'background-color 0.2s'
   },
   suggestionName: {
@@ -3189,7 +3262,9 @@ const styles = {
     padding: '15px',
     borderRadius: '8px',
     marginTop: '20px',
-    border: '1px solid var(--border-color)'
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: 'var(--border-color)'
   },
   spinner: {
     animation: 'spin 1s linear infinite'
@@ -3203,7 +3278,9 @@ const styles = {
     backgroundColor: 'var(--bg-tertiary)',
     padding: '15px',
     borderRadius: '10px',
-    border: '1px solid var(--border-color)',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: 'var(--border-color)',
     display: 'flex',
     flexDirection: 'column',
     gap: '10px'

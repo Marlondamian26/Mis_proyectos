@@ -4,9 +4,6 @@ import { useNavigate } from 'react-router-dom'
 import { useNotificaciones } from '../context/NotificacionesContext';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
-import PromocionalToggle from './PromocionalToggle';
-import ThemeToggle from './ThemeToggle';
-import LanguageToggle from './LanguageToggle';
 import ChatIA from './ChatIA';
 
 function Dashboard() {
@@ -175,11 +172,6 @@ function Dashboard() {
   // Renderizar el dashboard normalmente
   return (
     <div style={styles.container} className="dashboard-container">
-      <div style={styles.headerBar}>
-        <PromocionalToggle />
-        <ThemeToggle />
-        <LanguageToggle />
-      </div>
       {/* Header con información del usuario */}
       <div style={styles.header}>
         <div style={styles.welcomeSection}>
@@ -483,16 +475,6 @@ const styles = {
   // ============================================
   // CONTENEDORES PRINCIPALES
   // ============================================
-  headerBar: {
-    position: 'fixed',
-    top: '20px',
-    right: '20px',
-    zIndex: 1000,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '15px',
-    alignItems: 'flex-end',
-  },
   container: {
     padding: '20px',
     maxWidth: '1200px',

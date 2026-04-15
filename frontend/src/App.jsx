@@ -21,6 +21,7 @@ import EnfermeriaDashboard from './components/EnfermeriaDashboard';
 import NotificacionesCampana from './components/NotificacionesCampana';
 import ThemeToggle from './components/ThemeToggle';
 import LanguageToggle from './components/LanguageToggle';
+import PromocionalToggle from './components/PromocionalToggle';
 import Footer from './components/Footer';
 import { APP_NAME } from './config/constants';
 
@@ -49,15 +50,16 @@ const styles = {
 };
 
 function HeaderBar({ isPromocional }) {
-  if (isPromocional) {
-    return null;
-  }
-  
   return (
     <div style={styles.headerBar}>
-      <ThemeToggle />
-      <LanguageToggle />
-      <NotificacionesCampana />
+      <PromocionalToggle />
+      {!isPromocional && (
+        <>
+          <ThemeToggle />
+          <LanguageToggle />
+          <NotificacionesCampana />
+        </>
+      )}
     </div>
   );
 }

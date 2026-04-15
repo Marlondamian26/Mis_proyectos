@@ -4,7 +4,16 @@ import { FaStethoscope, FaHeart, FaMapMarkerAlt, FaArrowRight, FaWhatsapp } from
 import { useLanguage } from '../../context/LanguageContext';
 import { DOCTOR_NAME, DOCTOR_SPECIALTY, CLINIC_LOCATION, CLINIC_PHONE, PLATFORM_URL, REGISTRO_URL } from '../config/constants';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
+const getApiUrl = () => {
+  if (typeof import.meta !== 'undefined' && import.meta.env) {
+    const envUrl = import.meta.env.VITE_API_URL;
+    if (envUrl) return envUrl;
+  }
+  const port = window.location.port ? `:${window.location.port}` : '';
+  return `${window.location.protocol}//${window.location.hostname}${port}/api`;
+};
+
+const API_URL = getApiUrl();
 
 function Hero() {
   const { language } = useLanguage();
@@ -21,7 +30,12 @@ function Hero() {
       const response = await fetch(`${API_URL}/sitio-imagenes/hero/`);
       
       if (!response.ok) {
-        throw new Error('Failed to fetch hero image');
+        return;
+      }
+      
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        return;
       }
       
       const data = await response.json();
@@ -29,7 +43,6 @@ function Hero() {
         setHeroImage(data);
       }
     } catch (err) {
-      console.error('Error fetching hero image:', err);
     } finally {
       setLoadingImage(false);
     }

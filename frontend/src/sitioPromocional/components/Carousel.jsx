@@ -2,7 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { FaChevronLeft, FaChevronRight, FaCircle } from 'react-icons/fa';
 import { useLanguage } from '../../context/LanguageContext';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
+const getApiUrl = () => {
+  if (typeof import.meta !== 'undefined' && import.meta.env) {
+    const envUrl = import.meta.env.VITE_API_URL;
+    if (envUrl) return envUrl;
+  }
+  const port = window.location.port ? `:${window.location.port}` : '';
+  return `${window.location.protocol}//${window.location.hostname}${port}/api`;
+};
+
+const API_URL = getApiUrl();
 
 function Carousel() {
   const { language } = useLanguage();
@@ -21,15 +30,18 @@ function Carousel() {
       const response = await fetch(`${API_URL}/sitio-imagenes/carousel/`);
       
       if (!response.ok) {
-        throw new Error('Failed to fetch carousel images');
+        return;
+      }
+      
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        return;
       }
       
       const data = await response.json();
       setImages(data);
       setError(null);
     } catch (err) {
-      console.error('Error fetching carousel:', err);
-      setError(err.message);
     } finally {
       setLoading(false);
     }
