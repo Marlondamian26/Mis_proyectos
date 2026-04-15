@@ -9,8 +9,7 @@ const getApiUrl = () => {
     const envUrl = import.meta.env.VITE_API_URL;
     if (envUrl) return envUrl;
   }
-  const port = window.location.port ? `:${window.location.port}` : '';
-  return `${window.location.protocol}//${window.location.hostname}${port}/api`;
+  return 'http://127.0.0.1:8000/api';
 };
 
 const API_URL = getApiUrl();
