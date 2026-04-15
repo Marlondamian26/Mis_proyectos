@@ -198,24 +198,17 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 class CitaSerializer(serializers.ModelSerializer):
     paciente_nombre = serializers.CharField(source='paciente.usuario.get_full_name', read_only=True, required=False, allow_null=True)
     doctor_nombre = serializers.CharField(source='doctor.usuario.get_full_name', read_only=True, required=False, allow_null=True)
-    paciente_id = serializers.PrimaryKeyRelatedField(
-        queryset=Paciente.objects.all(),
-        source='paciente',
-        write_only=True,
-        required=False
-    )
-    doctor_id = serializers.PrimaryKeyRelatedField(
+    doctor = serializers.PrimaryKeyRelatedField(
         queryset=Doctor.objects.all(),
-        source='doctor',
-        write_only=True,
-        required=False
+        required=False,
+        allow_null=True
     )
     
     class Meta:
         model = Cita
         fields = [
-            'id', 'paciente', 'paciente_nombre', 'paciente_id',
-            'doctor', 'doctor_nombre', 'doctor_id',
+            'id', 'paciente', 'paciente_nombre',
+            'doctor', 'doctor_nombre',
             'fecha', 'hora', 'estado', 'motivo', 'notas_adicionales',
             'fecha_creacion', 'fecha_actualizacion'
         ]

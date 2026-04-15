@@ -424,14 +424,52 @@ class CitaViewSet(viewsets.ModelViewSet):
     serializer_class = CitaSerializer
     permission_classes = [IsAuthenticated]
     
+    def get_queryset(self):
+        user = self.request.user
+        if user.rol == 'paciente':
+            try:
+                paciente = Paciente.objects.get(usuario=user)
+                return Cita.objects.filter(paciente=paciente).order_by('-fecha', '-hora')
+            except Paciente.DoesNotExist:
+                return Cita.objects.none()
+        elif user.rol in ['doctor', 'enfermera']:
+            try:
+                if user.rol == 'doctor':
+                    perfil = Doctor.objects.get(usuario=user)
+                else:
+                    perfil = Enfermera.objects.get(usuario=user)
+                return Cita.objects.filter(doctor=perfil).order_by('-fecha', '-hora')
+            except (Doctor.DoesNotExist, Enfermera.DoesNotExist):
+                return Cita.objects.none()
+        return Cita.objects.all().order_by('-fecha', '-hora')
+    
+    def create(self, request, *args, **kwargs):
+        user = request.user
+        try:
+            paciente = Paciente.objects.get(usuario=user)
+        except Paciente.DoesNotExist:
+            return Response({'error': 'No tienes perfil de paciente'}, status=400)
+        
+        data = request.data.copy()
+        data['paciente'] = paciente.id
+        
+        serializer = self.get_serializer(data=data)
+        if serializer.is_valid():
+            self.perform_create(serializer)
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
+    
     def perform_create(self, serializer):
         """Al crear una cita, enviar notificación"""
-        cita = serializer.save()
-        # Importación diferida para evitar dependencia circular
-        from notificaciones.services import ServicioNotificaciones
-        # Notificar al paciente que su cita fue creada
-        ServicioNotificaciones.notificar_cita_creada(cita)
-        return cita
+        try:
+            cita = serializer.save()
+            from notificaciones.services import ServicioNotificaciones
+            ServicioNotificaciones.notificar_cita_creada(cita)
+            return cita
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            raise
     
     def perform_update(self, serializer):
         """Al actualizar una cita, enviar notificación si es necesario"""

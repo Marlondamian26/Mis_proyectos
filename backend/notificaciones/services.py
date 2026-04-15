@@ -1,6 +1,7 @@
 from django.core.mail import send_mail
 from django.utils import timezone
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from twilio.rest import Client
 import requests
 from .models import Notificacion

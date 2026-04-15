@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext'
 import { FaCalendarAlt, FaClock, FaUserMd, FaNotesMedical, FaCheck, FaTimes } from 'react-icons/fa'
 import { format, addDays, parseISO } from 'date-fns'
-import { ptBR } from 'date-fns/locale'
+import { ptBR, es } from 'date-fns/locale'
 
 function Citas() {
   const { t } = useLanguage()
