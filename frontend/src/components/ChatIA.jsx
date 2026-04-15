@@ -80,12 +80,62 @@ const ChatIA = ({ onClose }) => {
     setHistorial(prev => [...prev, { id: newId, tipo, texto, timestamp: new Date() }]);
   }, []);
 
-  const seleccionarOpcion = async (opcionId) => {
-    agregarMensaje(opciones.find(o => o.id === opcionId)?.texto || opcionId, 'usuario');
+  const seleccionarOpcion = useCallback(async (opcionId) => {
+    const opcionIdStr = String(opcionId);
+    
+    agregarMensaje(opciones.find(o => String(o.id) === opcionIdStr)?.texto || opcionId, 'usuario');
     setLoading(true);
 
     try {
-      switch (opcionId) {
+      if (estado === 'elegir_especialidad') {
+        const opcionIdNum = Number(opcionId);
+        const esp = !isNaN(opcionIdNum) 
+          ? especialidades.find(e => Number(e.id) === opcionIdNum || e.nombre.toLowerCase().includes(opcionIdStr.toLowerCase()))
+          : especialidades.find(e => e.nombre.toLowerCase().includes(opcionIdStr.toLowerCase()));
+        if (esp) {
+          setDatos(prev => ({ ...prev, especialidad: esp }));
+          
+          const doctoresFiltrados = doctores.filter(d => 
+            d.especialidad === esp.id || 
+            d.especialidad_nombre === esp.nombre
+          );
+          
+          if (doctoresFiltrados.length === 0) {
+            agregarMensaje(`${t('noDoctorsAvailable')} ${esp.nombre}.`);
+            agregarMensaje(t('chooseSpecialty'));
+            setLoading(false);
+            return;
+          } else {
+            agregarMensaje(t('whichDoctor'));
+            setEstado('elegir_doctor');
+            setOpciones(doctoresFiltrados.map(d => ({
+              id: d.id,
+              texto: `Dr. ${d.usuario?.first_name} ${d.usuario?.last_name} - ${d.especialidad_nombre || d.otra_especialidad}`
+            })));
+            setLoading(false);
+            return;
+          }
+        }
+      }
+      
+      if (estado === 'elegir_doctor') {
+        const opcionIdNum = Number(opcionId);
+        const doctor = doctores.find(d => Number(d.id) === opcionIdNum);
+        if (doctor) {
+          setDatos(prev => ({ ...prev, doctor }));
+          agregarMensaje(t('whatDate'));
+          setEstado('elegir_fecha');
+          setOpciones([
+            { id: 'hoy', texto: t('today') },
+            { id: 'manana', texto: t('tomorrow') },
+            { id: 'otra', texto: t('otherDate') }
+          ]);
+          setLoading(false);
+          return;
+        }
+      }
+
+      switch (opcionIdStr) {
         case 'agendar':
           if (especialidades.length === 0) {
             agregarMensaje(t('noDataAvailable') || 'Lo siento, no hay especialidades disponibles en este momento.');
@@ -309,23 +359,15 @@ const ChatIA = ({ onClose }) => {
           break;
 
         default:
-          if (estado === 'elegir_especialidad') {
-            const esp = especialidades.find(e => 
-              e.nombre.toLowerCase().includes(opcionId.toLowerCase())
-            );
-            if (esp) {
-              await seleccionarOpcion(esp.id);
-            }
-          }
           break;
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error en seleccionarOpcion:', error);
       agregarMensaje(t('loadingError'));
     } finally {
       setLoading(false);
     }
-  };
+  }, [estado, opciones, historial, especialidades, doctores, agregarMensaje, t, setLoading, setEstado, setOpciones, setDatos]);
 
   const cargarHorarios = async (doctorId, fecha) => {
     setLoading(true);
