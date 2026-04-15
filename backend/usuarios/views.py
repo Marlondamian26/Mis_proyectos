@@ -487,7 +487,11 @@ class SitioImagenViewSet(viewsets.ModelViewSet):
     serializer_class = SitioImagenSerializer
     
     def get_permissions(self):
-        if self.action in ['list', 'retrieve']:
+        # Permitir acceso público a acciones de lectura sin autenticación
+        if self.action in ['list', 'retrieve', 'carousel', 'hero']:
+            return [AllowAny()]
+        # También permitir si es una URL de acción personalizada sin autenticación
+        if not self.request.user or not self.request.user.is_authenticated:
             return [AllowAny()]
         return [IsAuthenticated()]
     

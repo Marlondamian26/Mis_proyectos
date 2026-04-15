@@ -785,6 +785,30 @@
   background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
 }
 
+.promo-carousel-error,
+.promo-carousel-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
+}
+
+.promo-carousel-error-message,
+.promo-carousel-empty-message {
+  text-align: center;
+  color: #fff;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
+}
+
+.promo-carousel-error-message p,
+.promo-carousel-empty-message p {
+  margin: 0;
+  font-size: 16px;
+}
+
 .promo-carousel-loading {
   display: flex;
   align-items: center;

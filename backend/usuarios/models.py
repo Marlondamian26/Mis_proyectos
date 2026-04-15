@@ -352,13 +352,13 @@ class SitioImagen(models.Model):
     """
     TIPO_IMAGEN = (
         ('hero', 'Imagen Hero (Inicio)'),
-        ('carousel', ' imagen del Carrusel'),
+        ('carousel', 'Carrusel'),
         ('galeria', 'Galería'),
     )
     
     titulo = models.CharField(max_length=100, blank=True, verbose_name='Título')
     descripcion = models.TextField(blank=True, verbose_name='Descripción')
-    imagen = models.ImageField(upload_to='sitio/', verbose_name='Archivo de imagen')
+    imagen = models.ImageField(upload_to='', verbose_name='Archivo de imagen')
     tipo = models.CharField(max_length=20, choices=TIPO_IMAGEN, default='carousel')
     orden = models.IntegerField(default=0, verbose_name='Orden de visualización')
     activo = models.BooleanField(default=True, verbose_name='Activo')

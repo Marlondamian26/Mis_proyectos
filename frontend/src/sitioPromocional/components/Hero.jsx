@@ -26,22 +26,32 @@ function Hero() {
   const fetchHeroImage = async () => {
     try {
       setLoadingImage(true);
-      const response = await fetch(`${API_URL}/sitio-imagenes/hero/`);
+      const url = `${API_URL}/sitio-imagenes/hero/`;
+      console.log('[Hero] Fetching from:', url);
+      
+      const response = await fetch(url);
+      console.log('[Hero] Response status:', response.status, 'ok:', response.ok);
       
       if (!response.ok) {
+        console.error('[Hero] Response not ok');
         return;
       }
       
       const contentType = response.headers.get('content-type');
+      console.log('[Hero] Content-Type:', contentType);
+      
       if (!contentType || !contentType.includes('application/json')) {
+        console.error('[Hero] Invalid content-type');
         return;
       }
       
       const data = await response.json();
+      console.log('[Hero] Received data:', data);
       if (data && data.imagen) {
         setHeroImage(data);
       }
     } catch (err) {
+      console.error('[Hero] Fetch error:', err);
     } finally {
       setLoadingImage(false);
     }

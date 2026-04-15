@@ -26,21 +26,34 @@ function Carousel() {
   const fetchCarouselImages = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_URL}/sitio-imagenes/carousel/`);
+      const url = `${API_URL}/sitio-imagenes/carousel/`;
+      console.log('[Carousel] Fetching from:', url);
+      
+      const response = await fetch(url);
+      console.log('[Carousel] Response status:', response.status, 'ok:', response.ok);
       
       if (!response.ok) {
+        console.error('[Carousel] Response not ok');
+        setError('Error del servidor');
         return;
       }
       
       const contentType = response.headers.get('content-type');
+      console.log('[Carousel] Content-Type:', contentType);
+      
       if (!contentType || !contentType.includes('application/json')) {
+        console.error('[Carousel] Invalid content-type');
+        setError('Tipo de contenido incorrecto');
         return;
       }
       
       const data = await response.json();
+      console.log('[Carousel] Received data:', data);
       setImages(data);
       setError(null);
     } catch (err) {
+      console.error('[Carousel] Fetch error:', err);
+      setError('Error de conexión');
     } finally {
       setLoading(false);
     }
@@ -77,8 +90,24 @@ function Carousel() {
     );
   }
 
-  if (error || images.length === 0) {
-    return null;
+  if (error) {
+    return (
+      <section className="promo-carousel promo-carousel-error">
+        <div className="promo-carousel-error-message">
+          <p>Error al cargar imágenes del carrusel</p>
+        </div>
+      </section>
+    );
+  }
+
+  if (images.length === 0) {
+    return (
+      <section className="promo-carousel promo-carousel-empty">
+        <div className="promo-carousel-empty-message">
+          <p>No hay imágenes en el carrusel. Agrega imágenes desde el panel de administración.</p>
+        </div>
+      </section>
+    );
   }
 
   const currentImage = images[currentIndex];
