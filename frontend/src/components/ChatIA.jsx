@@ -152,10 +152,32 @@ const ChatIA = ({ onClose }) => {
           await cargarHorarios(datos.doctor?.id, manana);
           return;
         } else if (opcionId === 'otra') {
-          agregarMensaje(t('otherDate') + ' (YYYY-MM-DD o DD-MM-YYYY)');
-          setEstado('esperando_fecha');
+          const mesesOptions = generarMesesOptions();
+          agregarMensaje(t('selectMonth'));
+          setEstado('elegir_mes');
+          setOpciones(mesesOptions);
           return;
         }
+      }
+
+      if (estado === 'elegir_mes') {
+        console.log('[elegir_mes handler] opcionId:', opcionId);
+        setMesSeleccionado(opcionId);
+        const [anioMes, mesNum] = opcionId.split('-');
+        const diasOptions = generarDiasOptions(parseInt(anioMes), parseInt(mesNum));
+        agregarMensaje(t('selectDay'));
+        setEstado('elegir_dia');
+        setOpciones(diasOptions);
+        return;
+      }
+
+      if (estado === 'elegir_dia') {
+        console.log('[elegir_dia handler] opcionId:', opcionId);
+        if (/^\d{4}-\d{2}-\d{2}$/.test(opcionId)) {
+          setDatos(prev => ({ ...prev, fecha: opcionId }));
+          await cargarHorarios(datos.doctor?.id, opcionId);
+        }
+        return;
       }
 
       if (estado === 'elegir_hora') {
@@ -709,8 +731,9 @@ setOpciones([
     } else if (opcionId === 'manana') {
       fechaSeleccionada = new Date(Date.now() + 86400000).toISOString().split('T')[0];
     } else {
-      agregarMensaje(t('otherDate') + ' (YYYY-MM-DD)');
-      setEstado('esperando_nueva_fecha');
+agregarMensaje(t('selectMonth'));
+    setEstado('elegir_mes');
+    setOpciones(mesesOptions);
       return;
     }
     
