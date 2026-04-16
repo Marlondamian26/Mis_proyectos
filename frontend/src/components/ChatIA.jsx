@@ -257,11 +257,32 @@ const ChatIA = ({ onClose }) => {
             const manana = new Date(Date.now() + 86400000).toISOString().split('T')[0];
             setDatos(prev => ({ ...prev, fecha: manana }));
             await cargarHorarios(datos.doctor?.id, manana);
-          } else {
-            agregarMensaje(t('otherDate') + ' (YYYY-MM-DD)');
-            setEstado('esperando_fecha');
+          } else if (opcionId === 'otra') {
+            const mesesOptions = generarMesesOptions();
+            agregarMensaje(t('selectMonth'));
+            setEstado('elegir_mes');
+            setOpciones(mesesOptions);
+            return;
           }
           break;
+
+        case 'elegir_mes':
+          console.log('[elegir_mes] opcionId:', opcionId);
+          setMesSeleccionado(opcionId);
+          const [anioMes, mesNum] = opcionId.split('-');
+          const diasOptions = generarDiasOptions(parseInt(anioMes), parseInt(mesNum));
+          agregarMensaje(t('selectDay'));
+          setEstado('elegir_dia');
+          setOpciones(diasOptions);
+          return;
+
+        case 'elegir_dia':
+          console.log('[elegir_dia] opcionId:', opcionId);
+          if (/^\d{4}-\d{2}-\d{2}$/.test(opcionId)) {
+            setDatos(prev => ({ ...prev, fecha: opcionId }));
+            await cargarHorarios(datos.doctor?.id, opcionId);
+          }
+          return;
 
         case 'esperando_fecha':
         case 'otra':
@@ -531,15 +552,15 @@ ${t('confirmAppointment')}`;
   const crearCita = async () => {
     setLoading(true);
     try {
-      await axiosInstance.post('citas/', {
+      const response = await axiosInstance.post('citas/', {
         doctor: datos.doctor.id,
         fecha: datos.fecha,
         hora: datos.hora,
         motivo: ''
       });
 
-      agregarMensaje(t('appointmentConfirmed'));
       const doctorName = `${datos.doctor?.usuario?.first_name || ''} ${datos.doctor?.usuario?.last_name || ''}`;
+      agregarMensaje(t('appointmentConfirmed'));
       agregarMensaje(t('appointmentBooked', { doctorName, date: datos.fecha, time: datos.hora }));
       
       setEstado('inicio');
@@ -550,7 +571,11 @@ ${t('confirmAppointment')}`;
       ]);
     } catch (error) {
       console.error('Error creando cita:', error);
-      if (error.response?.data) {
+      if (error.response?.status >= 200 && error.response?.status < 300) {
+        const doctorName = `${datos.doctor?.usuario?.first_name || ''} ${datos.doctor?.usuario?.last_name || ''}`;
+        agregarMensaje(t('appointmentConfirmed'));
+        agregarMensaje(t('appointmentBooked', { doctorName, date: datos.fecha, time: datos.hora }));
+      } else if (error.response?.data) {
         agregarMensaje(`Error: ${JSON.stringify(error.response.data)}`);
       } else {
         agregarMensaje(t('loadingError'));
@@ -573,6 +598,47 @@ ${t('confirmAppointment')}`;
   const [nuevaFecha, setNuevaFecha] = useState(null);
   const [nuevaHora, setNuevaHora] = useState(null);
   const [horariosNuevos, setHorariosNuevos] = useState([]);
+  const [mesSeleccionado, setMesSeleccionado] = useState(null);
+
+  const generarMesesOptions = () => {
+    const meses = [];
+    const mesesNombres = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    const fechaActual = new Date();
+    const anioActual = fechaActual.getFullYear();
+    const mesActual = fechaActual.getMonth();
+    
+    for (let i = 0; i < 6; i++) {
+      let mes = (mesActual + i) % 12;
+      let anio = anioActual + Math.floor((mesActual + i) / 12);
+      meses.push({
+        id: `${anio}-${String(mes + 1).padStart(2, '0')}`,
+        texto: `${mesesNombres[mes]}-${anio}`
+      });
+    }
+    return meses;
+  };
+
+  const generarDiasOptions = (anio, mes) => {
+    const dias = [];
+    const fecha = new Date(anio, mes - 1, 1);
+    const diasEnMes = new Date(anio, mes, 0).getDate();
+    const diaActual = new Date().getDate();
+    const anioActual = new Date().getFullYear();
+    const mesActual = new Date().getMonth() + 1;
+    
+    let diaInicio = 1;
+    if (anio === anioActual && mes === mesActual) {
+      diaInicio = diaActual;
+    }
+    
+    for (let d = diaInicio; d <= diasEnMes; d++) {
+      dias.push({
+        id: `${anio}-${String(mes).padStart(2, '0')}-${String(d).padStart(2, '0')}`,
+        texto: String(d)
+      });
+    }
+    return dias;
+  };
 
   const mostrarCitasParaAccion = async (accion) => {
     setLoading(true);
