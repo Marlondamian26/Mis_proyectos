@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import axiosInstance from '../services/auth'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext'
-import { FaCalendarAlt, FaClock, FaUserMd, FaNotesMedical, FaCheck, FaTimes } from 'react-icons/fa'
+import { FaCalendarAlt, FaClock, FaUserMd, FaNotesMedical, FaCheck, FaTimes, FaComment } from 'react-icons/fa'
 import { format, addDays, parseISO } from 'date-fns'
 import { ptBR, es } from 'date-fns/locale'
 
@@ -191,6 +191,9 @@ function Citas() {
         <div>
           <button onClick={() => navigate('/dashboard')} style={styles.backButton}>
             ← {t('back')}
+          </button>
+          <button onClick={() => navigate('/dashboard', { state: { openChat: true } })} style={styles.chatButton}>
+            <span style={{fontSize: '24px'}}>🤖</span>
           </button>
           <button onClick={() => setShowForm(!showForm)} style={styles.newButton}>
             {showForm ? '✕ ' + t('cancel') : '+ ' + t('newAppointment')}
@@ -387,6 +390,16 @@ const styles = {
     color: 'white',
     padding: '10px 20px',
     border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    fontSize: '14px',
+    marginRight: '10px'
+  },
+  chatButton: {
+    backgroundColor: 'var(--bg-tertiary)',
+    color: 'var(--text-primary)',
+    padding: '10px 15px',
+    border: '1px solid var(--border-color)',
     borderRadius: '5px',
     cursor: 'pointer',
     fontSize: '14px',

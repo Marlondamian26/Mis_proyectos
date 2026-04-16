@@ -82,6 +82,7 @@ const ChatIA = ({ onClose }) => {
 
   const seleccionarOpcion = useCallback(async (opcionId) => {
     const opcionIdStr = String(opcionId);
+    console.log('[seleccionarOpcion] INICIO opcionId:', opcionId, 'estado:', estado);
     
     agregarMensaje(opciones.find(o => String(o.id) === opcionIdStr)?.texto || opcionId, 'usuario');
     setLoading(true);
@@ -120,7 +121,9 @@ const ChatIA = ({ onClose }) => {
       
       if (estado === 'elegir_doctor') {
         const opcionIdNum = Number(opcionId);
+        console.log('[elegir_doctor] opcionId:', opcionId, 'opcionIdNum:', opcionIdNum, 'doctores:', doctores.map(d => d.id));
         const doctor = doctores.find(d => Number(d.id) === opcionIdNum);
+        console.log('[elegir_doctor] doctor encontrado:', doctor);
         if (doctor) {
           setDatos(prev => ({ ...prev, doctor }));
           agregarMensaje(t('whatDate'));
@@ -130,11 +133,52 @@ const ChatIA = ({ onClose }) => {
             { id: 'manana', texto: t('tomorrow') },
             { id: 'otra', texto: t('otherDate') }
           ]);
-          setLoading(false);
+          console.log('[después de elegir_doctor] estado establecido a elegir_fecha');
           return;
         }
       }
 
+      // Manejar estados específicos antes del switch para casos especiales
+      if (estado === 'elegir_fecha') {
+        console.log('[elegir_fecha handler] opcionId:', opcionId, 'estado:', estado);
+        if (opcionId === 'hoy') {
+          const hoy = new Date().toISOString().split('T')[0];
+          setDatos(prev => ({ ...prev, fecha: hoy }));
+          await cargarHorarios(datos.doctor?.id, hoy);
+          return;
+        } else if (opcionId === 'manana') {
+          const manana = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+          setDatos(prev => ({ ...prev, fecha: manana }));
+          await cargarHorarios(datos.doctor?.id, manana);
+          return;
+        } else if (opcionId === 'otra') {
+          agregarMensaje(t('otherDate') + ' (YYYY-MM-DD o DD-MM-YYYY)');
+          setEstado('esperando_fecha');
+          return;
+        }
+      }
+
+      if (estado === 'elegir_hora') {
+        console.log('[elegir_hora handler] opcionId:', opcionId, 'horariosDisponibles:', horariosDisponibles);
+        const horaRegex = /^(\d{1,2}:\d{2})$/;
+        if (horaRegex.test(opcionId)) {
+          setDatos(prev => ({ ...prev, hora: opcionId }));
+          await confirmarCita();
+          return;
+        }
+        // Fallback: buscar en horariosDisponibles
+        if (horariosDisponibles.includes(opcionId)) {
+          setDatos(prev => ({ ...prev, hora: opcionId }));
+          await confirmarCita();
+          return;
+        }
+        // Si no coincide, mostrar mensaje de error y mostrar opciones again
+        agregarMensaje(t('selectFromOptions'));
+        setOpciones(horariosDisponibles.map(h => ({ id: h, texto: h })));
+        return;
+      }
+
+      console.log('[seleccionarOpcion] switch, opcionIdStr:', opcionIdStr, 'estado:', estado);
       switch (opcionIdStr) {
         case 'agendar':
           if (especialidades.length === 0) {
@@ -201,6 +245,10 @@ const ChatIA = ({ onClose }) => {
           break;
 
         case 'elegir_fecha':
+        case 'hoy':
+        case 'manana':
+        case 'otra':
+          console.log('[elegir_fecha] opcionId:', opcionId, 'datos.doctor:', datos.doctor);
           if (opcionId === 'hoy') {
             const hoy = new Date().toISOString().split('T')[0];
             setDatos(prev => ({ ...prev, fecha: hoy }));
@@ -216,20 +264,47 @@ const ChatIA = ({ onClose }) => {
           break;
 
         case 'esperando_fecha':
-          const fechaValida = opcionId;
+        case 'otra':
+          console.log('[esperando_fecha] opcionId:', opcionId);
+          let fechaValida = opcionId;
+          // Handle YYYY-MM-DD format
           if (/^\d{4}-\d{2}-\d{2}$/.test(fechaValida)) {
+            console.log('[esperando_fecha] formato YYYY-MM-DD');
+            setDatos(prev => ({ ...prev, fecha: fechaValida }));
+            await cargarHorarios(datos.doctor?.id, fechaValida);
+          } else if (/^\d{1,2}-\d{1,2}-\d{4}$/.test(fechaValida)) {
+            // Handle DD-MM-YYYY or D-M-YYYY format
+            console.log('[esperando_fecha] formato DD-MM-YYYY');
+            const parts = fechaValida.split('-');
+            const day = parts[0].padStart(2, '0');
+            const month = parts[1].padStart(2, '0');
+            const year = parts[2];
+            fechaValida = `${year}-${month}-${day}`;
+            console.log('[esperando_fecha] fecha convertida:', fechaValida);
             setDatos(prev => ({ ...prev, fecha: fechaValida }));
             await cargarHorarios(datos.doctor?.id, fechaValida);
           } else {
+            console.log('[esperando_fecha] formato inválido');
             agregarMensaje(t('invalidDateFormat'));
           }
           break;
 
         case 'elegir_hora':
-          const horaSeleccionada = horariosDisponibles.find(h => h === opcionId);
-          if (horaSeleccionada) {
+          console.log('[elegir_hora] opcionId:', opcionId, 'horariosDisponibles:', horariosDisponibles);
+          // Aceptar directamente el ID ya que las opciones ya contienen horarios válidos
+          const horaSeleccionada = opcionId;
+          if (horaSeleccionada && /^(\d{2}:\d{2})$/.test(horaSeleccionada)) {
+            console.log('[elegir_hora] hora válida, confirmando cita');
             setDatos(prev => ({ ...prev, hora: horaSeleccionada }));
             await confirmarCita();
+          } else if (horariosDisponibles.includes(opcionId)) {
+            console.log('[elegir_hora] hora encontrada en horariosDisponibles');
+            setDatos(prev => ({ ...prev, hora: opcionId }));
+            await confirmarCita();
+          } else {
+            console.log('[elegir_hora] hora inválida, mostrando opciones');
+            agregarMensaje(t('invalidOption'));
+            setOpciones(horariosDisponibles.map(h => ({ id: h, texto: h })));
           }
           break;
 
@@ -367,7 +442,7 @@ const ChatIA = ({ onClose }) => {
     } finally {
       setLoading(false);
     }
-  }, [estado, opciones, historial, especialidades, doctores, agregarMensaje, t, setLoading, setEstado, setOpciones, setDatos]);
+  }, [estado, opciones, historial, especialidades, doctores, agregarMensaje, t, setLoading, setEstado, setOpciones, setDatos, datos]);
 
   const cargarHorarios = async (doctorId, fecha) => {
     setLoading(true);
@@ -381,6 +456,12 @@ const ChatIA = ({ onClose }) => {
       const horasOcupadas = citasOcupadas.map(c => c.hora);
 
       const slots = [];
+      // Default horarios if API doesn't return data
+      const horariosData = [
+        { hora_inicio: '08:00', hora_fin: '12:00', activo: true },
+        { hora_inicio: '14:00', hora_fin: '18:00', activo: true }
+      ];
+      
       horariosData.forEach(horario => {
         if (!horario.activo) return;
         
