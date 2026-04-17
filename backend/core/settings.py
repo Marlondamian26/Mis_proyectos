@@ -151,10 +151,15 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5175",
     "http://127.0.0.1:5175",
     "https://*.onrender.com",
+    "https://mis-proyectos-1-thyh.onrender.com",
 ]
 
 # Opcional: Si quieres permitir credenciales (cookies, sesiones)
 CORS_ALLOW_CREDENTIALS = True
+
+# Configuración adicional de CORS
+CORS_EXPOSE_HEADERS = ["Content-Type", "Authorization"]
+CORS_PREFLIGHT_THRESHOLD = 86400
 
 
 # Al final de settings.py, después de todo
