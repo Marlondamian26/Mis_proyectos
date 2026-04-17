@@ -356,7 +356,7 @@ class SitioImagen(models.Model):
         ('galeria', 'Galería'),
     )
     
-    titulo = models.CharField(max_length=100, blank=True, verbose_name='Título')
+    titulo = models.CharField(max_length=500, blank=True, verbose_name='Título')
     descripcion = models.TextField(blank=True, verbose_name='Descripción')
     imagen = models.ImageField(upload_to='', verbose_name='Archivo de imagen')
     tipo = models.CharField(max_length=20, choices=TIPO_IMAGEN, default='carousel')
