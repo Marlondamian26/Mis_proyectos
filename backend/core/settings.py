@@ -24,9 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-&)-^#6c1$g5jsvzxqo)zkjp42l)l=-cs1_y&saw6=3^!(+v)=4')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'belkis-saude.com', 'www.belkis-saude.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'belkis-saude.com', 'www.belkis-saude.com', '*.onrender.com']
 
 # Cache configuration for rate limiting and session management
 # Using LocMemCache for development; use Redis for production
@@ -150,6 +150,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5174",
     "http://localhost:5175",
     "http://127.0.0.1:5175",
+    "https://*.onrender.com",
 ]
 
 # Opcional: Si quieres permitir credenciales (cookies, sesiones)
