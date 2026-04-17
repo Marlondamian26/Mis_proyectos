@@ -183,20 +183,6 @@ function Login() {
           >
             {loading ? t('loggingIn') : t('login')}
           </button>
-
-          {/* ===== BOTÓN DE DEMO ===== */}
-          <button 
-            type="button"
-            onClick={handleDemoAccess}
-            style={styles.demoButton}
-            disabled={loading}
-          >
-            <span style={styles.demoButtonContent}>
-              <span style={styles.demoIcon}>🚀</span>
-              {t('demo')}
-            </span>
-          </button>
-          {/* ========================= */}
         </form>
 
         <div style={styles.registerContainer}>
