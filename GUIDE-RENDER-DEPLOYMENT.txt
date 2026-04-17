@@ -1,71 +1,129 @@
-# Guía de Despliegue en Render - Django + React
-
-=======================================================================
-RESUMEN: ARQUITECTURA DEL PROYECTO
-=======================================================================
-
-Tu proyecto:
-- Backend: Django (Python) en carpeta /backend
-- Frontend: React (Vite) en carpeta /frontend
-- Base de datos: SQLite (incluida con Django, migración requerida)
-
-Deploy en Render:
-- Backend → Web Service (Python)
-- Frontend → Static Site (Node.js para build)
-
-=======================================================================
-PASOS PARA DESPLEGAR EL BACKEND
-=======================================================================
-
-1. En Render Dashboard: New → Web Service
-2. Configurar:
-   - Root Directory: backend
-   - Environment: Python
-   - Build Command: pip install -r requirements.txt && python manage.py migrate
-   - Start Command: gunicorn core.wsgi:application
-   - Plan: Free
-3. Agregar Environment Variables:
-   - KEY: SECRET_KEY_BASE | VALUE: (generar con openssl rand -base64 32)
-   - KEY: DEBUG | VALUE: False
-4. En ALLOWED_HOSTS de settings.py ya está configurado *.onrender.com
-5. Deploy: Manual Deploy → Deploy latest commit
-
-URL resultante: https://tu-backend.onrender.com
-
-=======================================================================
-PASOS PARA DESPLEGAR EL FRONTEND
-=======================================================================
-
-1. En Render Dashboard: New → Static Site
-2. Configurar:
-   - Root Directory: frontend
-   - Build Command: npm install && npm run build
-   - Publish directory: dist
-   - Plan: Free
-3. Agregar Environment Variable:
-   - KEY: VITE_API_URL | VALUE: https://tu-backend.onrender.com/api
-4. Deploy: Manual Deploy → Deploy latest commit
-
-URL resultante: https://tu-frontend.onrender.com
-
-=======================================================================
-NOTA IMPORTANTE: CORS
-=======================================================================
-
-En backend/core/settings.py ya está configurado:
-CORS_ALLOWED_ORIGINS = ["https://*.onrender.com"]
-
-Si agregas dominio propio, añadirlo a esa lista.
-
-=======================================================================
-PROBLEMAS COMUNES
-=======================================================================
-
-Error: "Cannot find manage.py"
-→ Solución: Cambiar Root Directory de vacío a "backend"
-
-Error: 401 Unauthorized
-→ El backend no tiene el token correcto. Verificar login y que el frontend usa VITE_API_URL correcta.
-
-Error: Blank page en frontend
-→ Verificar que VITE_API_URL apunta al backend correcto con /api al final.
+# # Guía de Despliegue en Render - Django + React
+# # =======================================================================
+# # NOTAS IMPORTANTES ANTES DE EMPEZAR
+# # =======================================================================
+# # Esta guía纪录a los pasos correctos para desplegar el proyecto en Render,
+# # incluyendo todas las correcciones necesarias para evitar errores comuns.
+# #
+# # Arquitectura del proyecto:
+# # - Backend: Django (Python) en carpeta /backend
+# # - Frontend: React (Vite) en carpeta /frontend
+# #
+# # URLs resultantes (ejemplo):
+# # - Backend: https://mis-proyectos-ey8m.onrender.com
+# # - Frontend: https://mis-proyectos-1-thyh.onrender.com
+# #
+# # =======================================================================
+# # PASOS PARA DESPLEGAR EL BACKEND
+# # ========================================================================
+# # 1. En Render Dashboard: New → Web Service
+# # 2. Configurar:
+# #    - Root Directory: backend
+# #    - Environment: Python
+# #    - Build Command: pip install -r requirements.txt && python manage.py migrate
+# #    - Start Command: gunicorn core.wsgi:application --bind :3000
+# #    - Plan: Free
+# # 3. Agregar Environment Variables:
+# #    - KEY: SECRET_KEY_BASE | VALUE: (generar con openssl rand -base64 32)
+# #    - KEY: DEBUG | VALUE: False
+# # 4. Deploy: Manual Deploy → Deploy latest commit
+# #
+# # IMPORTANTE: El Start Command debe incluir --bind :3000 (NO usar $PORT)
+# #
+# # =======================================================================
+# # PASOS PARA DESPLEGAR EL FRONTEND
+# # ========================================================================
+# # 1. En Render Dashboard: New → Static Site
+# # 2. Configurar:
+# #    - Root Directory: frontend
+# #    - Build Command: npm install && npm run build
+# #    - Publish directory: dist
+# #    - Plan: Free
+# # 3. Agregar Environment Variable:
+# #    - KEY: VITE_API_URL | VALUE: https://[tu-backend].onrender.com/api
+# # 4. Deploy: Manual Deploy → Deploy latest commit
+# #
+# # IMPORTANTE: La URL debe terminar en /api (con barra)
+# # Ejemplo: https://mis-proyectos-ey8m.onrender.com/api
+# #
+# # =======================================================================
+# # CONFIGURACIÓN DEL CÓDIGO (ya realizada)
+# # ========================================================================
+# # Los siguientes cambios já están hechos en el código:
+# #
+# # 1. backend/core/settings.py:
+# #    - ALLOWED_HOSTS incluye '*.onrender.com' y el dominio específico
+# #    - CORS_ALLOWED_ORIGINS incluye los-domínios del frontend
+# #
+# # 2. backend/core/urls.py:
+# #    - static() sirve imágenes em producción (no solo en DEBUG)
+# #
+# # 3. backend/usuarios/models.py:
+# #    - titulo de SitioImagen tiene max_length=500
+# #
+# # 4. frontend/src/services/auth.js:
+# #    - Usa import.meta.env.VITE_API_URL
+# #
+# # 5. frontend/src/components/Login.jsx:
+# #    - Botón demo eliminado
+# #
+# # =======================================================================
+# # PROBLEMAS COMUNES Y SOLUCIONES
+# # ========================================================================
+# #
+# # Error: "Cannot find manage.py"
+# # → Solución: Cambiar Root Directory de vacío a "backend"
+# #
+# # Error: "timeout of 30000ms exceeded" en login
+# # → El backend está caído o mal configurado
+# # → Verificar que Start Command tenga --bind :3000
+# # → Verificar que el backend esté activo (no suspended)
+# #
+# # Error: "No open HTTP ports detected"
+# # → El binding es incorrecto. Usar: gunicorn core.wsgi:application --bind :3000
+# #
+# # Error: CORS policy - No 'Access-Control-Allow-Origin'
+# # → Agregar el dominio del frontend a CORS_ALLOWED_ORIGINS en settings.py
+# # → Ejemplo: "https://mis-proyectos-1-thyh.onrender.com"
+# #
+# # Error: Imágenes no cargan
+# # → Verificar que MEDIA_URL esté configurado en settings.py
+# # → Verificar queurls.py sirva archivos estáticos em produção:
+# #   urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# #
+# # Error: 401 Unauthorized
+# # → El frontend está usando URL incorrecta
+# # → Verificar VITE_API_URL termina em /api
+# #
+# # Error: Blank page em frontend
+# # → Verificar que VITE_API_URL está configurado corretamente
+# # → Hacer deploy novamente tras agregar la variable
+# #
+# # =======================================================================
+# # CONFIGURACIÓN DE VARIABLES DE ENTORNO EN RENDER
+# # ========================================================================
+# #
+# #Backend:
+# # - SECRET_KEY_BASE: Clave secreta (generar con openssl rand -base64 32)
+# # - DEBUG: False
+# #
+# # Frontend:
+# # - VITE_API_URL: https://[tu-backend].onrender.com/api
+# #
+# # =======================================================================
+# # DESPLIEGUE AUTOMÁTICO
+# # ========================================================================
+# # Al hacer push a GitHub, los servicios se desplegarán automáticamente.
+# # Ramas configuradas: main
+# #
+# # Para forzar un despliegue manual:
+# # 1. Ir al servicio en Render Dashboard
+# # 2. Click "Manual Deploy" → "Deploy latest commit"
+# #
+# # =======================================================================
+# # NOTAS FINALES
+# # ========================================================================
+# # - Los servicios gratuitos de Render se suspenden tras 15 min de inactividad
+# # - Para despertarlos, acceder a la URL o usar "Resume Service"
+# # - La base de datos SQLite no se guarda entre despliegues (se reinicia)
+# # - Para persistencia, usar PostgreSQL de Render (plan gratuito disponible)
