@@ -38,6 +38,12 @@ urlpatterns = [
     path('api/', include('notificaciones.urls')), 
 ]
 
-# Servir archivos media solo en desarrollo
+# Servir archivos media en producción con WhiteNoise
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+else:
+    from django.views.static import serve
+    from django.conf.urls import url
+    urlpatterns += [
+        url(r'^sitio/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+    ]
