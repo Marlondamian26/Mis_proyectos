@@ -1,3 +1,47 @@
+# # Despliegue en Render
+
+## Endpoints
+
+| Endpoint | Descripción |
+|----------|-------------|
+| `https://mis-proyectos-ey8m.onrender.com/` | Sitio principal |
+| `https://mis-proyectos-ey8m.onrender.com/health/` | Health check (para UptimeRobot) |
+| `https://mis-proyectos-ey8m.onrender.com/admin/` | Panel de administración |
+| `https://mis-proyectos-ey8m.onrender.com/api/token/` | Obtener JWT |
+
+## UptimeRobot - Mantener el backend activo
+
+El plan gratuito de Render apaga el servidor después de 15 minutos de inactividad. Para evitar esto:
+
+1. **Crear cuenta en UptimeRobot**:
+   - Ve a https://uptimerobot.com y regístrate (plan gratuito)
+
+2. **Agregar nuevo monitor**:
+   - Click en "Add New Monitor"
+   - **Monitor Type**: HTTP(s)
+   - **Friendly Name**: Backend Belkis
+   - **URL (or IP)**: `https://mis-proyectos-ey8m.onrender.com/health/`
+   - **Monitoring Interval**: 5 minutes (el mínimo gratuito)
+   - **Timeout**: 30 seconds
+
+3. **Guardar**:
+   - UptimeRobot hará ping cada 5 minutos
+   - Si el backend está dormido, Render lo despertará automáticamente
+
+## Acciones después de hacer cambios
+
+```powershell
+# 1. Commit y push
+git add .
+git commit -m "tu mensaje"
+git push origin Gestion-Saude
+
+# 2. Render detectará automáticamente los cambios en GitHub
+#    y redesplegará el backend
+```
+
+---
+
 # # Rutas de la aplicacion
 #
 # | Ruta | Descripcion |
