@@ -8,8 +8,7 @@ function redirectPlugin() {
   return {
     name: 'redirect-plugin',
     closeBundle() {
-      const outDir = resolve(__dirname, '..', 'backend', 'sitio')
-      const redirectFile = resolve(outDir, '_redirects')
+      const redirectFile = resolve(__dirname, '..', 'backend', 'sitio', '_redirects')
       if (!existsSync(redirectFile)) {
         const srcRedirects = resolve(__dirname, 'public', '_redirects')
         if (existsSync(srcRedirects)) {
@@ -24,9 +23,17 @@ export default defineConfig({
   plugins: [react(), redirectPlugin()],
   base: '/',
   build: {
-    outDir: path.resolve(__dirname, 'dist'),
+    outDir: path.resolve(__dirname, '..', 'backend', 'sitio'),
     assetsDir: 'assets',
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          router: ['react-router-dom'],
+        },
+      },
+    },
   },
   preview: {
     port: 4173,

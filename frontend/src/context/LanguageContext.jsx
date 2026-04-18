@@ -787,10 +787,10 @@ const translations = {
     'notifications.viewAll': 'Ver todas',
 
     // Login/Registro - Additional
-    usernameRequiredField: 'Usuario, correo o Teléfono es obligatorio',
-    passwordRequiredField: 'La contrasena es obligatoria',
-    enterPassword: 'Digite su contrasena',
-    usernameOrEmail: 'Usuario, correo o Teléfono',
+    usernameRequiredField: 'El nombre de usuario, correo o teléfono es obligatorio',
+    passwordRequiredField: 'La contraseña es obligatoria',
+    enterPasswordForm: 'Digite su contraseña',
+    usernameOrEmailForm: 'Usuario, correo o Teléfono',
     patientManagement: 'Gestión de Pacientes',
     schedule: 'Horario',
 
