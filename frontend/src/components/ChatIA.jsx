@@ -307,7 +307,6 @@ const ChatIA = ({ onClose }) => {
           return;
 
         case 'esperando_fecha':
-        case 'otra':
           console.log('[esperando_fecha] opcionId:', opcionId);
           let fechaValida = opcionId;
           // Handle YYYY-MM-DD format

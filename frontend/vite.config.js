@@ -24,7 +24,7 @@ export default defineConfig({
   plugins: [react(), redirectPlugin()],
   base: '/',
   build: {
-    outDir: path.resolve(__dirname, '..', 'backend', 'sitio'),
+    outDir: path.resolve(__dirname, 'dist'),
     assetsDir: 'assets',
     emptyOutDir: true,
   },
