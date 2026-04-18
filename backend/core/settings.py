@@ -156,6 +156,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5175",
     "http://127.0.0.1:5175",
     "https://gestion-saude.onrender.com",
+    "https://gestion-saude-backend.onrender.com",
     "https://mis-proyectos-1-thyh.onrender.com",
 ]
 
