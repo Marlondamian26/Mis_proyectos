@@ -26,8 +26,14 @@ from rest_framework_simplejwt.views import (  # <-- NUEVAS IMPORTACIONES
 # utilizaremos la vista personalizada que permite email/telefono
 from usuarios.views import CustomTokenObtainPairView
 
+from django.http import JsonResponse
+
+def health_check(request):
+    return JsonResponse({"status": "ok"})
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('health/', health_check),
     
     # Rutas JWT (autenticación)
     path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
