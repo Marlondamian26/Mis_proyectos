@@ -13,7 +13,7 @@ const getApiUrl = () => {
 const API_URL = getApiUrl();
 
 function Carousel() {
-  const { language } = useLanguage();
+  const { tPromo } = useLanguage();
   const [images, setImages] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -34,7 +34,7 @@ function Carousel() {
       
       if (!response.ok) {
         console.error('[Carousel] Response not ok');
-        setError('Error del servidor');
+        setError(tPromo('errorLoading'));
         return;
       }
       
@@ -43,7 +43,7 @@ function Carousel() {
       
       if (!contentType || !contentType.includes('application/json')) {
         console.error('[Carousel] Invalid content-type');
-        setError('Tipo de contenido incorrecto');
+        setError(tPromo('errorLoading'));
         return;
       }
       
@@ -53,7 +53,7 @@ function Carousel() {
       setError(null);
     } catch (err) {
       console.error('[Carousel] Fetch error:', err);
-      setError('Error de conexión');
+      setError(tPromo('connectionError'));
     } finally {
       setLoading(false);
     }
@@ -94,7 +94,7 @@ function Carousel() {
     return (
       <section className="promo-carousel promo-carousel-error">
         <div className="promo-carousel-error-message">
-          <p>Error al cargar imágenes del carrusel</p>
+          <p>{tPromo('errorLoading')}</p>
         </div>
       </section>
     );
@@ -104,7 +104,7 @@ function Carousel() {
     return (
       <section className="promo-carousel promo-carousel-empty">
         <div className="promo-carousel-empty-message">
-          <p>No hay imágenes en el carrusel. Agrega imágenes desde el panel de administración.</p>
+          <p>{tPromo('noDataAvailable')}</p>
         </div>
       </section>
     );

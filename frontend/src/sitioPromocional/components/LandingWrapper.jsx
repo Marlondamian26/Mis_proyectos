@@ -58,6 +58,7 @@ const buttonActiveStyle = {
 
 function PromoThemeToggle() {
   const { theme, toggleTheme, isAutomatic } = useTheme();
+  const { tPromo } = useLanguage();
   const [isHovered, setIsHovered] = useState(false);
   const [isActive, setIsActive] = useState(false);
   
@@ -83,8 +84,8 @@ function PromoThemeToggle() {
       onMouseDown={() => setIsActive(true)}
       onMouseUp={() => setIsActive(false)}
       style={currentStyle}
-      title={isAutomatic ? 'Modo automático (sigue preferencia del sistema)' : `Cambiar a modo ${theme === 'light' ? 'oscuro' : 'claro'}`}
-      aria-label={isAutomatic ? 'Modo automático' : `Cambiar a modo ${theme === 'light' ? 'oscuro' : 'claro'}`}
+      title={isAutomatic ? tPromo('autoMode') : tPromo('toggleTheme')}
+      aria-label={isAutomatic ? tPromo('autoMode') : tPromo('toggleTheme')}
     >
       {getIcon()}
     </button>
@@ -92,7 +93,7 @@ function PromoThemeToggle() {
 }
 
 function PromoLanguageToggle() {
-  const { language, setLanguage } = useLanguage();
+  const { language, setLanguage, tPromo } = useLanguage();
   const { theme } = useTheme();
   const [isHovered, setIsHovered] = useState(false);
   const [isActive, setIsActive] = useState(false);
@@ -123,8 +124,8 @@ function PromoLanguageToggle() {
       onMouseDown={() => setIsActive(true)}
       onMouseUp={() => setIsActive(false)}
       style={currentStyle}
-      title={`Idioma: ${currentLang.name}. Haz clic para cambiar.`}
-      aria-label={`Cambiar idioma. Actual: ${currentLang.name}`}
+      title={tPromo('changeLanguage')}
+      aria-label={tPromo('changeLanguage')}
     >
       <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#8b5cf6' }}>
         {currentLang.flag}

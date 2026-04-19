@@ -3,12 +3,14 @@ import { useNotificaciones } from '../context/NotificacionesContext';
 import { useAuth } from '../context/AuthContext';
 import { FaBell, FaCheck, FaTrash, FaClock } from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import { ptBR, es, enUS } from 'date-fns/locale';
 import { useLanguage } from '../context/LanguageContext';
+
+const localeMap = { pt: ptBR, es: es, en: enUS };
 
 const NotificacionesCampana = () => {
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
   const { notificaciones, noLeidas, marcarComoLeida, marcarTodasLeidas, eliminarNotificacion } = useNotificaciones();
@@ -98,7 +100,7 @@ const NotificacionesCampana = () => {
                         <FaClock style={styles.clockIcon} />
                         {formatDistanceToNow(new Date(notif.fecha_creacion), { 
                           addSuffix: true,
-                          locale: ptBR 
+                          locale: localeMap[language] || ptBR 
                         })}
                       </span>
                     </div>

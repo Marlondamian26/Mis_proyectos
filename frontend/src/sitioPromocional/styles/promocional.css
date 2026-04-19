@@ -34,6 +34,18 @@
   --promo-gradient: linear-gradient(135deg, #02c4ac 0%, #05e0c7 100%);
 }
 
+/* Footer tema oscuro - todos los textos en blanco */
+[data-theme="dark"] .promo-footer {
+  background: #1a2f33;
+}
+
+[data-theme="dark"] .promo-footer-brand p,
+[data-theme="dark"] .promo-footer h4,
+[data-theme="dark"] .promo-footer-links a,
+[data-theme="dark"] .promo-footer-bottom {
+  color: #ffffff !important;
+}
+
 .sitio-promocional {
   font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
   color: var(--promo-text);
@@ -661,7 +673,7 @@
 }
 
 .promo-footer-brand p {
-  color: rgba(255, 255, 255, 0.7);
+  color: #ffffff;
   line-height: 1.7;
   font-size: 0.95rem;
 }
@@ -670,7 +682,7 @@
   font-size: 1.1rem;
   font-weight: 700;
   margin-bottom: 1.5rem;
-  color: var(--promo-white);
+  color: #ffffff;
 }
 
 .promo-footer-links {
@@ -682,7 +694,7 @@
 }
 
 .promo-footer-links a {
-  color: rgba(255, 255, 255, 0.7);
+  color: #ffffff;
   text-decoration: none;
   font-size: 0.95rem;
   transition: color 0.3s;
@@ -698,7 +710,7 @@
   padding-top: 2rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   text-align: center;
-  color: rgba(255, 255, 255, 0.6);
+  color: #ffffff;
   font-size: 0.9rem;
 }
 

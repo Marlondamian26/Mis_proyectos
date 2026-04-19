@@ -73,6 +73,9 @@ export const NotificacionesProvider = ({ children }) => {
 
   // Marcar una notificación como leída
   const marcarComoLeida = async (id) => {
+    const notificacion = notificaciones.find(n => n.id === id);
+    if (!notificacion || notificacion.leida) return;
+    
     try {
       await axiosInstance.post(`notificaciones/${id}/marcar_leida/`);
       

@@ -1290,6 +1290,7 @@ const translations = {
 
     // Servicios
     servicesTitle: 'Nossos Servicos',
+    servicesMainTitle: 'Atenção Médica Integral',
     servicios: [
       { title: 'Consulta Medica Geral', description: 'Atencao integral para todas as idades. Diagnostico, tratamento e acompanhamento de doencas comuns.' },
       { title: 'Cardiologia', description: 'Avaliacao e tratamento de doencas do coracao e sistema cardiovascular.' },
@@ -1303,6 +1304,12 @@ const translations = {
     aboutTitle: 'Comprometidos com a sua Saude e Bem-estar',
     aboutDescription: 'Desde a nossa fundacao, dedicamo-nos a fornecer atencao medica de excelencia à comunidade de Benfica, Luanda. A nossa missao e fornecer atencao medica integral, humana e personalizada a cada paciente.',
     aboutDoctorDescription: 'A Dra. Belkis Morejon Acosta lidera a nossa equipe com uma visao clara: oferecer atencao medica acessivel, de qualidade e centrada no paciente. A nossa equipe esta comprometida com o seu bem-estar integral.',
+    aboutFeatures: [
+      { text: 'Profissionais altamente qualificados' },
+      { text: 'Atencao personalizada e sem pressas' },
+      { text: 'Cuidado humano e empatico' },
+      { text: 'Padroes de qualidade certificados' }
+    ],
     statsYears: 'Anos',
     statsPatients: 'Pacientes',
     statsSatisfaction: 'Satisfacao',
@@ -1333,9 +1340,14 @@ const translations = {
     // Footer
     footerDescription: 'Consultório médico da Dra. Belkis Morejon Acosta. Comprometidos com a sua saúde e bem-estar em Benfica, Luanda.',
     footerQuickLinks: { inicio: 'Inicio', servicos: 'Servicos', sobreNos: 'Sobre Nos', contacto: 'Contacto' },
-    footerServices: { consulta: 'Consulta Médica', cardiologia: 'Cardiologia', emergências: 'Emergências', vacinação: 'Vacinação', análise: 'Análises Clínicas' },
+    footerServices: { consulta: 'Consulta Médica', cardiologia: 'Cardiologia', emergencias: 'Emergências', vacinacao: 'Vacinação', analise: 'Análises Clínicas' },
     footerCopyright: `© ${new Date().getFullYear()} Todos os direitos reservados.`,
-    footerDesigned: 'Designed with care for your health'
+    footerDesigned: 'Designed with care for your health',
+    autoMode: 'Modo automático (segue preferência do sistema)',
+    toggleTheme: 'Alternar para modo escuro',
+    changeLanguage: 'Clique para mudar o idioma',
+    errorLoading: 'Erro ao carregar',
+    connectionError: 'Erro de conexão'
   },
 
   // Spanish (sitio promocional)
@@ -1358,6 +1370,7 @@ const translations = {
 
     // Servicios
     servicesTitle: 'Nuestros Servicios',
+    servicesMainTitle: 'Atención Médica Integral',
     servicios: [
       { title: 'Consulta Medica General', description: 'Atencion integral para todas las edades. Diagnostico, tratamiento y seguimiento de enfermedades comunes.' },
       { title: 'Cardiologia', description: 'Evaluacion y tratamiento de enfermedades del corazon y sistema cardiovascular.' },
@@ -1371,6 +1384,12 @@ const translations = {
     aboutTitle: 'Comprometidos con tu Salud y Bienestar',
     aboutDescription: 'Desde nuestra fundacion, nos hemos dedicado a proporcionar atencion medica de excelencia a la comunidad de Benfica, Luanda. Nuestra mision es proporcionar atencion medica integral, humana y personalizada a cada paciente.',
     aboutDoctorDescription: 'La Dra. Belkis Morejon Acosta lidera nuestro equipo con una vision clara: ofrecer atencion medica accesible, de calidad y centrada en el paciente. Nuestro equipo esta comprometido con tu bienestar integral.',
+    aboutFeatures: [
+      { text: 'Profesionales altamente cualificados' },
+      { text: 'Atencion personalizada y sin prisas' },
+      { text: 'Cuidado humano y empatico' },
+      { text: 'Estandares de calidad certificados' }
+    ],
     statsYears: 'Anos',
     statsPatients: 'Pacientes',
     statsSatisfaction: 'Satisfaccion',
@@ -1401,9 +1420,14 @@ const translations = {
     // Footer
     footerDescription: 'Consultorio medico de la Dra. Belkis Morejon Acosta. Comprometidos con tu salud y bienestar en Benfica, Luanda.',
     footerQuickLinks: { inicio: 'Inicio', servicos: 'Servicios', sobreNos: 'Sobre Nosotros', contacto: 'Contacto' },
-    footerServices: { consulta: 'Consulta Medica', cardiologia: 'Cardiologia', emergencias: 'Emergencias', vacinacion: 'Vacunacion', analisis: 'Analisis Clinicos' },
+    footerServices: { consulta: 'Consulta Medica', cardiologia: 'Cardiologia', emergencias: 'Emergencias', vacinacion: 'Vacunacion', analise: 'Analisis Clinicos' },
     footerCopyright: `© ${new Date().getFullYear()} Todos los derechos reservados.`,
-    footerDesigned: 'Designed with care for your health'
+    footerDesigned: 'Designed with care for your health',
+    autoMode: 'Modo automático (sigue preferencia del sistema)',
+    toggleTheme: 'Cambiar a modo oscuro',
+    changeLanguage: 'Haz clic para cambiar el idioma',
+    errorLoading: 'Error al cargar',
+    connectionError: 'Error de conexión'
   },
 
   // English (sitio promocional)
@@ -1426,6 +1450,7 @@ const translations = {
 
     // Servicios
     servicesTitle: 'Our Services',
+    servicesMainTitle: 'Comprehensive Medical Care',
     servicios: [
       { title: 'General Medical Consultation', description: 'Comprehensive care for all ages. Diagnosis, treatment and follow-up of common diseases.' },
       { title: 'Cardiology', description: 'Evaluation and treatment of heart and cardiovascular system diseases.' },
@@ -1439,6 +1464,12 @@ const translations = {
     aboutTitle: 'Committed to your Health and Well-being',
     aboutDescription: 'Since our foundation, we have been dedicated to providing excellent medical care to the community of Benfica, Luanda. Our mission is to provide comprehensive, human and personalized medical care to each patient.',
     aboutDoctorDescription: 'Dr. Belkis Morejon Acosta leads our team with a clear vision: to offer accessible, quality medical care focused on the patient. Our team is committed to your integral well-being.',
+    aboutFeatures: [
+      { text: 'Highly qualified professionals' },
+      { text: 'Personalized care without rushing' },
+      { text: 'Human and empathetic care' },
+      { text: 'Certified quality standards' }
+    ],
     statsYears: 'Years',
     statsPatients: 'Patients',
     statsSatisfaction: 'Satisfaction',
@@ -1469,9 +1500,14 @@ const translations = {
     // Footer
     footerDescription: 'Medical office of Dr. Belkis Morejon Acosta. Committed to your health and well-being in Benfica, Luanda.',
     footerQuickLinks: { inicio: 'Home', servicos: 'Services', sobreNos: 'About Us', contacto: 'Contact' },
-    footerServices: { consulta: 'Medical Consultation', cardiologia: 'Cardiology', emergencias: 'Emergencies', vacinacion: 'Vaccination', analisis: 'Clinical Analysis' },
+    footerServices: { consulta: 'Medical Consultation', cardiologia: 'Cardiology', emergencias: 'Emergencies', vacinacao: 'Vaccination', analise: 'Clinical Analysis' },
     footerCopyright: `© ${new Date().getFullYear()} All rights reserved.`,
-    footerDesigned: 'Designed with care for your health'
+    footerDesigned: 'Designed with care for your health',
+    autoMode: 'Automatic mode (follows system preference)',
+    toggleTheme: 'Switch to dark mode',
+    changeLanguage: 'Click to change language',
+    errorLoading: 'Error loading',
+    connectionError: 'Connection error'
   },
 };
 

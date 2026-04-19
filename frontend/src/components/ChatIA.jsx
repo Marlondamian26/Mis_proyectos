@@ -204,7 +204,7 @@ const ChatIA = ({ onClose }) => {
       switch (opcionIdStr) {
         case 'agendar':
           if (especialidades.length === 0) {
-            agregarMensaje(t('noDataAvailable') || 'Lo siento, no hay especialidades disponibles en este momento.');
+            agregarMensaje(t('noDataAvailable'));
             setEstado('inicio');
             setOpciones([
               { id: 'agendar', texto: t('scheduleAppointment') },

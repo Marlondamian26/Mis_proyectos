@@ -15,7 +15,7 @@ const getApiUrl = () => {
 const API_URL = getApiUrl();
 
 function Hero() {
-  const { language } = useLanguage();
+  const { tPromo, language } = useLanguage();
   const [heroImage, setHeroImage] = useState(null);
   const [loadingImage, setLoadingImage] = useState(true);
 
@@ -61,64 +61,34 @@ function Hero() {
     window.open(`https://wa.me/${CLINIC_PHONE.replace(/\s/g, '')}`, '_blank');
   };
 
-  const t = (key) => {
-    const translations = {
-      pt: {
-        heroBadge: 'Atencao Medica de Qualidade',
-        heroTitle: 'Cuidamos da sua saude com profissionalismo e dedicacao',
-        heroSubtitle: 'Na nossa clinica encontrara uma atencao medica integral, personalizada e humana. O seu bem-estar e o da sua familia sao a nossa maxima prioridade.',
-        heroLogin: 'Entrar',
-        heroRegister: 'Registrar',
-        heroWhatsApp: 'WhatsApp'
-      },
-      es: {
-        heroBadge: 'Atencion Medica de Calidad',
-        heroTitle: 'Cuidamos de tu salud con profesionalismo y dedicacion',
-        heroSubtitle: 'En nuestra clinica encontraras una atencion medica integral, personalizada y humana. Tu bienestar y el de tu familia son nuestra maxima prioridad.',
-        heroLogin: 'Iniciar Sesion',
-        heroRegister: 'Registrarse',
-        heroWhatsApp: 'WhatsApp'
-      },
-      en: {
-        heroBadge: 'Quality Medical Care',
-        heroTitle: 'We take care of your health with professionalism and dedication',
-        heroSubtitle: 'At our clinic you will find comprehensive, personalized and human medical care. Your well-being and that of your family are our top priority.',
-        heroLogin: 'Login',
-        heroRegister: 'Register',
-        heroWhatsApp: 'WhatsApp'
-      }
-    };
-    return translations[language]?.[key] || translations.es[key] || key;
-  };
-
   return (
     <section className="promo-hero">
       <div className="promo-hero-content">
         <div className="promo-hero-text">
           <div className="promo-hero-badge">
-            <span>{t('heroBadge')}</span>
+            <span>{tPromo('heroBadge')}</span>
           </div>
           
           <h1>
-            {t('heroTitle')}
+            {tPromo('heroTitle')}
           </h1>
           
           <p className="promo-hero-subtitle">
-            {t('heroSubtitle')}
+            {tPromo('heroSubtitle')}
           </p>
           
           <div className="promo-hero-buttons">
             <Link to={PLATFORM_URL} className="promo-btn promo-btn-primary">
               <FaStethoscope />
-              {t('heroLogin')}
+              {tPromo('heroLogin')}
             </Link>
             <Link to={REGISTRO_URL} className="promo-btn promo-btn-secondary">
               <FaArrowRight />
-              {t('heroRegister')}
+              {tPromo('heroRegister')}
             </Link>
             <button className="promo-btn promo-btn-secondary" onClick={handleWhatsApp}>
               <FaWhatsapp />
-              {t('heroWhatsApp')}
+              {tPromo('heroWhatsApp')}
             </button>
           </div>
         </div>

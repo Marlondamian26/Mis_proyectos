@@ -225,7 +225,7 @@ function Citas() {
                   // Determinar la especialidad a mostrar
                   const especialidadMostrar = doctor.especialidad_nombre || 
                                              doctor.otra_especialidad || 
-                                             'Especialidad no especificada';
+                                             t('specialtyNotSpecified');
                   
                   // Agregar indicador si es una especialidad nueva (no en el catálogo)
                   const esNueva = doctor.otra_especialidad && !doctor.especialidad_nueva;
@@ -284,14 +284,14 @@ function Citas() {
             )}
 
             <div style={styles.formGroup}>
-              <label style={styles.label}>Motivo de la consulta:</label>
+              <label style={styles.label}>{t('appointmentReason')}:</label>
               <textarea
                 name="motivo"
                 value={nuevaCita.motivo}
                 onChange={handleInputChange}
                 style={styles.textarea}
                 rows="3"
-                placeholder="Describe el motivo de tu consulta..."
+                placeholder={t('describeReason')}
               />
             </div>
 
