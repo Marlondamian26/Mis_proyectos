@@ -2716,9 +2716,9 @@ function AdminDashboard() {
                   >
                     <FaBan /> {t('cancel')}
                   </button>
-                </div>
-              </form>
-            </div>
+                 </div>
+               )}
+          </div>
           </div>
         </>
       )}
@@ -2753,7 +2753,7 @@ function AdminDashboard() {
                   Cerrar
                 </button>
               )}
-            </form>
+
           </div>
         </div>
       )}
