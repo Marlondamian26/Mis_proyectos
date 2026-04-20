@@ -240,7 +240,10 @@ function Citas() {
                   );
                 })}
               </select>
-</div>
+            </div>
+          </form>
+        </div>
+      )}
 
       {mostrarChatIA && (
         <ChatIA onClose={() => setMostrarChatIA(false)} />
