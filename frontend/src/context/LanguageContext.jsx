@@ -719,7 +719,6 @@ const translations = {
     schedules: 'Horarios',
     siteImages: 'Imágenes del Sitio',
     siteImageManagement: 'Gestión de Imágenes',
-    appointmentHistory: 'Historial de Citas',
 
     // Profile
     profile: 'Perfil',
@@ -792,10 +791,6 @@ const translations = {
     totalAppointments: 'Total de Citas',
     manageSpecialties: 'Gestionar Especialidades',
     manageSchedules: 'Gestionar Horarios',
-    specialties: 'Especialidades',
-    schedules: 'Horarios',
-    siteImages: 'Imagenes del Sitio',
-    siteImageManagement: 'Gestion de Imagenes',
     uploadImage: 'Subir Imagen',
     noSiteImages: 'No hay imagenesenviadas',
     uploadFirstImage: 'Subir Primera Imagen',
@@ -1177,14 +1172,13 @@ const translations = {
     bookAppointmentBtn: 'Book Appointment',
     noNursesFound: 'No nurses found',
 
-    // Admin Dashboard additional
-    specialties: 'Specialties',
-    schedules: 'Schedules',
-    siteImages: 'Site Images',
-    siteImageManagement: 'Image Management',
-    appointmentHistory: 'Appointment History',
+     // Admin Dashboard additional
+     specialties: 'Specialties',
+     schedules: 'Schedules',
+     siteImages: 'Site Images',
+     siteImageManagement: 'Image Management',
 
-    // Profile
+     // Profile
     profileManagement: 'Profile Management',
     firstName: 'First Name',
     lastName: 'Last Name',
@@ -1255,9 +1249,6 @@ const translations = {
     manageSpecialties: 'Manage Specialties',
     manageSchedules: 'Manage Schedules',
     createNew: 'Create New',
-    specialties: 'Specialties',
-    siteImages: 'Site Images',
-    siteImageManagement: 'Image Management',
     uploadImage: 'Upload Image',
     noSiteImages: 'No images uploaded',
     uploadFirstImage: 'Upload First Image',
@@ -1376,13 +1367,12 @@ const translations = {
     passwordEmpty: 'Enter a password',
     passwordWeak: 'Weak password',
     passwordMedium: 'Medium password',
-    passwordStrong: 'Strong password',
-    passwordVeryStrong: 'Very strong password',
-    phoneFormat: 'Format: +244 923 456 789',
-    phonePlaceholder: '+244 XXX XXX XXX',
-    emailPlaceholder: 'email@example.com',
-    passwordPlaceholder: '********',
-  },
+     passwordStrong: 'Strong password',
+     passwordVeryStrong: 'Very strong password',
+     phoneFormat: 'Format: +244 923 456 789',
+     emailPlaceholder: 'email@example.com',
+     passwordPlaceholder: '********',
+   },
 
   // Sitio Promocional Translations
   // Portuguese (sitio promocional)
