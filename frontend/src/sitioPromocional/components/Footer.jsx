@@ -16,8 +16,8 @@ function Footer() {
     <footer className="promo-footer">
       <div className="promo-footer-content">
         <div className="promo-footer-brand">
-          <h3>
-            <FaStethoscope style={{ marginRight: '0.5rem', display: 'inline', verticalAlign: 'middle' }} />
+          <h3 style={{ color: '#ffffff', display: 'flex', alignItems: 'center', margin: 0, padding: 0 }}>
+            <FaStethoscope style={{ marginRight: '0.5rem', color: '#ffffff' }} />
             {CLINIC_NAME}
           </h3>
           <p>

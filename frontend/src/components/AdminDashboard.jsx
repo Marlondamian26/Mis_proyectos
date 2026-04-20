@@ -1258,18 +1258,18 @@ function AdminDashboard() {
               </div>
             ) : (
               <div style={styles.tableContainer}>
-                <table style={styles.table}>
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>Usuario</th>
-                      <th>Nombre</th>
-                      <th>Email</th>
-                      <th>Rol</th>
-                      <th>Teléfono</th>
-                      <th>Acciones</th>
-                    </tr>
-                  </thead>
+                 <table style={styles.table}>
+                   <thead>
+                     <tr>
+                       <th>{t('tableId')}</th>
+                       <th>{t('tableUsername')}</th>
+                       <th>{t('tableName')}</th>
+                       <th>{t('tableEmail')}</th>
+                       <th>{t('tableRole')}</th>
+                       <th>{t('tablePhone')}</th>
+                       <th>{t('tableActions')}</th>
+                     </tr>
+                   </thead>
                   <tbody>
                     {todosLosUsuarios.map(user => (
                       <tr key={user.id}>
@@ -1280,7 +1280,7 @@ function AdminDashboard() {
                         <td>{getRolBadge(user.rol)}</td>
                         <td>{user.telefono || '-'}</td>
                         <td style={styles.actions}>
-                          <button onClick={() => handleView(user, 'usuarios')} style={styles.viewButton} title="Ver">
+                          <button onClick={() => handleView(user, 'usuarios')} style={styles.viewButton} title={t('view')}>
                             <FaEye />
                           </button>
                           <button onClick={() => handleEdit(user, 'usuarios')} style={styles.editButton} title={t('edit')}>
@@ -1314,17 +1314,17 @@ function AdminDashboard() {
               </div>
             ) : (
               <div style={styles.tableContainer}>
-                <table style={styles.table}>
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>{t('name')}</th>
-                      <th>{t('specialty')}</th>
-                      <th>{t('email')}</th>
-                      <th>Teléfono</th>
-                      <th>Acciones</th>
-                    </tr>
-                  </thead>
+                 <table style={styles.table}>
+                   <thead>
+                     <tr>
+                       <th>{t('tableId')}</th>
+                       <th>{t('tableName')}</th>
+                       <th>{t('specialty')}</th>
+                       <th>{t('tableEmail')}</th>
+                       <th>{t('tablePhone')}</th>
+                       <th>{t('tableActions')}</th>
+                     </tr>
+                   </thead>
                   <tbody>
                     {doctores.map(doctor => (
                       <tr key={doctor.id}>
@@ -1337,7 +1337,7 @@ function AdminDashboard() {
                         <td>{doctor.usuario?.email || '-'}</td>
                         <td>{doctor.usuario?.telefono || '-'}</td>
                         <td style={styles.actions}>
-                          <button onClick={() => handleView(doctor, 'doctores')} style={styles.viewButton} title="Ver">
+                          <button onClick={() => handleView(doctor, 'doctores')} style={styles.viewButton} title={t('view')}>
                             <FaEye />
                           </button>
                           <button onClick={() => handleEdit(doctor, 'doctores')} style={styles.editButton} title={t('edit')}>
@@ -1371,18 +1371,18 @@ function AdminDashboard() {
               </div>
             ) : (
               <div style={styles.tableContainer}>
-                <table style={styles.table}>
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>{t('name')}</th>
-                      <th>{t('specialty')}</th>
-                      <th>{t('licenseNumber')}</th>
-                      <th>Email</th>
-                      <th>Teléfono</th>
-                      <th>Acciones</th>
-                    </tr>
-                  </thead>
+                 <table style={styles.table}>
+                   <thead>
+                     <tr>
+                       <th>{t('tableId')}</th>
+                       <th>{t('tableName')}</th>
+                       <th>{t('specialty')}</th>
+                       <th>{t('licenseNumber')}</th>
+                       <th>{t('tableEmail')}</th>
+                       <th>{t('tablePhone')}</th>
+                       <th>{t('tableActions')}</th>
+                     </tr>
+                   </thead>
                   <tbody>
                     {enfermeras.map(enfermera => (
                       <tr key={enfermera.id}>
@@ -1396,7 +1396,7 @@ function AdminDashboard() {
                         <td>{enfermera.usuario?.email || '-'}</td>
                         <td>{enfermera.usuario?.telefono || '-'}</td>
                         <td style={styles.actions}>
-                          <button onClick={() => handleView(enfermera, 'enfermeras')} style={styles.viewButton} title="Ver">
+                          <button onClick={() => handleView(enfermera, 'enfermeras')} style={styles.viewButton} title={t('view')}>
                             <FaEye />
                           </button>
                           <button onClick={() => handleEdit(enfermera, 'enfermeras')} style={styles.editButton} title={t('edit')}>
@@ -1430,19 +1430,19 @@ function AdminDashboard() {
               </div>
             ) : (
               <div style={styles.tableContainer}>
-                <table style={styles.table}>
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>Nombre</th>
-                      <th>{t('bloodType')}</th>
-                      <th>{t('emergencyContact')}</th>
-                      <th>{t('emergencyPhone')}</th>
-                      <th>Email</th>
-                      <th>Teléfono</th>
-                      <th>Acciones</th>
-                    </tr>
-                  </thead>
+                 <table style={styles.table}>
+                   <thead>
+                     <tr>
+                       <th>{t('tableId')}</th>
+                       <th>{t('tableName')}</th>
+                       <th>{t('bloodType')}</th>
+                       <th>{t('emergencyContact')}</th>
+                       <th>{t('emergencyPhone')}</th>
+                       <th>{t('tableEmail')}</th>
+                       <th>{t('tablePhone')}</th>
+                       <th>{t('tableActions')}</th>
+                     </tr>
+                   </thead>
                   <tbody>
                     {pacientes.map(paciente => (
                       <tr key={paciente.id}>
@@ -1454,7 +1454,7 @@ function AdminDashboard() {
                         <td>{paciente.usuario?.email || '-'}</td>
                         <td>{paciente.usuario?.telefono || '-'}</td>
                         <td style={styles.actions}>
-                          <button onClick={() => handleView(paciente, 'pacientes')} style={styles.viewButton} title="Ver">
+                          <button onClick={() => handleView(paciente, 'pacientes')} style={styles.viewButton} title={t('view')}>
                             <FaEye />
                           </button>
                           <button onClick={() => handleEdit(paciente, 'pacientes')} style={styles.editButton} title={t('edit')}>
@@ -1512,7 +1512,7 @@ function AdminDashboard() {
                         <td>{getEstadoBadge(cita.estado)}</td>
                         <td>{cita.motivo ? cita.motivo.substring(0, 30) + '...' : '-'}</td>
                         <td style={styles.actions}>
-                          <button onClick={() => handleView(cita, 'citas')} style={styles.viewButton} title="Ver">
+                          <button onClick={() => handleView(cita, 'citas')} style={styles.viewButton} title={t('view')}>
                             <FaEye />
                           </button>
                           <button onClick={() => handleEdit(cita, 'citas')} style={styles.editButton} title={t('edit')}>
@@ -1578,7 +1578,7 @@ function AdminDashboard() {
                           </span>
                         </td>
                         <td style={styles.actions}>
-                          <button onClick={() => handleView(esp, 'especialidades')} style={styles.viewButton} title="Ver">
+                          <button onClick={() => handleView(esp, 'especialidades')} style={styles.viewButton} title={t('view')}>
                             <FaEye />
                           </button>
                           <button onClick={() => handleEdit(esp, 'especialidades')} style={styles.editButton} title={t('edit')}>
@@ -1652,7 +1652,7 @@ function AdminDashboard() {
                             </span>
                           </td>
                           <td style={styles.actions}>
-                            <button onClick={() => handleView(horario, 'horarios')} style={styles.viewButton} title="Ver">
+                            <button onClick={() => handleView(horario, 'horarios')} style={styles.viewButton} title={t('view')}>
                               <FaEye />
                             </button>
                             <button onClick={() => handleEdit(horario, 'horarios')} style={styles.editButton} title={t('edit')}>
@@ -1768,11 +1768,11 @@ function AdminDashboard() {
             )}
             
             <form onSubmit={handleSubmit}>
-              {/* Modal para USUARIOS */}
+               {/* Modal para USUARIOS */}
               {formData.tipo === 'usuarios' && (
                 <>
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>Username *</label>
+                    <label style={styles.label}>{t('username')} {t('requiredFieldIndicator')}</label>
                     <input
                       type="text"
                       name="username"
@@ -1786,7 +1786,7 @@ function AdminDashboard() {
 
                   {modalMode === 'create' && (
                     <div style={styles.formGroup}>
-                      <label style={styles.label}>Contraseña *</label>
+                      <label style={styles.label}>{t('password')} {t('requiredFieldIndicator')}</label>
                       <input
                         type="password"
                         name="password"
@@ -1801,7 +1801,7 @@ function AdminDashboard() {
 
                   <div style={styles.formRow}>
                     <div style={styles.formGroup}>
-                      <label style={styles.label}>Nombre *</label>
+                      <label style={styles.label}>{t('firstName')} {t('requiredFieldIndicator')}</label>
                       <input
                         type="text"
                         name="first_name"
@@ -1813,7 +1813,7 @@ function AdminDashboard() {
                       />
                     </div>
                     <div style={styles.formGroup}>
-                      <label style={styles.label}>Apellido *</label>
+                      <label style={styles.label}>{t('lastName')} {t('requiredFieldIndicator')}</label>
                       <input
                         type="text"
                         name="last_name"
@@ -1827,7 +1827,7 @@ function AdminDashboard() {
                   </div>
 
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>Email (opcional)</label>
+                    <label style={styles.label}>{t('email')} ({t('optional')})</label>
                     <input
                       type="email"
                       name="email"
@@ -1839,7 +1839,7 @@ function AdminDashboard() {
                   </div>
 
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>Teléfono (opcional)</label>
+                    <label style={styles.label}>{t('phone')} ({t('optional')})</label>
                     <input
                       type="text"
                       name="telefono"
@@ -1847,12 +1847,12 @@ function AdminDashboard() {
                       onChange={handleInputChange}
                       disabled={modalMode === 'view'}
                       style={styles.input}
-                      placeholder="+244 XXX XXX XXX"
+                      placeholder={t('phonePlaceholder')}
                     />
                   </div>
 
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>Rol *</label>
+                    <label style={styles.label}>{t('role')} {t('requiredFieldIndicator')}</label>
                     <select
                       name="rol"
                       value={formData.rol || 'patient'}
@@ -1870,180 +1870,180 @@ function AdminDashboard() {
                 </>
               )}
 
-              {/* Modal para DOCTOR */}
+               {/* Modal para DOCTOR */}
               {formData.tipo === 'doctores' && (
                 <>
-                  <h3 style={styles.modalSubtitle}>Datos de Usuario</h3>
-                  
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>Username *</label>
-                    <input
-                      type="text"
-                      name="username"
-                      value={formData.username || ''}
-                      onChange={handleInputChange}
-                      disabled={modalMode === 'view'}
-                      style={styles.input}
-                      required
-                    />
-                  </div>
-                  
-                  {modalMode === 'create' && (
-                    <div style={styles.formGroup}>
-                      <label style={styles.label}>Contraseña *</label>
-                      <input
-                        type="password"
-                        name="password"
-                        value={formData.password || ''}
-                        onChange={handleInputChange}
-                        style={styles.input}
-                        required
-                        minLength="8"
-                      />
-                    </div>
-                  )}
-                  
-                  <div style={styles.formRow}>
-                    <div style={styles.formGroup}>
-                      <label style={styles.label}>Nombre *</label>
-                      <input
-                        type="text"
-                        name="first_name"
-                        value={formData.first_name || ''}
-                        onChange={handleInputChange}
-                        disabled={modalMode === 'view'}
-                        style={styles.input}
-                        required
-                      />
-                    </div>
-                    <div style={styles.formGroup}>
-                      <label style={styles.label}>Apellido *</label>
-                      <input
-                        type="text"
-                        name="last_name"
-                        value={formData.last_name || ''}
-                        onChange={handleInputChange}
-                        disabled={modalMode === 'view'}
-                        style={styles.input}
-                        required
-                      />
-                    </div>
-                  </div>
-                  
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>Email (opcional)</label>
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email || ''}
-                      onChange={handleInputChange}
-                      disabled={modalMode === 'view'}
-                      style={styles.input}
-                    />
-                  </div>
-                  
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>Teléfono (opcional)</label>
-                    <input
-                      type="text"
-                      name="telefono"
-                      value={formData.telefono || ''}
-                      onChange={handleInputChange}
-                      disabled={modalMode === 'view'}
-                      style={styles.input}
-                      placeholder="+244 XXX XXX XXX"
-                    />
-                  </div>
-                  
-                  <h3 style={styles.modalSubtitle}>{t('professionalData')}</h3>
-                  
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>{t('specialty')} {t('requiredFieldIndicator')}</label>
-                    <select
-                      name="especialidad"
-                      value={formData.especialidad || ''}
-                      onChange={handleInputChange}
-                      disabled={modalMode === 'view'}
-                      style={styles.select}
-                    >
-                      <option value="">{t('selectSpecialty')}</option>
-                      {especialidades.filter(e => e.tipo_especialidad === 'medica' || e.tipo_especialidad === 'ambas').map(esp => (
-                        <option key={esp.id} value={esp.id}>
-                          {esp.nombre}
-                        </option>
-                      ))}
-                    </select>
-                    <small style={styles.hint}>Selecciona una especialidad existente o escribe una nueva abajo</small>
-                  </div>
-                  
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>Otra especialidad (si no está en la lista)</label>
-                    <input
-                      type="text"
-                      name="otra_especialidad"
-                      value={formData.otra_especialidad || ''}
-                      onChange={handleInputChange}
-                      disabled={modalMode === 'view'}
-                      style={styles.input}
-                      placeholder="Ej: Medicina Tropical"
-                    />
-                  </div>
-                  
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>Biografía (opcional)</label>
-                    <textarea
-                      name="biografia"
-                      value={formData.biografia || ''}
-                      onChange={handleInputChange}
-                      disabled={modalMode === 'view'}
-                      style={styles.textarea}
-                      rows="4"
-                      placeholder="Formación, experiencia, etc."
-                    />
-                  </div>
-                </>
-              )}
+                  <h3 style={styles.modalSubtitle}>{t('userData')}</h3>
+                   
+                   <div style={styles.formGroup}>
+                     <label style={styles.label}>{t('username')} {t('requiredFieldIndicator')}</label>
+                     <input
+                       type="text"
+                       name="username"
+                       value={formData.username || ''}
+                       onChange={handleInputChange}
+                       disabled={modalMode === 'view'}
+                       style={styles.input}
+                       required
+                     />
+                   </div>
+                   
+                   {modalMode === 'create' && (
+                     <div style={styles.formGroup}>
+                       <label style={styles.label}>{t('password')} {t('requiredFieldIndicator')}</label>
+                       <input
+                         type="password"
+                         name="password"
+                         value={formData.password || ''}
+                         onChange={handleInputChange}
+                         style={styles.input}
+                         required
+                         minLength="8"
+                       />
+                     </div>
+                   )}
+                   
+                   <div style={styles.formRow}>
+                     <div style={styles.formGroup}>
+                       <label style={styles.label}>{t('firstName')} {t('requiredFieldIndicator')}</label>
+                       <input
+                         type="text"
+                         name="first_name"
+                         value={formData.first_name || ''}
+                         onChange={handleInputChange}
+                         disabled={modalMode === 'view'}
+                         style={styles.input}
+                         required
+                       />
+                     </div>
+                     <div style={styles.formGroup}>
+                       <label style={styles.label}>{t('lastName')} {t('requiredFieldIndicator')}</label>
+                       <input
+                         type="text"
+                         name="last_name"
+                         value={formData.last_name || ''}
+                         onChange={handleInputChange}
+                         disabled={modalMode === 'view'}
+                         style={styles.input}
+                         required
+                       />
+                     </div>
+                   </div>
+                   
+                   <div style={styles.formGroup}>
+                     <label style={styles.label}>{t('email')} ({t('optional')})</label>
+                     <input
+                       type="email"
+                       name="email"
+                       value={formData.email || ''}
+                       onChange={handleInputChange}
+                       disabled={modalMode === 'view'}
+                       style={styles.input}
+                     />
+                   </div>
+                   
+                   <div style={styles.formGroup}>
+                     <label style={styles.label}>{t('phone')} ({t('optional')})</label>
+                     <input
+                       type="text"
+                       name="telefono"
+                       value={formData.telefono || ''}
+                       onChange={handleInputChange}
+                       disabled={modalMode === 'view'}
+                       style={styles.input}
+                       placeholder={t('phonePlaceholder')}
+                     />
+                   </div>
+                   
+                   <h3 style={styles.modalSubtitle}>{t('professionalData')}</h3>
+                   
+                   <div style={styles.formGroup}>
+                     <label style={styles.label}>{t('specialty')} {t('requiredFieldIndicator')}</label>
+                     <select
+                       name="especialidad"
+                       value={formData.especialidad || ''}
+                       onChange={handleInputChange}
+                       disabled={modalMode === 'view'}
+                       style={styles.select}
+                     >
+                       <option value="">{t('selectSpecialty')}</option>
+                       {especialidades.filter(e => e.tipo_especialidad === 'medica' || e.tipo_especialidad === 'ambas').map(esp => (
+                         <option key={esp.id} value={esp.id}>
+                           {esp.nombre}
+                         </option>
+                       ))}
+                     </select>
+                     <small style={styles.hint}>{t('selectSpecialtyHint')}</small>
+                   </div>
+                   
+                   <div style={styles.formGroup}>
+                     <label style={styles.label}>{t('otherSpecialty')} ({t('optional')})</label>
+                     <input
+                       type="text"
+                       name="otra_especialidad"
+                       value={formData.otra_especialidad || ''}
+                       onChange={handleInputChange}
+                       disabled={modalMode === 'view'}
+                       style={styles.input}
+                       placeholder={t('exampleSpecialtyPlaceholder')}
+                     />
+                   </div>
+                   
+                   <div style={styles.formGroup}>
+                     <label style={styles.label}>{t('biography')} ({t('optional')})</label>
+                     <textarea
+                       name="biografia"
+                       value={formData.biografia || ''}
+                       onChange={handleInputChange}
+                       disabled={modalMode === 'view'}
+                       style={styles.textarea}
+                       rows="4"
+                       placeholder={t('bioPlaceholder')}
+                     />
+                   </div>
+                 </>
+               )}
 
-              {/* Modal para ENFERMERA */}
+               {/* Modal para ENFERMERA */}
               {formData.tipo === 'enfermeras' && (
                 <>
-                  <h3 style={styles.modalSubtitle}>Datos de Usuario</h3>
-                  
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>Username *</label>
-                    <input
-                      type="text"
-                      name="username"
-                      value={formData.username || ''}
-                      onChange={handleInputChange}
-                      disabled={modalMode === 'view'}
-                      style={styles.input}
-                      required
-                    />
-                  </div>
-                  
-                  {modalMode === 'create' && (
-                    <div style={styles.formGroup}>
-                      <label style={styles.label}>Contraseña *</label>
-                      <input
-                        type="password"
-                        name="password"
-                        value={formData.password || ''}
-                        onChange={handleInputChange}
-                        style={styles.input}
-                        required
-                        minLength="8"
-                      />
-                    </div>
-                  )}
-                  
-                  <div style={styles.formRow}>
-                    <div style={styles.formGroup}>
-                      <label style={styles.label}>Nombre *</label>
-                      <input
-                        type="text"
-                        name="first_name"
-                        value={formData.first_name || ''}
+                  <h3 style={styles.modalSubtitle}>{t('userData')}</h3>
+                   
+                   <div style={styles.formGroup}>
+                     <label style={styles.label}>{t('username')} {t('requiredFieldIndicator')}</label>
+                     <input
+                       type="text"
+                       name="username"
+                       value={formData.username || ''}
+                       onChange={handleInputChange}
+                       disabled={modalMode === 'view'}
+                       style={styles.input}
+                       required
+                     />
+                   </div>
+                   
+                   {modalMode === 'create' && (
+                     <div style={styles.formGroup}>
+                       <label style={styles.label}>{t('password')} {t('requiredFieldIndicator')}</label>
+                       <input
+                         type="password"
+                         name="password"
+                         value={formData.password || ''}
+                         onChange={handleInputChange}
+                         style={styles.input}
+                         required
+                         minLength="8"
+                       />
+                     </div>
+                   )}
+                   
+                   <div style={styles.formRow}>
+                     <div style={styles.formGroup}>
+                       <label style={styles.label}>{t('firstName')} {t('requiredFieldIndicator')}</label>
+                       <input
+                         type="text"
+                         name="first_name"
+                         value={formData.first_name || ''}
                         onChange={handleInputChange}
                         disabled={modalMode === 'view'}
                         style={styles.input}
@@ -2051,7 +2051,7 @@ function AdminDashboard() {
                       />
                     </div>
                     <div style={styles.formGroup}>
-                      <label style={styles.label}>Apellido *</label>
+                      <label style={styles.label}>{t('lastName')} {t('requiredFieldIndicator')}</label>
                       <input
                         type="text"
                         name="last_name"
@@ -2063,9 +2063,9 @@ function AdminDashboard() {
                       />
                     </div>
                   </div>
-                  
+                   
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>Email (opcional)</label>
+                    <label style={styles.label}>{t('email')} ({t('optional')})</label>
                     <input
                       type="email"
                       name="email"
@@ -2075,9 +2075,9 @@ function AdminDashboard() {
                       style={styles.input}
                     />
                   </div>
-                  
+                   
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>Teléfono (opcional)</label>
+                    <label style={styles.label}>{t('phone')} ({t('optional')})</label>
                     <input
                       type="text"
                       name="telefono"
@@ -2085,12 +2085,12 @@ function AdminDashboard() {
                       onChange={handleInputChange}
                       disabled={modalMode === 'view'}
                       style={styles.input}
-                      placeholder="+244 XXX XXX XXX"
+                      placeholder={t('phonePlaceholder')}
                     />
                   </div>
-                  
+                   
                   <h3 style={styles.modalSubtitle}>{t('professionalData')}</h3>
-                  
+                   
                   <div style={styles.formGroup}>
                     <label style={styles.label}>{t('specialty')} ({t('optional')})</label>
                     <select
@@ -2100,7 +2100,7 @@ function AdminDashboard() {
                       disabled={modalMode === 'view'}
                       style={styles.select}
                     >
-                      <option value="">Sin especialidad</option>
+                      <option value="">{t('selectSpecialty')}</option>
                       {especialidades.filter(e => e.tipo_especialidad === 'enfermeria' || e.tipo_especialidad === 'ambas').map(esp => (
                         <option key={esp.id} value={esp.id}>
                           {esp.nombre}
@@ -2108,19 +2108,31 @@ function AdminDashboard() {
                       ))}
                     </select>
                   </div>
-                  
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>Otra especialidad (opcional)</label>
-                    <input
-                      type="text"
-                      name="otra_especialidad"
-                      value={formData.otra_especialidad || ''}
-                      onChange={handleInputChange}
-                      disabled={modalMode === 'view'}
-                      style={styles.input}
-                      placeholder="Ej: Enfermería Pediátrica"
-                    />
-                  </div>
+                   
+                   <div style={styles.formGroup}>
+                     <label style={styles.label}>{t('otherSpecialty')} ({t('optional')})</label>
+                     <input
+                       type="text"
+                       name="otra_especialidad"
+                       value={formData.otra_especialidad || ''}
+                       onChange={handleInputChange}
+                       disabled={modalMode === 'view'}
+                       style={styles.input}
+                       placeholder={t('exampleSpecialtyPlaceholder')}
+                     />
+                   </div>
+                   
+                   <div style={styles.formGroup}>
+                     <label style={styles.label}>{t('licenseNumber')} ({t('optional')})</label>
+                     <input
+                       type="text"
+                       name="numero_licencia"
+                       value={formData.numero_licencia || ''}
+                       onChange={handleInputChange}
+                       disabled={modalMode === 'view'}
+                       style={styles.input}
+                     />
+                   </div>
                   
                   <div style={styles.formGroup}>
                     <label style={styles.label}>Número de Licencia (opcional)</label>
@@ -2136,154 +2148,154 @@ function AdminDashboard() {
                 </>
               )}
 
-              {/* Modal para PACIENTES */}
+               {/* Modal para PACIENTES */}
               {formData.tipo === 'pacientes' && (
                 <>
-                  <h3 style={styles.modalSubtitle}>Datos de Usuario</h3>
+                  <h3 style={styles.modalSubtitle}>{t('userData')}</h3>
 
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>Username *</label>
-                    <input
-                      type="text"
-                      name="username"
-                      value={formData.username || ''}
-                      onChange={handleInputChange}
-                      disabled={modalMode === 'view'}
-                      style={styles.input}
-                      required
-                    />
-                  </div>
+                   <div style={styles.formGroup}>
+                     <label style={styles.label}>{t('username')} {t('requiredFieldIndicator')}</label>
+                     <input
+                       type="text"
+                       name="username"
+                       value={formData.username || ''}
+                       onChange={handleInputChange}
+                       disabled={modalMode === 'view'}
+                       style={styles.input}
+                       required
+                     />
+                   </div>
 
-                  {modalMode === 'create' && (
-                    <div style={styles.formGroup}>
-                      <label style={styles.label}>Contraseña *</label>
-                      <input
-                        type="password"
-                        name="password"
-                        value={formData.password || ''}
-                        onChange={handleInputChange}
-                        style={styles.input}
-                        required
-                        minLength="8"
-                      />
-                    </div>
-                  )}
+                   {modalMode === 'create' && (
+                     <div style={styles.formGroup}>
+                       <label style={styles.label}>{t('password')} {t('requiredFieldIndicator')}</label>
+                       <input
+                         type="password"
+                         name="password"
+                         value={formData.password || ''}
+                         onChange={handleInputChange}
+                         style={styles.input}
+                         required
+                         minLength="8"
+                       />
+                     </div>
+                   )}
 
-                  <div style={styles.formRow}>
-                    <div style={styles.formGroup}>
-                      <label style={styles.label}>Nombre *</label>
-                      <input
-                        type="text"
-                        name="first_name"
-                        value={formData.first_name || ''}
-                        onChange={handleInputChange}
-                        disabled={modalMode === 'view'}
-                        style={styles.input}
-                        required
-                      />
-                    </div>
-                    <div style={styles.formGroup}>
-                      <label style={styles.label}>Apellido *</label>
-                      <input
-                        type="text"
-                        name="last_name"
-                        value={formData.last_name || ''}
-                        onChange={handleInputChange}
-                        disabled={modalMode === 'view'}
-                        style={styles.input}
-                        required
-                      />
-                    </div>
-                  </div>
+                   <div style={styles.formRow}>
+                     <div style={styles.formGroup}>
+                       <label style={styles.label}>{t('firstName')} {t('requiredFieldIndicator')}</label>
+                       <input
+                         type="text"
+                         name="first_name"
+                         value={formData.first_name || ''}
+                         onChange={handleInputChange}
+                         disabled={modalMode === 'view'}
+                         style={styles.input}
+                         required
+                       />
+                     </div>
+                     <div style={styles.formGroup}>
+                       <label style={styles.label}>{t('lastName')} {t('requiredFieldIndicator')}</label>
+                       <input
+                         type="text"
+                         name="last_name"
+                         value={formData.last_name || ''}
+                         onChange={handleInputChange}
+                         disabled={modalMode === 'view'}
+                         style={styles.input}
+                         required
+                       />
+                     </div>
+                   </div>
+                   
+                   <div style={styles.formGroup}>
+                     <label style={styles.label}>{t('email')} ({t('optional')})</label>
+                     <input
+                       type="email"
+                       name="email"
+                       value={formData.email || ''}
+                       onChange={handleInputChange}
+                       disabled={modalMode === 'view'}
+                       style={styles.input}
+                     />
+                   </div>
+                   
+                   <div style={styles.formGroup}>
+                     <label style={styles.label}>{t('phone')} ({t('optional')})</label>
+                     <input
+                       type="text"
+                       name="telefono"
+                       value={formData.telefono || ''}
+                       onChange={handleInputChange}
+                       disabled={modalMode === 'view'}
+                       style={styles.input}
+                       placeholder={t('phonePlaceholder')}
+                     />
+                   </div>
 
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>Email (opcional)</label>
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email || ''}
-                      onChange={handleInputChange}
-                      disabled={modalMode === 'view'}
-                      style={styles.input}
-                    />
-                  </div>
+                   <div style={styles.formGroup}>
+                     <label style={styles.label}>{t('birthDate')} ({t('optional')})</label>
+                     <input
+                       type="date"
+                       name="fecha_nacimiento"
+                       value={formData.fecha_nacimiento || ''}
+                       onChange={handleInputChange}
+                       disabled={modalMode === 'view'}
+                       style={styles.input}
+                     />
+                   </div>
 
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>Teléfono (opcional)</label>
-                    <input
-                      type="text"
-                      name="telefono"
-                      value={formData.telefono || ''}
-                      onChange={handleInputChange}
-                      disabled={modalMode === 'view'}
-                      style={styles.input}
-                      placeholder="+244 XXX XXX XXX"
-                    />
-                  </div>
+                   <h3 style={styles.modalSubtitle}>{t('medicalInfo')}</h3>
 
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>Fecha de Nacimiento (opcional)</label>
-                    <input
-                      type="date"
-                      name="fecha_nacimiento"
-                      value={formData.fecha_nacimiento || ''}
-                      onChange={handleInputChange}
-                      disabled={modalMode === 'view'}
-                      style={styles.input}
-                    />
-                  </div>
+                   <div style={styles.formGroup}>
+                     <label style={styles.label}>{t('bloodType')}</label>
+                     <input
+                       type="text"
+                       name="grupo_sanguineo"
+                       value={formData.grupo_sanguineo || ''}
+                       onChange={handleInputChange}
+                       disabled={modalMode === 'view'}
+                       style={styles.input}
+                     />
+                   </div>
 
-                  <h3 style={styles.modalSubtitle}>Datos Médicos</h3>
+                   <div style={styles.formGroup}>
+                     <label style={styles.label}>{t('allergies')}</label>
+                     <textarea
+                       name="alergias"
+                       value={formData.alergias || ''}
+                       onChange={handleInputChange}
+                       disabled={modalMode === 'view'}
+                       style={{...styles.input, minHeight: '80px', resize: 'vertical'}}
+                       placeholder={t('allergiesPlaceholder')}
+                     />
+                   </div>
 
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>Grupo Sanguíneo</label>
-                    <input
-                      type="text"
-                      name="grupo_sanguineo"
-                      value={formData.grupo_sanguineo || ''}
-                      onChange={handleInputChange}
-                      disabled={modalMode === 'view'}
-                      style={styles.input}
-                    />
-                  </div>
+                   <div style={styles.formGroup}>
+                     <label style={styles.label}>{t('emergencyContact')}</label>
+                     <input
+                       type="text"
+                       name="contacto_emergencia"
+                       value={formData.contacto_emergencia || ''}
+                       onChange={handleInputChange}
+                       disabled={modalMode === 'view'}
+                       style={styles.input}
+                     />
+                   </div>
 
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>Alergias</label>
-                    <textarea
-                      name="alergias"
-                      value={formData.alergias || ''}
-                      onChange={handleInputChange}
-                      disabled={modalMode === 'view'}
-                      style={{...styles.input, minHeight: '80px', resize: 'vertical'}}
-                      placeholder="Alergias conocidas del paciente"
-                    />
-                  </div>
-
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>{t('emergencyContact')}</label>
-                    <input
-                      type="text"
-                      name="contacto_emergencia"
-                      value={formData.contacto_emergencia || ''}
-                      onChange={handleInputChange}
-                      disabled={modalMode === 'view'}
-                      style={styles.input}
-                    />
-                  </div>
-
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>Teléfono de Emergencia</label>
-                    <input
-                      type="text"
-                      name="telefono_emergencia"
-                      value={formData.telefono_emergencia || ''}
-                      onChange={handleInputChange}
-                      disabled={modalMode === 'view'}
-                      style={styles.input}
-                    />
-                  </div>
-                </>
-              )}
+                   <div style={styles.formGroup}>
+                     <label style={styles.label}>{t('emergencyPhone')}</label>
+                     <input
+                       type="text"
+                       name="telefono_emergencia"
+                       value={formData.telefono_emergencia || ''}
+                       onChange={handleInputChange}
+                       disabled={modalMode === 'view'}
+                       style={styles.input}
+                     />
+                   </div>
+                 </>
+               )}
 
               {/* Modal para CITAS */}
               {formData.tipo === 'citas' && (
@@ -2338,7 +2350,7 @@ function AdminDashboard() {
                   </div>
                   
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>Doctor *</label>
+                    <label style={styles.label}>{t('doctor')} {t('requiredFieldIndicator')}</label>
                     <select
                       name="doctor"
                       value={formData.doctor || ''}
@@ -2358,7 +2370,7 @@ function AdminDashboard() {
                   
                   <div style={styles.formRow}>
                     <div style={styles.formGroup}>
-                      <label style={styles.label}>{t('date')} *</label>
+                      <label style={styles.label}>{t('date')} {t('requiredFieldIndicator')}</label>
                       <input
                         type="date"
                         name="fecha"
@@ -2371,7 +2383,7 @@ function AdminDashboard() {
                       />
                     </div>
                     <div style={styles.formGroup}>
-                      <label style={styles.label}>{t('time')} *</label>
+                      <label style={styles.label}>{t('time')} {t('requiredFieldIndicator')}</label>
                       <input
                         type="time"
                         name="hora"
@@ -2385,7 +2397,7 @@ function AdminDashboard() {
                   </div>
                   
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>{t('status')} *</label>
+                    <label style={styles.label}>{t('status')} {t('requiredFieldIndicator')}</label>
                     <select
                       name="estado"
                       value={formData.estado || 'pendiente'}
@@ -2402,7 +2414,7 @@ function AdminDashboard() {
                   </div>
                   
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>Motivo de la consulta (opcional)</label>
+                    <label style={styles.label}>{t('appointmentReason')} ({t('optional')})</label>
                     <textarea
                       name="motivo"
                       value={formData.motivo || ''}
@@ -2410,7 +2422,7 @@ function AdminDashboard() {
                       disabled={modalMode === 'view'}
                       style={styles.textarea}
                       rows="3"
-                      placeholder="Describe el motivo de la consulta..."
+                      placeholder={t('describeReason')}
                     />
                   </div>
                   
@@ -2430,7 +2442,7 @@ function AdminDashboard() {
               {formData.tipo === 'especialidades' && (
                 <>
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>Nombre *</label>
+                    <label style={styles.label}>{t('name')} {t('requiredFieldIndicator')}</label>
                     <input
                       type="text"
                       name="nombre"
@@ -2441,9 +2453,9 @@ function AdminDashboard() {
                       required
                     />
                   </div>
-                  
+                   
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>Tipo *</label>
+                    <label style={styles.label}>{t('specialtyType')} {t('requiredFieldIndicator')}</label>
                     <select
                       name="tipo_especialidad"
                       value={formData.tipo_especialidad || 'medica'}
@@ -2451,14 +2463,14 @@ function AdminDashboard() {
                       disabled={modalMode === 'view'}
                       style={styles.select}
                     >
-                      <option value="medica">🔬 Médica</option>
-                      <option value="enfermeria">💉 Enfermería</option>
+                      <option value="medica">🔬 {t('medical')}</option>
+                      <option value="enfermeria">💉 {t('nursing')}</option>
                       <option value="ambas">🔄 Ambas</option>
                     </select>
                   </div>
-                  
+                   
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>Descripción (opcional)</label>
+                    <label style={styles.label}>{t('description')} ({t('optional')})</label>
                     <textarea
                       name="descripcion"
                       value={formData.descripcion || ''}
@@ -2466,7 +2478,7 @@ function AdminDashboard() {
                       disabled={modalMode === 'view'}
                       style={styles.textarea}
                       rows="3"
-                      placeholder="Describe la especialidad..."
+                      placeholder={t('describeSpecialty')}
                     />
                   </div>
                   
@@ -2558,7 +2570,7 @@ function AdminDashboard() {
                         checked={formData.activo || false}
                         onChange={handleInputChange}
                         disabled={modalMode === 'view'}
-                      /> Activo
+                      /> {t('active')}
                     </label>
                   </div>
                 </>
@@ -2696,6 +2708,31 @@ function AdminDashboard() {
                     {saving ? <FaSpinner style={styles.spinner} /> : <FaSave />}
                     {saving ? t('saving') : t('save')}
                   </button>
+                  <button 
+                    type="button" 
+                    onClick={handleCloseModal} 
+                    style={styles.cancelButton}
+                    disabled={saving}
+                  >
+                    <FaBan /> {t('cancel')}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </>
+      )}
+
+      {modalMode === 'view' && (
+        <div style={styles.modalOverlay} onClick={handleCloseModal}>
+          <div style={styles.modal} onClick={e => e.stopPropagation()}>
+            <button 
+              type="button" 
+              onClick={handleCloseModal} 
+              style={styles.closeButton}
+            >
+              {t('close')}
+            </button>
                   <button 
                     type="button" 
                     onClick={handleCloseModal} 

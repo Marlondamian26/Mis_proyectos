@@ -201,6 +201,16 @@ const ChatIA = ({ onClose }) => {
       }
 
       console.log('[seleccionarOpcion] switch, opcionIdStr:', opcionIdStr, 'estado:', estado);
+      // Manejar selección de cita para cancelar o posponer
+      if (estado === 'elegir_cita_cancelar') {
+        await procesarCancelacion(parseInt(opcionId));
+        return;
+      }
+      if (estado === 'elegir_cita_posponer') {
+        await procesarPosponer(parseInt(opcionId));
+        return;
+      }
+
       switch (opcionIdStr) {
         case 'agendar':
           if (especialidades.length === 0) {
@@ -283,7 +293,7 @@ const ChatIA = ({ onClose }) => {
             const mesesOptions = generarMesesOptions();
             agregarMensaje(t('selectMonth'));
             setEstado('elegir_mes');
-            setOpciones(mesesOptions);
+        setOpciones(generarMesesOptions());
             return;
           }
           break;
@@ -723,22 +733,22 @@ setOpciones([
     }
   };
 
-  const procesarNuevaFecha = async (opcionId) => {
-    let fechaSeleccionada;
-    if (opcionId === 'hoy') {
-      fechaSeleccionada = new Date().toISOString().split('T')[0];
-    } else if (opcionId === 'manana') {
-      fechaSeleccionada = new Date(Date.now() + 86400000).toISOString().split('T')[0];
-    } else {
-agregarMensaje(t('selectMonth'));
-    setEstado('elegir_mes');
-    setOpciones(mesesOptions);
-      return;
-    }
-    
-    setNuevaFecha(fechaSeleccionada);
-    await cargarHorariosNuevos(citaSeleccionada.doctor, fechaSeleccionada);
-  };
+   const procesarNuevaFecha = async (opcionId) => {
+     let fechaSeleccionada;
+     if (opcionId === 'hoy') {
+       fechaSeleccionada = new Date().toISOString().split('T')[0];
+     } else if (opcionId === 'manana') {
+       fechaSeleccionada = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+     } else {
+       agregarMensaje(t('selectMonth'));
+       setEstado('elegir_mes');
+       setOpciones(generarMesesOptions());
+       return;
+     }
+     
+     setNuevaFecha(fechaSeleccionada);
+     await cargarHorariosNuevos(citaSeleccionada.doctor, fechaSeleccionada);
+   };
 
   const cargarHorariosNuevos = async (doctorId, fecha) => {
     setLoading(true);
