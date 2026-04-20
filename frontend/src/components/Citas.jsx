@@ -5,13 +5,15 @@ import { useLanguage } from '../context/LanguageContext'
 import { FaCalendarAlt, FaClock, FaUserMd, FaNotesMedical, FaCheck, FaTimes, FaComment } from 'react-icons/fa'
 import { format, addDays, parseISO } from 'date-fns'
 import { ptBR, es } from 'date-fns/locale'
+import ChatIA from './ChatIA'
 
 function Citas() {
   const { t } = useLanguage()
-  const [citas, setCitas] = useState([]) // Inicializado como array vacío
+  const [citas, setCitas] = useState([])
   const [doctores, setDoctores] = useState([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
+  const [mostrarChatIA, setMostrarChatIA] = useState(false)
   const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'))
   const [horariosDisponibles, setHorariosDisponibles] = useState([])
   const [cargandoHorarios, setCargandoHorarios] = useState(false)
@@ -192,7 +194,7 @@ function Citas() {
           <button onClick={() => navigate('/dashboard')} style={styles.backButton}>
             ← {t('back')}
           </button>
-          <button onClick={() => navigate('/dashboard', { state: { openChat: true } })} style={styles.chatButton}>
+          <button onClick={() => setMostrarChatIA(true)} style={styles.chatButton}>
             <span style={{fontSize: '24px'}}>🤖</span>
           </button>
           <button onClick={() => setShowForm(!showForm)} style={styles.newButton}>
@@ -238,79 +240,17 @@ function Citas() {
                   );
                 })}
               </select>
-            </div>
+</div>
 
-            <div style={styles.formGroup}>
-              <label style={styles.label}>{t('date')}:</label>
-              <input
-                type="date"
-                name="fecha"
-                value={nuevaCita.fecha}
-                onChange={handleInputChange}
-                min={format(new Date(), 'yyyy-MM-dd')}
-                max={format(addDays(new Date(), 30), 'yyyy-MM-dd')}
-                style={styles.input}
-                required
-              />
-            </div>
-
-            {cargandoHorarios ? (
-              <div style={styles.loadingSmall}>{t('loadingAvailableTimes')}</div>
-            ) : (
-              nuevaCita.doctor && nuevaCita.fecha && (
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>{t('availableTime')}:</label>
-                  {horariosDisponibles.length > 0 ? (
-                    <div style={styles.horariosGrid}>
-                      {horariosDisponibles.map(hora => (
-                        <button
-                          key={hora}
-                          type="button"
-                          onClick={() => setNuevaCita(prev => ({ ...prev, hora }))}
-                          style={{
-                            ...styles.horaButton,
-                            ...(nuevaCita.hora === hora ? styles.horaButtonSelected : {})
-                          }}
-                        >
-                          {hora}
-                        </button>
-                      ))}
-                    </div>
-                  ) : (
-                    <p style={styles.noHorarios}>{t('noAvailableTimes')}</p>
-                  )}
-                </div>
-              )
-            )}
-
-            <div style={styles.formGroup}>
-              <label style={styles.label}>{t('appointmentReason')}:</label>
-              <textarea
-                name="motivo"
-                value={nuevaCita.motivo}
-                onChange={handleInputChange}
-                style={styles.textarea}
-                rows="3"
-                placeholder={t('describeReason')}
-              />
-            </div>
-
-            <button 
-              type="submit" 
-              style={styles.submitButton}
-              disabled={!nuevaCita.hora}
-            >
-              {t('confirmReservation')}
-            </button>
-          </form>
-        </div>
+      {mostrarChatIA && (
+        <ChatIA onClose={() => setMostrarChatIA(false)} />
       )}
 
       <div style={styles.citasContainer}>
         <div style={styles.section}>
           <h2>📌 {t('upcomingAppointments')}</h2>
           {citasProximas.length === 0 ? (
-            <p style={styles.emptyState}>No tienes citas próximas</p>
+            <p style={styles.emptyState}>{t('noUpcomingAppointments')}</p>
           ) : (
             citasProximas.map(cita => (
               <div key={cita.id} style={styles.citaCard}>
@@ -342,7 +282,7 @@ function Citas() {
         <div style={styles.section}>
           <h2>📋 {t('appointmentHistory')}</h2>
           {citasPasadas.length === 0 ? (
-            <p style={styles.emptyState}>No hay citas en el historial</p>
+            <p style={styles.emptyState}>{t('noPastAppointments')}</p>
           ) : (
             citasPasadas.map(cita => (
               <div key={cita.id} style={styles.citaCardHistorial}>
