@@ -161,7 +161,7 @@ const ChatIA = ({ onClose }) => {
       }
 
       if (estado === 'elegir_mes') {
-        console.log('[elegir_mes handler] opcionId:', opcionId);
+        console.log('[elegir_mes handler] opcionId:', opcionId, 'citaSeleccionada:', !!citaSeleccionada);
         setMesSeleccionado(opcionId);
         const [anioMes, mesNum] = opcionId.split('-');
         const diasOptions = generarDiasOptions(parseInt(anioMes), parseInt(mesNum));
@@ -202,9 +202,14 @@ const ChatIA = ({ onClose }) => {
           await confirmarCita();
           return;
         }
-        // Si no coincide, mostrar mensaje de error y mostrar opciones again
-        agregarMensaje(t('selectFromOptions'));
+        agregarMensaje(t('invalidOption'));
         setOpciones(horariosDisponibles.map(h => ({ id: h, texto: h })));
+        return;
+      }
+
+      if (estado === 'elegir_nueva_hora') {
+        console.log('[elegir_nueva_hora handler] opcionId:', opcionId);
+        await procesarNuevaHora(opcionId);
         return;
       }
 
