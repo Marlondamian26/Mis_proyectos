@@ -174,8 +174,16 @@ const ChatIA = ({ onClose }) => {
       if (estado === 'elegir_dia') {
         console.log('[elegir_dia handler] opcionId:', opcionId);
         if (/^\d{4}-\d{2}-\d{2}$/.test(opcionId)) {
-          setDatos(prev => ({ ...prev, fecha: opcionId }));
-          await cargarHorarios(datos.doctor?.id, opcionId);
+          // Check if we're in postpone flow (elegir_nueva_fecha or elegir_nueva_hora states)
+          if (citaSeleccionada) {
+            const citaDoctor = citaSeleccionada.doctor || citaSeleccionada.doctor_id;
+            const doctorId = typeof citaDoctor === 'object' ? citaDoctor.id : citaDoctor;
+            setNuevaFecha(opcionId);
+            await cargarHorariosNuevos(doctorId, opcionId);
+          } else {
+            setDatos(prev => ({ ...prev, fecha: opcionId }));
+            await cargarHorarios(datos.doctor?.id, opcionId);
+          }
         }
         return;
       }
@@ -746,8 +754,10 @@ setOpciones([
        return;
      }
      
-     setNuevaFecha(fechaSeleccionada);
-     await cargarHorariosNuevos(citaSeleccionada.doctor, fechaSeleccionada);
+setNuevaFecha(fechaSeleccionada);
+      const citaDoctor = citaSeleccionada.doctor || citaSeleccionada.doctor_id;
+      const doctorId = typeof citaDoctor === 'object' ? citaDoctor.id : citaDoctor;
+      await cargarHorariosNuevos(doctorId, fechaSeleccionada);
    };
 
   const cargarHorariosNuevos = async (doctorId, fecha) => {
@@ -845,7 +855,13 @@ ${t('confirmPostponement')}`;
       ]);
     } catch (error) {
       console.error('Error cancelando cita:', error);
-      agregarMensaje(t('loadingError'));
+      if (error.response?.status === 200 || error.response?.status === 201 || error.response?.status === 204) {
+        agregarMensaje(t('appointmentCancelled'));
+      } else if (error.response?.status === 404 && error.response?.data?.detail === 'Already cancelled') {
+        agregarMensaje(t('appointmentCancelled'));
+      } else {
+        agregarMensaje(t('loadingError'));
+      }
     } finally {
       setLoading(false);
     }
