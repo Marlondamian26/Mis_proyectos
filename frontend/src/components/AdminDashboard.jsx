@@ -2717,43 +2717,8 @@ function AdminDashboard() {
                     <FaBan /> {t('cancel')}
                   </button>
                  </div>
-               )}
-          </div>
-          </div>
-        </>
-      )}
-
-      {modalMode === 'view' && (
-        <div style={styles.modalOverlay} onClick={handleCloseModal}>
-          <div style={styles.modal} onClick={e => e.stopPropagation()}>
-            <button 
-              type="button" 
-              onClick={handleCloseModal} 
-              style={styles.closeButton}
-            >
-              {t('close')}
-            </button>
-                  <button 
-                    type="button" 
-                    onClick={handleCloseModal} 
-                    style={styles.cancelButton}
-                    disabled={saving}
-                  >
-                    <FaBan /> Cancelar
-                  </button>
-                </div>
-              )}
-              
-              {modalMode === 'view' && (
-                <button 
-                  type="button" 
-                  onClick={handleCloseModal} 
-                  style={styles.closeButton}
-                >
-                  Cerrar
-                </button>
-              )}
-
+                )}
+            </form>
           </div>
         </div>
       )}
