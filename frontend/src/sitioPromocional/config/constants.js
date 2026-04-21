@@ -2,9 +2,9 @@
 export const CLINIC_NAME = 'Consultorio Dra. Belkis Morejón Acosta';
 export const CLINIC_LOCATION = 'Benfica, Luanda, Angola';
 export const CLINIC_ADDRESS = 'Benfica, Luanda';
-export const CLINIC_PHONE = '+244 947 711 002';
-export const CLINIC_EMAIL = 'angobelkis72@gmail.com';
-export const CLINIC_WHATSAPP = '+244947711002';
+export const CLINIC_PHONE = '+244 923 456 789';
+export const CLINIC_EMAIL = 'contacto@drabelkismorejon.co.ao';
+export const CLINIC_WHATSAPP = '+244923456789';
 
 export const DOCTOR_NAME = 'Dra. Belkis Morejón Acosta';
 export const DOCTOR_TITLE = 'Médica Especialista';
@@ -89,8 +89,8 @@ export const CONFIG = {
     title: 'Contáctenos',
     subtitle: 'Estamos listos para atenderte. Puedes visitarnos, llamarnos o escribirnos.',
     address: 'Benfica, Luanda, Angola',
-    phone: '+244 947 711 002',
-    email: 'angobelkis72@gmail.com',
+    phone: '+244 923 456 789',
+    email: 'contacto@drabelkismorejon.co.ao',
     hours: 'Lunes a Viernes: 8:00 - 18:00'
   },
   cta: {
