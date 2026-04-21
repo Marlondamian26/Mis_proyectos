@@ -33,7 +33,7 @@ function Dashboard() {
       }
 
       try {
-        console.log('Obtendo dados do usuario...')
+        console.log(t('loadingYourInfo'))
         const response = await axiosInstance.get('usuario-actual/')
         
         if (response.data && response.data.username) {
@@ -44,7 +44,7 @@ function Dashboard() {
           await loadAdditionalData()
         } else {
           console.error('Respuesta inválida del servidor:', response.data)
-          setError('Erro ao carregar os dados do usuario')
+          setError(t('serverError'))
         }
       } catch (err) {
         console.error('Error detallado:', err)
@@ -161,7 +161,7 @@ function Dashboard() {
   if (!user) {
     return (
       <div style={styles.errorContainer}>
-        <p>Nao foi possivel carregar as informacoes do usuario</p>
+        <p>{t('noUserDataReceived')}</p>
         <button onClick={() => navigate('/login')} style={styles.errorButton}>
           {t('login')}
         </button>

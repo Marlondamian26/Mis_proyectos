@@ -339,14 +339,26 @@ const styles = {
     marginRight: '10px'
   },
   chatButton: {
-    backgroundColor: 'var(--bg-tertiary)',
-    color: 'var(--text-primary)',
-    padding: '10px 15px',
-    border: '1px solid var(--border-color)',
-    borderRadius: '5px',
+    position: 'fixed',
+    bottom: '20px',
+    right: '20px',
+    width: '70px',
+    height: '60px',
+    borderRadius: '30px',
+    background: 'var(--role-gradient)',
+    border: 'medium',
+    borderStyle: 'none',
+    boxShadow: '0 4px 20px var(--shadow-color-hover)',
     cursor: 'pointer',
-    fontSize: '14px',
-    marginRight: '10px'
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '22px',
+    zIndex: 999,
+    flexDirection: 'column',
+    gap: '2px',
+    marginRight: '10px',
+    color: 'white'
   },
   newButton: {
     backgroundColor: 'var(--color-patient)',

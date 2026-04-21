@@ -248,7 +248,7 @@ function EnfermeriaDashboard() {
           )}
         </div>
         <button onClick={() => navigate('/dashboard')} style={styles.backButton}>
-          ← Voltar ao Dashboard
+          ← {t('backToDashboard')}
         </button>
       </div>
 

@@ -213,6 +213,42 @@ const ChatIA = ({ onClose }) => {
         return;
       }
 
+      if (estado === 'confirmar_cancelacion') {
+        console.log('[confirmar_cancelacion handler] opcionId:', opcionId);
+        if (opcionId === 'si') {
+          await ejecutarCancelacion();
+        } else {
+          agregarMensaje(t('understood'));
+          setEstado('inicio');
+          setOpciones([
+            { id: 'agendar', texto: t('scheduleAppointment') },
+            { id: 'mis_citas', texto: t('myAppointments') },
+            { id: 'cancelar_cita', texto: t('cancelAppointmentOption') },
+            { id: 'posponer', texto: t('postponeAppointmentOption') },
+            { id: 'ayuda', texto: t('needHelp') }
+          ]);
+        }
+        return;
+      }
+
+      if (estado === 'confirmar_posposicion') {
+        console.log('[confirmar_posposicion handler] opcionId:', opcionId);
+        if (opcionId === 'si') {
+          await ejecutarPosposicion();
+        } else {
+          agregarMensaje(t('understood'));
+          setEstado('inicio');
+          setOpciones([
+            { id: 'agendar', texto: t('scheduleAppointment') },
+            { id: 'mis_citas', texto: t('myAppointments') },
+            { id: 'cancelar_cita', texto: t('cancelAppointmentOption') },
+            { id: 'posponer', texto: t('postponeAppointmentOption') },
+            { id: 'ayuda', texto: t('needHelp') }
+          ]);
+        }
+        return;
+      }
+
       console.log('[seleccionarOpcion] switch, opcionIdStr:', opcionIdStr, 'estado:', estado);
       // Manejar selección de cita para cancelar o posponer
       if (estado === 'elegir_cita_cancelar') {

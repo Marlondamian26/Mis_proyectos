@@ -73,11 +73,11 @@ function Perfil() {
       }
 
       // Obtener usuario actual
-      setLoadingMessage('Obtendo dados do usuario...')
+      setLoadingMessage(t('loadingYourInfo'))
       const userResponse = await axiosInstance.get('usuario-actual/')
       
       if (!userResponse.data) {
-        throw new Error('Nao foram recebidos dados do usuario')
+        throw new Error(t('noUserDataReceived'))
       }
 
       console.log('Usuario cargado:', userResponse.data)
@@ -327,7 +327,7 @@ function Perfil() {
         new_password: passwordForm.new_password
       })
 
-      mostrarMensaje('Senha alterada com sucesso', 'success')
+      mostrarMensaje(t('passwordChanged'), 'success')
       setChangePasswordMode(false)
       setPasswordForm({
         old_password: '',
@@ -340,7 +340,7 @@ function Perfil() {
       if (error.response?.data?.error) {
         mostrarMensaje(error.response.data.error, 'error')
       } else if (error.response?.status === 400) {
-        mostrarMensaje('Senha atual incorreta', 'error')
+        mostrarMensaje(t('currentPasswordIncorrect'), 'error')
       } else {
         mostrarMensaje('Erro ao alterar a senha', 'error')
       }
@@ -421,7 +421,7 @@ function Perfil() {
           </p>
         </div>
         <button onClick={() => navigate('/dashboard')} style={styles.backButton}>
-          ← Voltar ao Dashboard
+          ← {t('backToDashboard')}
         </button>
       </div>
 
@@ -727,9 +727,9 @@ function Perfil() {
                 <button 
                   onClick={() => setChangePasswordMode(true)} 
                   style={styles.editButton}
-                  title="Alterar senha"
+                  title={t('changePassword')}
                 >
-                  <FaKey /> Alterar senha
+                  <FaKey /> {t('changePassword')}
                 </button>
               )}
             </div>
@@ -737,7 +737,7 @@ function Perfil() {
             {changePasswordMode ? (
               <div style={styles.editForm}>
                 <div style={styles.formGroup}>
-                  <label style={styles.label}>Senha atual:</label>
+                  <label style={styles.label}>{t('currentPassword')}:</label>
                   <input
                     type="password"
                     name="old_password"
@@ -752,7 +752,7 @@ function Perfil() {
                 </div>
 
                 <div style={styles.formGroup}>
-                  <label style={styles.label}>Nova senha:</label>
+                  <label style={styles.label}>{t('newPassword')}:</label>
                   <input
                     type="password"
                     name="new_password"
@@ -764,7 +764,7 @@ function Perfil() {
                   {passwordErrors.new_password && (
                     <span style={styles.fieldError}>{passwordErrors.new_password}</span>
                   )}
-                  <span style={styles.passwordHint}>Mínimo 4 caracteres</span>
+                  <span style={styles.passwordHint}>{t('minimum4Characters')}</span>
                 </div>
 
                 <div style={styles.formGroup}>
@@ -789,7 +789,7 @@ function Perfil() {
                     disabled={saving}
                   >
                     {saving ? <FaSpinner style={styles.spinner} /> : <FaKey />}
-                    {saving ? 'Alterando...' : 'Alterar Senha'}
+                    {saving ? t('saving') : t('changePassword')}
                   </button>
                   <button 
                     onClick={() => {
