@@ -483,6 +483,16 @@ function AdminDashboard() {
         orden: item.orden || 0,
         activo: item.activo
       })
+    } else if (tipo === 'horarios') {
+      // Convertir dia_semana de número a array para editar
+      setFormData({
+        ...item,
+        tipo,
+        dia_semana: item.dia_semana !== undefined ? [item.dia_semana] : [],
+        hora_inicio: item.hora_inicio || '08:00',
+        hora_fin: item.hora_fin || '17:00',
+        activo: item.activo
+      })
     } else {
       setFormData({ ...item, tipo })
     }
@@ -992,6 +1002,20 @@ function AdminDashboard() {
         })
         console.log('✅ Imagen actualizada:', response.data)
         mostrarMensaje('✅ ' + t('imageUpdated'), 'success')
+      }
+      else if (tipo === 'horarios') {
+        // Convertir array a número para el backend
+        const diaSemana = Array.isArray(formData.dia_semana) ? formData.dia_semana[0] : formData.dia_semana
+        const horarioData = {
+          doctor: formData.doctor,
+          dia_semana: diaSemana,
+          hora_inicio: formData.hora_inicio,
+          hora_fin: formData.hora_fin,
+          activo: formData.activo
+        }
+        const response = await axiosInstance.patch(`horarios/${selectedItem.id}/`, horarioData)
+        console.log('✅ Horario actualizado:', response.data)
+        mostrarMensaje('✅ ' + t('itemUpdated', { type: t('schedule') }), 'success')
       }
       else {
         const response = await axiosInstance.patch(`${tipo}/${selectedItem.id}/`, formData)
@@ -2549,13 +2573,31 @@ function AdminDashboard() {
                         { value: 4, label: t('friday') },
                         { value: 5, label: t('saturday') },
                         { value: 6, label: t('sunday') }
-                      ].map(dia => (
-                        <label key={dia.value} style={{...styles.checkboxLabel, display: 'flex', alignItems: 'center', gap: '5px', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: '5px', cursor: 'pointer', backgroundColor: (formData.dia_semana || []).includes(dia.value) ? 'var(--color-patient)' : 'var(--bg-tertiary)', color: (formData.dia_semana || []).includes(dia.value) ? 'white' : 'var(--text-primary)'}}>
+                      ].map(dia => {
+                        // Normalizar dia_semana a array de números
+                        let diasArray = []
+                        if (Array.isArray(formData.dia_semana)) {
+                          diasArray = formData.dia_semana.filter(d => typeof d === 'number')
+                        } else if (typeof formData.dia_semana === 'number') {
+                          diasArray = [formData.dia_semana]
+                        } else if (formData.dia_semana !== undefined && formData.dia_semana !== null) {
+                          diasArray = [Number(formData.dia_semana)].filter(d => !isNaN(d))
+                        }
+                        const isSelected = diasArray.includes(dia.value);
+                        return (
+                        <label key={dia.value} style={{...styles.checkboxLabel, display: 'flex', alignItems: 'center', gap: '5px', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: '5px', cursor: 'pointer', backgroundColor: isSelected ? 'var(--color-patient)' : 'var(--bg-tertiary)', color: isSelected ? 'white' : 'var(--text-primary)'}}>
                           <input
                             type="checkbox"
-                            checked={(formData.dia_semana || []).includes(dia.value)}
+                            checked={isSelected}
                             onChange={(e) => {
-                              const currentDays = formData.dia_semana || [];
+                              let currentDays = []
+                              if (Array.isArray(formData.dia_semana)) {
+                                currentDays = formData.dia_semana.filter(d => typeof d === 'number')
+                              } else if (typeof formData.dia_semana === 'number') {
+                                currentDays = [formData.dia_semana]
+                              } else if (formData.dia_semana !== undefined && formData.dia_semana !== null) {
+                                currentDays = [Number(formData.dia_semana)].filter(d => !isNaN(d))
+                              }
                               if (e.target.checked) {
                                 setFormData({...formData, dia_semana: [...currentDays, dia.value]});
                               } else {

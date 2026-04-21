@@ -7,7 +7,7 @@ import { DOCTOR_NAME, DOCTOR_SPECIALTY, CLINIC_LOCATION, CLINIC_PHONE, PLATFORM_
 const getApiUrl = () => {
   if (typeof import.meta !== 'undefined' && import.meta.env) {
     const envUrl = import.meta.env.VITE_API_URL;
-    if (envUrl) return envUrl;
+    if (envUrl) return envUrl.replace(/\/$/, '');
   }
   return 'http://127.0.0.1:8000/api';
 };
