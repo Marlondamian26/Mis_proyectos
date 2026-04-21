@@ -461,6 +461,42 @@ const ChatIA = ({ onClose }) => {
           setEstado('ayuda');
           break;
 
+        case 'info':
+          agregarMensaje('🏥 *Información de la clínica*\n\n📍 *Dirección:* Benfica, Luanda, Angola\n\n📞 *Teléfono:* +244 923 456 789\n\n✉️ *Email:* contacto@drabelkismorejon.co.ao\n\n🕐 *Horarios:* Lunes a Viernes: 8:00 - 18:00\n\nEstamos especializados en atención médica integral con un equipo de profesionales altamente cualificados.');
+          setOpciones([
+            { id: 'agendar', texto: t('scheduleAppointment') },
+            { id: 'mis_citas', texto: t('myAppointments') },
+            { id: 'cancelar_cita', texto: t('cancelAppointmentOption') },
+            { id: 'posponer', texto: t('postponeAppointmentOption') },
+            { id: 'ayuda', texto: t('needHelp') }
+          ]);
+          setEstado('inicio');
+          break;
+
+        case 'contacto':
+          agregarMensaje('📞 *Contactar a soporte*\n\nSi necesitas ayuda adicional, puedes comunicarte con nosotros:\n\n📱 *WhatsApp:* +244 923 456 789\n✉️ *Email:* contacto@drabelkismorejon.co.ao\n\nNuestro equipo te atenderá lo antes posible.');
+          setOpciones([
+            { id: 'agendar', texto: t('scheduleAppointment') },
+            { id: 'mis_citas', texto: t('myAppointments') },
+            { id: 'cancelar_cita', texto: t('cancelAppointmentOption') },
+            { id: 'posponer', texto: t('postponeAppointmentOption') },
+            { id: 'ayuda', texto: t('needHelp') }
+          ]);
+          setEstado('inicio');
+          break;
+
+        case 'volver':
+          agregarMensaje(t('understood'));
+          setEstado('inicio');
+          setOpciones([
+            { id: 'agendar', texto: t('scheduleAppointment') },
+            { id: 'mis_citas', texto: t('myAppointments') },
+            { id: 'cancelar_cita', texto: t('cancelAppointmentOption') },
+            { id: 'posponer', texto: t('postponeAppointmentOption') },
+            { id: 'ayuda', texto: t('needHelp') }
+          ]);
+          break;
+
         case 'cancelar':
           if (estado === 'confirmar') {
             agregarMensaje(t('understood'));
