@@ -397,8 +397,8 @@ function AdminDashboard() {
       setFormData({
         ...baseForm,
         doctor: '',
-        dia_semana: 0,
-        hora_inicio: '09:00',
+        dia_semana: [],
+        hora_inicio: '08:00',
         hora_fin: '17:00',
         activo: true
       })
@@ -838,6 +838,26 @@ function AdminDashboard() {
         })
         console.log('✅ Imagen creada:', response.data)
         mostrarMensaje('✅ ' + t('imageUploaded'), 'success')
+      }
+      else if (tipo === 'horarios' && Array.isArray(formData.dia_semana) && formData.dia_semana.length > 0) {
+        // Crear un horario para cada día seleccionado
+        const dias = formData.dia_semana
+        const horarioData = {
+          doctor: formData.doctor,
+          hora_inicio: formData.hora_inicio,
+          hora_fin: formData.hora_fin,
+          activo: formData.activo
+        }
+        let creados = 0
+        for (const dia of dias) {
+          try {
+            await axiosInstance.post('horarios/', { ...horarioData, dia_semana: dia })
+            creados++
+          } catch (err) {
+            console.warn(`Error creando horario para día ${dia}:`, err)
+          }
+        }
+        mostrarMensaje(`✅ ${creados} ${t('schedule').toLowerCase()}(s) creado(s)`, 'success')
       }
       else {
         // ✅ ESTA ES LA PARTE QUE SE EJECUTA PARA especialidades, usuarios, citas, horarios
@@ -2519,22 +2539,36 @@ function AdminDashboard() {
                   </div>
                   
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>{t('adminDayOfWeek')} *</label>
-                    <select
-                      name="dia_semana"
-                      value={formData.dia_semana || 0}
-                      onChange={handleInputChange}
-                      disabled={modalMode === 'view'}
-                      style={styles.select}
-                    >
-                      <option value="0">{t('monday')}</option>
-                      <option value="1">{t('tuesday')}</option>
-                      <option value="2">{t('wednesday')}</option>
-                      <option value="3">{t('thursday')}</option>
-                      <option value="4">{t('friday')}</option>
-                      <option value="5">{t('saturday')}</option>
-                      <option value="6">{t('sunday')}</option>
-                    </select>
+                    <label style={styles.label}>{t('adminDayOfWeek')} * (selecciona varios)</label>
+                    <div style={{...styles.checkboxGroup, display: 'flex', flexWrap: 'wrap', gap: '10px'}}>
+                      {[
+                        { value: 0, label: t('monday') },
+                        { value: 1, label: t('tuesday') },
+                        { value: 2, label: t('wednesday') },
+                        { value: 3, label: t('thursday') },
+                        { value: 4, label: t('friday') },
+                        { value: 5, label: t('saturday') },
+                        { value: 6, label: t('sunday') }
+                      ].map(dia => (
+                        <label key={dia.value} style={{...styles.checkboxLabel, display: 'flex', alignItems: 'center', gap: '5px', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: '5px', cursor: 'pointer', backgroundColor: (formData.dia_semana || []).includes(dia.value) ? 'var(--color-patient)' : 'var(--bg-tertiary)', color: (formData.dia_semana || []).includes(dia.value) ? 'white' : 'var(--text-primary)'}}>
+                          <input
+                            type="checkbox"
+                            checked={(formData.dia_semana || []).includes(dia.value)}
+                            onChange={(e) => {
+                              const currentDays = formData.dia_semana || [];
+                              if (e.target.checked) {
+                                setFormData({...formData, dia_semana: [...currentDays, dia.value]});
+                              } else {
+                                setFormData({...formData, dia_semana: currentDays.filter(d => d !== dia.value)});
+                              }
+                            }}
+                            disabled={modalMode === 'view'}
+                            style={{display: 'none'}}
+                          />
+                          {dia.label}
+                        </label>
+                      ))}
+                    </div>
                   </div>
                   
                   <div style={styles.formRow}>

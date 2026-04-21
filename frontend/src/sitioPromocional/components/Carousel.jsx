@@ -12,6 +12,15 @@ const getApiUrl = () => {
 
 const API_URL = getApiUrl();
 
+// Helper to get full image URL
+const getImageUrl = (path) => {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+  if (path.startsWith('/sitio/')) return `${API_URL}${path}`;
+  if (path.startsWith('/media/')) return `${API_URL}${path}`;
+  return `${API_URL}/sitio/${path}`;
+};
+
 function Carousel() {
   const { tPromo } = useLanguage();
   const [images, setImages] = useState([]);
@@ -117,7 +126,7 @@ function Carousel() {
       <div className="promo-carousel-container">
         <div className="promo-carousel-slide">
           <img 
-            src={currentImage.imagen} 
+            src={getImageUrl(currentImage.imagen)} 
             alt={currentImage.titulo || 'Carousel image'} 
             className="promo-carousel-image"
           />

@@ -14,6 +14,16 @@ const getApiUrl = () => {
 
 const API_URL = getApiUrl();
 
+// Helper to get full image URL
+const getImageUrl = (path) => {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+  // Handle different path patterns
+  if (path.startsWith('/sitio/')) return `${API_URL}${path}`;
+  if (path.startsWith('/media/')) return `${API_URL}${path}`;
+  return `${API_URL}/sitio/${path}`;
+};
+
 function Hero() {
   const { tPromo, language } = useLanguage();
   const [heroImage, setHeroImage] = useState(null);
@@ -113,7 +123,7 @@ function Hero() {
           ) : heroImage ? (
             <div className="promo-hero-card promo-hero-card-image">
               <img 
-                src={heroImage.imagen} 
+                src={getImageUrl(heroImage.imagen)} 
                 alt={heroImage.titulo || 'Hero image'} 
                 className="promo-hero-img"
               />
