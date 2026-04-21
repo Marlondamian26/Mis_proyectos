@@ -825,6 +825,10 @@ const translations = {
     appointmentsToday: 'Citas de Hoy',
     pendingAppointments: 'Citas Pendientes',
     totalAppointments: 'Total de Citas',
+    manageUsers: 'Gestionar Usuarios',
+    manageDoctors: 'Gestionar Doctores',
+    manageNurses: 'Gestionar Enfermeras',
+    manageAppointments: 'Gestionar Citas',
     manageSpecialties: 'Gestionar Especialidades',
     manageSchedules: 'Gestionar Horarios',
     uploadImage: 'Subir Imagen',
@@ -849,6 +853,7 @@ const translations = {
     imageDeactivated: 'Imagen desactivada',
     untitled: 'Sin titulo',
     newItem: 'Nuevo',
+    createNew: 'Crear Nuevo',
     userManagement: 'Gestión de Usuarios',
     newUser: 'Nuevo Usuario',
 
