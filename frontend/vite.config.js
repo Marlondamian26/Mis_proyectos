@@ -28,7 +28,7 @@ function redirectPlugin() {
 }
 
 export default defineConfig({
-  plugins: [react(), redirectPlugin()],
+  plugins: [react()/*, redirectPlugin()*/],
   base: '/',
   build: {
     outDir: path.resolve(__dirname, 'dist'),

@@ -2585,31 +2585,32 @@ function AdminDashboard() {
                         }
                         const isSelected = diasArray.includes(dia.value);
                         return (
-                        <label key={dia.value} style={{...styles.checkboxLabel, display: 'flex', alignItems: 'center', gap: '5px', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: '5px', cursor: 'pointer', backgroundColor: isSelected ? 'var(--color-patient)' : 'var(--bg-tertiary)', color: isSelected ? 'white' : 'var(--text-primary)'}}>
-                          <input
-                            type="checkbox"
-                            checked={isSelected}
-                            onChange={(e) => {
-                              let currentDays = []
-                              if (Array.isArray(formData.dia_semana)) {
-                                currentDays = formData.dia_semana.filter(d => typeof d === 'number')
-                              } else if (typeof formData.dia_semana === 'number') {
-                                currentDays = [formData.dia_semana]
-                              } else if (formData.dia_semana !== undefined && formData.dia_semana !== null) {
-                                currentDays = [Number(formData.dia_semana)].filter(d => !isNaN(d))
-                              }
-                              if (e.target.checked) {
-                                setFormData({...formData, dia_semana: [...currentDays, dia.value]});
-                              } else {
-                                setFormData({...formData, dia_semana: currentDays.filter(d => d !== dia.value)});
-                              }
-                            }}
-                            disabled={modalMode === 'view'}
-                            style={{display: 'none'}}
-                          />
-                          {dia.label}
-                        </label>
-                      ))}
+                          <label key={dia.value} style={{...styles.checkboxLabel, display: 'flex', alignItems: 'center', gap: '5px', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: '5px', cursor: 'pointer', backgroundColor: isSelected ? 'var(--color-patient)' : 'var(--bg-tertiary)', color: isSelected ? 'white' : 'var(--text-primary)'}}>
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              onChange={(e) => {
+                                let currentDays = []
+                                if (Array.isArray(formData.dia_semana)) {
+                                  currentDays = formData.dia_semana.filter(d => typeof d === 'number')
+                                } else if (typeof formData.dia_semana === 'number') {
+                                  currentDays = [formData.dia_semana]
+                                } else if (formData.dia_semana !== undefined && formData.dia_semana !== null) {
+                                  currentDays = [Number(formData.dia_semana)].filter(d => !isNaN(d))
+                                }
+                                if (e.target.checked) {
+                                  setFormData({...formData, dia_semana: [...currentDays, dia.value]});
+                                } else {
+                                  setFormData({...formData, dia_semana: currentDays.filter(d => d !== dia.value)});
+                                }
+                              }}
+                              disabled={modalMode === 'view'}
+                              style={{display: 'none'}}
+                            />
+                            {dia.label}
+                          </label>
+                        );
+                      })}
                     </div>
                   </div>
                   
