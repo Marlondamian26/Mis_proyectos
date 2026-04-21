@@ -1527,13 +1527,13 @@ const translations = {
     navSobreNos: 'Sobre Nosotros',
     navContacto: 'Contacto',
     navWhatsApp: 'WhatsApp',
-    navLogin: 'Iniciar Sesion',
+    navLogin: 'Iniciar Sesión',
 
     // Hero
     heroBadge: 'Atención Médica de Calidad',
     heroTitle: 'Cuidamos de tu salud con profesionalismo y dedicación',
     heroSubtitle: 'En nuestra clínica encontrarás una atención médica integral, personalizada y humana. Tu bienestar y el de tu familia son nuestra máxima prioridad.',
-    heroLogin: 'Iniciar Sesion',
+    heroLogin: 'Iniciar Sesión',
     heroRegister: 'Registrarse',
     heroWhatsApp: 'WhatsApp',
 
@@ -1541,39 +1541,39 @@ const translations = {
     servicesTitle: 'Nuestros Servicios',
     servicesMainTitle: 'Atención Médica Integral',
     servicios: [
-      { title: 'Consulta Medica General', description: 'Atencion integral para todas las edades. Diagnostico, tratamiento y seguimiento de enfermedades comunes.' },
-      { title: 'Cardiologia', description: 'Evaluacion y tratamiento de enfermedades del corazon y sistema cardiovascular.' },
-      { title: 'Atencion de Emergencias', description: 'Servicio de urgencias medicas disponible para casos que requieren atencion inmediata.' },
-      { title: 'Vacunacion', description: 'Programa de vaccinacion para adultos y ninos. Todas las vacunas del esquema nacional.' },
-      { title: 'Analisis Clinicos', description: 'Servicio de laboratorio para examenes de sangre, orina y otros analisis diagnosticos.' },
-      { title: 'Certificados Medicos', description: 'Emitimos certificados medicos para trabajo, escuela, tramites administrativos y mas.' }
+      { title: 'Consulta Médica General', description: 'Atención integral para todas las edades. Diagnóstico, tratamiento y seguimiento de enfermedades comunes.' },
+      { title: 'Cardiología', description: 'Evaluación y tratamiento de enfermedades del corazón y sistema cardiovascular.' },
+      { title: 'Atención de Emergencias', description: 'Servicio de urgencias médicas disponible para casos que requieren atención inmediata.' },
+      { title: 'Vacunación', description: 'Programa de vacunación para adultos y niños. Todas las vacunas del esquema nacional.' },
+      { title: 'Análisis Clínicos', description: 'Servicio de laboratorio para exámenes de sangre, orina y otros análisis diagnósticos.' },
+      { title: 'Certificados Médicos', description: 'Emitimos certificados médicos para trabajo, escuela, trámites administrativos y más.' }
     ],
 
     // Sobre Nosotros
     aboutTitle: 'Comprometidos con tu Salud y Bienestar',
-    aboutDescription: 'Desde nuestra fundacion, nos hemos dedicado a proporcionar atencion medica de excelencia a la comunidad de Benfica, Luanda. Nuestra mision es proporcionar atencion medica integral, humana y personalizada a cada paciente.',
-    aboutDoctorDescription: 'La Dra. Belkis Morejon Acosta lidera nuestro equipo con una vision clara: ofrecer atencion medica accesible, de calidad y centrada en el paciente. Nuestro equipo esta comprometido con tu bienestar integral.',
+    aboutDescription: 'Desde nuestra fundación, nos hemos dedicado a proporcionar atención médica de excelencia a la comunidad de Benfica, Luanda. Nuestra misión es proporcionar atención médica integral, humana y personalizada a cada paciente.',
+    aboutDoctorDescription: 'La Dra. Belkis Morejón Acosta lidera nuestro equipo con una visión clara: ofrecer atención médica accesible, de calidad y centrada en el paciente. Nuestro equipo está comprometido con tu bienestar integral.',
     aboutFeatures: [
       { text: 'Profesionales altamente cualificados' },
-      { text: 'Atencion personalizada y sin prisas' },
-      { text: 'Cuidado humano y empatico' },
-      { text: 'Estandares de calidad certificados' }
+      { text: 'Atención personalizada y sin prisas' },
+      { text: 'Cuidado humano y empático' },
+      { text: 'Estándares de calidad certificados' }
     ],
-    statsYears: 'Anos',
+    statsYears: 'Años',
     statsPatients: 'Pacientes',
-    statsSatisfaction: 'Satisfaccion',
+    statsSatisfaction: 'Satisfacción',
     statsEmergency: '24/7',
 
     // Testimonios
     testimonialsTitle: 'Lo que dicen nuestros pacientes',
     testimonials: [
-      { name: 'Maria Garcia', text: 'Excelente atencion. La Dra. Belkis es muy profesional y dedicada. Siempre me siento bien atendida en cada consulta.' },
-      { name: 'Joao Pedro', text: 'Muy buen servicio. El consultorio esta bien equipado y el personal es muy amable. Recomendado.' },
-      { name: 'Ana Cristina', text: 'La Dra. Morejon es una excelente medica. Me ha ayudado mucho con mi tratamiento. Gracias por su dedicacion.' }
+      { name: 'Maria Garcia', text: 'Excelente atención. La Dra. Belkis es muy profesional y dedicada. Siempre me siento bien atendida en cada consulta.' },
+      { name: 'Joao Pedro', text: 'Muy buen servicio. El consultorio está bien equipado y el personal es muy amable. Recomendado.' },
+      { name: 'Ana Cristina', text: 'La Dra. Morejón es una excelente médica. Me ha ayudado mucho con mi tratamiento. Gracias por su dedicación.' }
     ],
 
     // Contacto
-    contactTitle: 'Contactenos',
+    contactTitle: 'Contáctenos',
     contactSubtitle: 'Estamos listos para atenderte. Puedes visitarnos, llamarnos o escribirnos.',
     contactAddress: 'Benfica, Luanda, Angola',
     contactPhone: '+244 923 456 789',
@@ -1581,15 +1581,15 @@ const translations = {
     contactHours: 'Lunes a Viernes: 8:00 - 18:00',
 
     // CTA
-    ctaTitle: 'Listo para cuidar tu salud?',
-    ctaSubtitle: 'Registrate en nuestra plataforma para gestionar tus citas y acceder a tu historial medico.',
-    ctaLogin: 'Iniciar Sesion',
+    ctaTitle: '¿Listo para cuidar tu salud?',
+    ctaSubtitle: 'Regístrate en nuestra plataforma para gestionar tus citas y acceder a tu historial médico.',
+    ctaLogin: 'Iniciar Sesión',
     ctaRegister: 'Registrarse',
 
     // Footer
-    footerDescription: 'Consultorio medico de la Dra. Belkis Morejon Acosta. Comprometidos con tu salud y bienestar en Benfica, Luanda.',
+    footerDescription: 'Consultorio médico de la Dra. Belkis Morejón Acosta. Comprometidos con tu salud y bienestar en Benfica, Luanda.',
     footerQuickLinks: { inicio: 'Inicio', servicos: 'Servicios', sobreNos: 'Sobre Nosotros', contacto: 'Contacto' },
-    footerServices: { consulta: 'Consulta Medica', cardiologia: 'Cardiologia', emergencias: 'Emergencias', vacinacion: 'Vacunacion', analise: 'Analisis Clinicos' },
+    footerServices: { consulta: 'Consulta Médica', cardiologia: 'Cardiología', emergencias: 'Emergencias', vacinacion: 'Vacunación', analise: 'Análisis Clínicos' },
     footerCopyright: `© ${new Date().getFullYear()} Todos los derechos reservados.`,
     footerDesigned: 'Designed with care for your health',
     autoMode: 'Modo automático (sigue preferencia del sistema)',
