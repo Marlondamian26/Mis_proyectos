@@ -1501,8 +1501,8 @@ const translations = {
     contactTitle: 'Contacte-nos',
     contactSubtitle: 'Estamos prontos para atender. Pode visitar-nos, ligar-nos ou escrever-nos.',
     contactAddress: 'Benfica, Luanda, Angola',
-    contactPhone: '+244 923 456 789',
-    contactEmail: 'contacto@drabelkismorejon.co.ao',
+    contactPhone: '+244 947 711 002',
+    contactEmail: 'angobelkis72@gmail.com',
     contactHours: 'Segunda a Sexta: 8:00 - 18:00',
 
     // CTA
@@ -1516,7 +1516,7 @@ const translations = {
     footerQuickLinks: { inicio: 'Início', servicos: 'Serviços', sobreNos: 'Sobre Nós', contacto: 'Contacto' },
     footerServices: { consulta: 'Consulta Médica', cardiologia: 'Cardiologia', emergencias: 'Emergências', vacinacao: 'Vacinação', analise: 'Análises Clínicas' },
     footerCopyright: '',
-    footerDesigned: '',
+    footerDesigned: 'Cuidando da sua saúde com amor e dedicação',
     autoMode: 'Modo automático (segue preferência do sistema)',
     toggleTheme: 'Alternar para modo escuro',
     changeLanguage: 'Clique para mudar o idioma',
@@ -1581,8 +1581,8 @@ const translations = {
     contactTitle: 'Contáctenos',
     contactSubtitle: 'Estamos listos para atenderte. Puedes visitarnos, llamarnos o escribirnos.',
     contactAddress: 'Benfica, Luanda, Angola',
-    contactPhone: '+244 923 456 789',
-    contactEmail: 'contacto@drabelkismorejon.co.ao',
+    contactPhone: '+244 947 711 002',
+    contactEmail: 'angobelkis72@gmail.com',
     contactHours: 'Lunes a Viernes: 8:00 - 18:00',
 
     // CTA
@@ -1596,7 +1596,7 @@ const translations = {
     footerQuickLinks: { inicio: 'Inicio', servicos: 'Servicios', sobreNos: 'Sobre Nosotros', contacto: 'Contacto' },
     footerServices: { consulta: 'Consulta Médica', cardiologia: 'Cardiología', emergencias: 'Emergencias', vacinacion: 'Vacunación', analise: 'Análisis Clínicos' },
     footerCopyright: '',
-    footerDesigned: '',
+    footerDesigned: 'Cuidando de tu salud con amor y dedicación',
     autoMode: 'Modo automático (sigue preferencia del sistema)',
     toggleTheme: 'Cambiar a modo oscuro',
     changeLanguage: 'Haz clic para cambiar el idioma',
@@ -1661,8 +1661,8 @@ const translations = {
     contactTitle: 'Contact Us',
     contactSubtitle: 'We are ready to assist you. You can visit us, call us or write to us.',
     contactAddress: 'Benfica, Luanda, Angola',
-    contactPhone: '+244 923 456 789',
-    contactEmail: 'contacto@drabelkismorejon.co.ao',
+    contactPhone: '+244 947 711 002',
+    contactEmail: 'angobelkis72@gmail.com',
     contactHours: 'Monday to Friday: 8:00 - 18:00',
 
     // CTA
@@ -1676,7 +1676,7 @@ const translations = {
     footerQuickLinks: { inicio: 'Home', servicos: 'Services', sobreNos: 'About Us', contacto: 'Contact' },
     footerServices: { consulta: 'Medical Consultation', cardiologia: 'Cardiology', emergencias: 'Emergencies', vacinacao: 'Vaccination', analise: 'Clinical Analysis' },
     footerCopyright: '',
-    footerDesigned: '',
+    footerDesigned: 'Caring for your health with love and dedication',
     autoMode: 'Automatic mode (follows system preference)',
     toggleTheme: 'Switch to dark mode',
     changeLanguage: 'Click to change language',
