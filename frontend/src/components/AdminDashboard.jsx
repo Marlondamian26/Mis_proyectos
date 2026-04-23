@@ -2862,8 +2862,7 @@ const styles = {
       fontSize: '1.5rem',
       color: 'var(--accent-color)'},
     
-    statCard p: {
-      margin: '0.5rem 0 0 0',
+     '0.5rem 0 0 0',
       fontSize: '1.5rem',
       fontWeight: 'bold',
       color: 'var(--text-primary)'},
