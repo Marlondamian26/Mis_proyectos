@@ -46,8 +46,6 @@ function AdminDashboard() {
   const [modalMode, setModalMode] = useState('')
   const [selectedItem, setSelectedItem] = useState(null)
   const [formData, setFormData] = useState({})
-  const [modalMode, setModalMode] = useState('')
-  const [selectedItem, setSelectedItem] = useState(null)
 
   const navigate = useNavigate()
   const location = useLocation()
