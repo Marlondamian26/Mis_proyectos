@@ -290,7 +290,6 @@ const translations = {
     birthDate: 'Data de Nascimento',
     gender: 'Gênero',
     address: 'Endereço',
-    allergies: 'Alergias',
     allergiesPlaceholder: 'Alergias conhecidas do paciente',
     observations: 'Observações importantes',
 
@@ -333,16 +332,7 @@ const translations = {
     tableBloodType: 'Tipo Sanguíneo',
     tableEmergencyPhone: 'Telefone de Emergência',
 
-    // Days of week
-    monday: 'Segunda-feira',
-    tuesday: 'Terça-feira',
-    wednesday: 'Quarta-feira',
-    thursday: 'Quinta-feira',
-    friday: 'Sexta-feira',
-    saturday: 'Sábado',
-    sunday: 'Domingo',
-    day: 'Dia',
-    adminDayOfWeek: 'Dia da Semana',
+
 
     // Buttons
     newAppointment: 'Nova Consulta',
@@ -450,34 +440,8 @@ const translations = {
     noCitasToPostpone: 'Você não tem citas para adiar.',
     chooseAppointment: 'Escolher cita',
     backToMenu: 'Voltar ao menu',
-    backToMain: 'Voltar ao menu principal',
 
-    // Appointments
-    appointments: 'consultas',
-    appointmentsManagement: 'Gestão de Consultas',
-    newAppointment: 'Nova Consulta',
-    bookAppointment: 'Reservar Nova Consulta',
-    pastAppointments: 'Histórico de Consultas',
-    noUpcomingAppointments: 'Você não tem consultas próximas',
-    noPastAppointments: 'Não há consultas no histórico',
-    selectDoctor: 'Selecionar médico',
-    selectPatient: 'Selecionar paciente',
-    typeToSearchPatient: 'Digite o nome do paciente...',
-    noPatientsFound: 'Não foram encontrados pacientes',
-    select: 'Selecionar',
-    selectDate: 'Selecionar data',
-    availableTime: 'Horário disponível',
-    noAvailableTimes: 'Não há horários disponíveis para este dia',
-    loadingAvailableTimes: 'Carregando horários disponíveis...',
-    appointmentReason: 'Motivo da consulta',
-    describeReason: 'Descreva o motivo da sua consulta...',
-    confirmBooking: 'Confirmar Reserva',
-    confirmCancel: 'Tem certeza que deseja cancelar esta consulta?',
-    appointmentDetails: 'Detalhes da Consulta',
-    date: 'Data',
-    time: 'Hora',
-    reason: 'Motivo',
-    status: 'Estado'
+
   },
 
   // Spanish (for browser translation compatibility)
@@ -786,7 +750,6 @@ const translations = {
     otherSpecialty: 'Otra Especialidad',
     selectSpecialtyHint: 'Selecciona una especialidad existente o escribe una nueva abajo',
     exampleSpecialtyPlaceholder: 'Ej: Medicina Tropical',
-    biography: 'Biografía',
     bioPlaceholder: 'Formación, experiencia, etc.',
     licenseNumber: 'Número de Licencia',
 
@@ -1247,7 +1210,6 @@ const translations = {
     otherSpecialty: 'Other Specialty',
     selectSpecialtyHint: 'Select an existing specialty or write a new one below',
     exampleSpecialtyPlaceholder: 'Ex: Internal Medicine',
-    biography: 'Biography',
     bioPlaceholder: 'Training, experience, etc.',
     licenseNumber: 'License Number',
 
@@ -1415,32 +1377,7 @@ const translations = {
      emailPlaceholder: 'email@example.com',
      passwordPlaceholder: '********',
 
-    // Appointments
-    appointments: 'Appointments',
-    appointmentsManagement: 'Appointment Management',
-    newAppointment: 'New Appointment',
-    bookAppointment: 'Book New Appointment',
-    pastAppointments: 'Appointment History',
-    noUpcomingAppointments: 'You have no upcoming appointments',
-    noPastAppointments: 'No appointments in history',
-    selectDoctor: 'Select doctor',
-    selectPatient: 'Select patient',
-    typeToSearchPatient: 'Type patient name...',
-    noPatientsFound: 'No patients found',
-    select: 'Select',
-    selectDate: 'Select date',
-    availableTime: 'Available time',
-    noAvailableTimes: 'No available times for this day',
-    loadingAvailableTimes: 'Loading available times...',
-    appointmentReason: 'Reason for consultation',
-    describeReason: 'Describe the reason for your consultation...',
-    confirmBooking: 'Confirm Reservation',
-    confirmCancel: 'Are you sure you want to cancel this appointment?',
-    appointmentDetails: 'Appointment Details',
-    date: 'Date',
-    time: 'Time',
-    reason: 'Reason',
-    status: 'Status'
+
    },
 
   // Sitio Promocional Translations

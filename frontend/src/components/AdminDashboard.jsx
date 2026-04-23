@@ -2858,18 +2858,19 @@ const styles = {
       display: 'flex',
       alignItems: 'center',
       gap: '1rem'},
-    statIcon: {
-      fontSize: '1.5rem',
-      color: 'var(--accent-color)'},
-    
-      fontSize: '1.5rem',
-      fontWeight: 'bold',
-      color: 'var(--text-primary)'},
-      display: 'flex',
-      gap: '0.5rem',
-      padding: '1rem 2rem',
-      borderBottom: '1px solid var(--border-color)',
-      backgroundColor: 'var(--bg-primary)'},
+     statIcon: {
+       fontSize: '1.5rem',
+       color: 'var(--accent-color)'},
+     statValue: {
+       fontSize: '1.5rem',
+       fontWeight: 'bold',
+       color: 'var(--text-primary)'},
+     statContent: {
+       display: 'flex',
+       gap: '0.5rem',
+       padding: '1rem 2rem',
+       borderBottom: '1px solid var(--border-color)',
+       backgroundColor: 'var(--bg-primary)'},
     tab: {
       background: 'var(--card-bg)',
       border: '1px solid var(--border-color)',
@@ -2995,13 +2996,6 @@ const styles = {
       borderRadius: '4px',
       cursor: 'pointer',
       marginRight: '1rem'},
-    backButton: {
-      background: 'var(--button-bg)',
-      color: 'var(--text-primary)',
-      border: '1px solid var(--border-color)',
-      padding: '0.5rem 1rem',
-      borderRadius: '4px',
-      cursor: 'pointer'},
     chatbotButton: {
       background: 'var(--accent-color)',
       color: 'white',
@@ -3020,7 +3014,7 @@ const styles = {
       bottom: '2rem',
       right: '2rem',
       zIndex: 1000},
-    chatbotButton:hover {
+    chatbotButtonHover: {
       transform: 'scale(1.05)',
       boxShadow: '0 4px 12px rgba(0,0,0,0.2)'},
     chatbotIcon: {
@@ -3035,8 +3029,7 @@ const styles = {
       padding: '1rem',
       zIndex: 1000,
       maxHeight: '80vh',
-      overflowY: 'auto'}}
-}
+       overflowY: 'auto'}}
 
 export default AdminDashboard
 
