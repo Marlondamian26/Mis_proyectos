@@ -41,6 +41,7 @@ function AdminDashboard() {
     citasPendientes: 0,
     citasTotales: 0
   })
+  const [mensaje, setMensaje] = useState({texto: '', tipo: ''})
 
   const navigate = useNavigate()
   const location = useLocation()
