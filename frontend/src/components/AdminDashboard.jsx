@@ -2849,7 +2849,7 @@ const styles = {
       cursor: 'pointer',
       transition: 'all 0.2s',
     },
-    backButton:hover: {
+    backButtonHover: {
       backgroundColor: 'var(--button-hover-bg)',
     },
     statsGrid: {
