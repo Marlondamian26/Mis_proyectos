@@ -2865,7 +2865,6 @@ const styles = {
       fontSize: '1.5rem',
       fontWeight: 'bold',
       color: 'var(--text-primary)'},
-    tabs: {
       display: 'flex',
       gap: '0.5rem',
       padding: '1rem 2rem',
