@@ -42,6 +42,12 @@ function AdminDashboard() {
     citasTotales: 0
   })
   const [mensaje, setMensaje] = useState({texto: '', tipo: ''})
+  const [showModal, setShowModal] = useState(false)
+  const [modalMode, setModalMode] = useState('')
+  const [selectedItem, setSelectedItem] = useState(null)
+  const [formData, setFormData] = useState({})
+  const [modalMode, setModalMode] = useState('')
+  const [selectedItem, setSelectedItem] = useState(null)
 
   const navigate = useNavigate()
   const location = useLocation()
