@@ -470,22 +470,26 @@ class CitaViewSet(viewsets.ModelViewSet):
             import traceback
             traceback.print_exc()
             raise
-    
+
     def perform_update(self, serializer):
         """Al actualizar una cita, enviar notificación si es necesario"""
         cita = serializer.save()
-        
+
         # Importación diferida
         from notificaciones.services import ServicioNotificaciones
-        
+
+        # Si la cita fue creada/actualizada, notificar a todos los involucrados
+        if cita.estado in ('pendiente', 'confirmada', 'cancelada'):
+            ServicioNotificaciones.notificar_cita_creada(cita)
+
         # Si la cita fue cancelada
         if cita.estado == 'cancelada':
             ServicioNotificaciones.notificar_cita_cancelada(cita, cancelado_por='admin')
-        
+
         # Si la cita fue confirmada
-        elif cita.estado == 'confirmada':
+        if cita.estado == 'confirmada':
             ServicioNotificaciones.notificar_cita_confirmada(cita)
-        
+
         return cita
     
     @action(detail=True, methods=['post'])

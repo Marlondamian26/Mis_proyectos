@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react'
 import axiosInstance from '../services/auth'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext'
+import ChatIA from './ChatIA'
 import { 
   FaUsers, FaUserMd, FaUserNurse, FaCalendarAlt, 
   FaChartBar, FaStethoscope, FaClock, FaPlus, 
   FaEdit, FaTrash, FaEye, FaCheck, FaTimes, FaSpinner,
   FaExclamationTriangle, FaSync, FaSave, FaBan,
   FaEnvelope, FaPhone, FaIdCard, FaVenusMars, FaCalendarCheck,
-  FaUserInjured, FaImage, FaUpload
+  FaImage, FaUpload, FaCommentDots
 } from 'react-icons/fa'
 
 function AdminDashboard() {
@@ -27,25 +28,10 @@ function AdminDashboard() {
   const [loadingError, setLoadingError] = useState(null)
   const [saving, setSaving] = useState(false)
   const [errorBackend, setErrorBackend] = useState('')
-  const [stats, setStats] = useState({
-    totalUsuarios: 0,
-    totalDoctores: 0,
-    totalEnfermeras: 0,
-    totalPacientes: 0,
-    citasHoy: 0,
-    citasPendientes: 0,
-    citasTotales: 0
-  })
-
-  // Estados para el modal
-  const [showModal, setShowModal] = useState(false)
-  const [modalMode, setModalMode] = useState('create') // 'create', 'edit', 'view'
-  const [selectedItem, setSelectedItem] = useState(null)
-  const [formData, setFormData] = useState({})
-  const [mensaje, setMensaje] = useState({ texto: '', tipo: '' })
   const [patientSearchQuery, setPatientSearchQuery] = useState('')
   const [patientSuggestions, setPatientSuggestions] = useState([])
   const [showPatientSuggestions, setShowPatientSuggestions] = useState(false)
+  const [chatbotOpen, setChatbotOpen] = useState(false)
 
   const navigate = useNavigate()
   const location = useLocation()
@@ -1257,7 +1243,21 @@ function AdminDashboard() {
         >
           <FaImage /> {t('siteImages')} ({imagenesSitio.length})
         </button>
+        <button
+          style={{...styles.chatbotButton}}
+          onClick={() => setChatbotOpen(!chatbotOpen)}
+          title="Abrir asistente de citas"
+        >
+          <FaCommentDots className={styles.chatbotIcon} />
+        </button>
       </div>
+
+      {/* Chatbot Tab */}
+      {chatbotOpen && (
+        <div style={styles.chatbotTab}>
+          <ChatIA onClose={() => setChatbotOpen(false)} />
+        </div>
+      )}
 
       {/* Contenido según tab activo */}
       <div style={styles.content}>
@@ -1265,6 +1265,14 @@ function AdminDashboard() {
         {activeTab === 'dashboard' && (
           <div>
             <h2 style={styles.sectionTitle}>{t('generalSummary')}</h2>
+            {/* Floating Chatbot Button */}
+            <button
+              onClick={() => setActiveTab('chatbot')}
+              style={styles.chatbotButton}
+              title="Abrir asistente de citas"
+            >
+              <FaCommentDots /> {t('chatAssistant')}
+            </button>
             <div style={styles.dashboardGrid}>
               <div style={styles.dashboardCard}>
                 <h4>{t('usersByRole')}</h4>
@@ -2805,618 +2813,281 @@ function AdminDashboard() {
 
 // ===== ESTILOS =====
 const styles = {
-  container: {
-    padding: '20px',
-    maxWidth: '1400px',
-    margin: '0 auto',
-    backgroundColor: 'var(--bg-primary)',
-    minHeight: '100vh',
-    fontFamily: 'system-ui, -apple-system, sans-serif'
-  },
-  loadingContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    minHeight: '100vh',
-    backgroundColor: 'var(--bg-primary)'
-  },
-  loadingSpinner: {
-    fontSize: '48px',
-    color: 'var(--color-admin)',
-    animation: 'spin 1s linear infinite',
-    marginBottom: '20px'
-  },
-  loadingText: {
-    fontSize: '18px',
-    color: 'var(--text-primary)',
-    marginBottom: '5px'
-  },
-  loadingSubtext: {
-    fontSize: '14px',
-    color: 'var(--text-muted)'
-  },
-  errorContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    minHeight: '100vh',
-    backgroundColor: 'var(--bg-primary)',
-    padding: '20px',
-    textAlign: 'center'
-  },
-  errorIcon: {
-    fontSize: '48px',
-    color: '#e74c3c',
-    marginBottom: '20px'
-  },
-  errorTitle: {
-    fontSize: '24px',
-    color: 'var(--text-primary)',
-    marginBottom: '10px'
-  },
-  errorText: {
-    fontSize: '16px',
-    color: 'var(--text-secondary)',
-    marginBottom: '30px',
-    maxWidth: '400px'
-  },
-  retryButton: {
-    backgroundColor: 'var(--color-admin)',
-    color: 'white',
-    padding: '12px 30px',
-    border: 'none',
-    borderRadius: '8px',
-    fontSize: '16px',
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px',
-    marginBottom: '10px'
-  },
-  backButton: {
-    backgroundColor: 'var(--text-muted)',
-    color: 'white',
-    padding: '10px 20px',
-    border: 'none',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    fontSize: '14px'
-  },
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '30px',
-    backgroundColor: 'var(--bg-secondary)',
-    padding: '25px',
-    borderRadius: '15px',
-    boxShadow: 'var(--box-shadow)',
-    borderWidth: '1px',
-    borderStyle: 'solid',
-    borderColor: 'var(--border-color)'
-  },
-  headerLeft: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '5px'
-  },
-  title: {
-    fontSize: '28px',
-    color: 'var(--text-primary)',
-    margin: 0
-  },
-  subtitle: {
-    fontSize: '14px',
-    color: 'var(--text-muted)',
-    margin: 0
-  },
-  successMessage: {
-    backgroundColor: 'var(--color-success-bg)',
-    color: 'var(--color-success-text)',
-    padding: '15px 20px',
-    borderRadius: '10px',
-    marginBottom: '20px',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px',
-    borderWidth: '1px',
-    borderStyle: 'solid',
-    borderColor: '#c3e6cb'
-  },
-  errorMessage: {
-    backgroundColor: 'var(--color-error-bg)',
-    color: 'var(--color-error-text)',
-    padding: '15px 20px',
-    borderRadius: '10px',
-    marginBottom: '20px',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px',
-    borderWidth: '1px',
-    borderStyle: 'solid',
-    borderColor: '#f5c6cb'
-  },
-  messageText: {
-    fontSize: '14px',
-    flex: 1
-  },
-  errorBackend: {
-    backgroundColor: 'var(--color-error-bg)',
-    color: 'var(--color-error-text)',
-    padding: '15px',
-    borderRadius: '8px',
-    marginBottom: '20px',
-    display: 'flex',
-    alignItems: 'flex-start',
-    gap: '10px',
-    borderWidth: '1px',
-    borderStyle: 'solid',
-    borderColor: '#f5c6cb',
-    fontSize: '13px',
-    maxHeight: '200px',
-    overflowY: 'auto'
-  },
-  statsGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-    gap: '20px',
-    marginBottom: '30px'
-  },
-  statCard: {
-    backgroundColor: 'var(--bg-secondary)',
-    padding: '20px',
-    borderRadius: '12px',
-    boxShadow: 'var(--box-shadow)',
-    borderWidth: '1px',
-    borderStyle: 'solid',
-    borderColor: 'var(--border-color)',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '15px',
-    color: 'var(--text-primary)'
-  },
-  statIcon: {
-    fontSize: '32px',
-    color: 'var(--color-admin)'
-  },
-  tabs: {
-    display: 'flex',
-    gap: '10px',
-    marginBottom: '20px',
-    flexWrap: 'wrap'
-  },
-  tab: {
-    padding: '12px 20px',
-    backgroundColor: 'var(--bg-secondary)',
-    borderWidth: '1px',
-    borderStyle: 'solid',
-    borderColor: 'var(--border-color)',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    fontSize: '14px',
-    fontWeight: '500',
-    color: 'var(--text-primary)',
-    transition: 'all 0.3s'
-  },
-  activeTab: {
-    backgroundColor: 'var(--color-admin)',
-    color: 'white',
-    borderColor: 'var(--color-admin)'
-  },
-  content: {
-    backgroundColor: 'var(--bg-secondary)',
-    padding: '25px',
-    borderRadius: '15px',
-    boxShadow: 'var(--box-shadow)',
-    borderWidth: '1px',
-    borderStyle: 'solid',
-    borderColor: 'var(--border-color)',
-    minHeight: '400px'
-  },
-  sectionTitle: {
-    fontSize: '20px',
-    color: 'var(--text-primary)',
-    margin: '0 0 20px 0'
-  },
-  dashboardGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-    gap: '20px'
-  },
-  dashboardCard: {
-    backgroundColor: 'var(--bg-tertiary)',
-    padding: '20px',
-    borderRadius: '10px',
-    borderWidth: '1px',
-    borderStyle: 'solid',
-    borderColor: 'var(--border-color)',
-    color: 'var(--text-primary)'
-  },
-  statsList: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '10px',
-    marginTop: '15px'
-  },
-  tableHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '20px'
-  },
-  createButton: {
-    backgroundColor: 'var(--color-admin)',
-    color: 'white',
-    padding: '10px 20px',
-    border: 'none',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    fontSize: '14px',
-    fontWeight: '500'
-  },
-  tableContainer: {
-    overflowX: 'auto'
-  },
-  table: {
-    width: '100%',
-    borderCollapse: 'collapse',
-    fontSize: '14px',
-    color: 'var(--text-primary)'
-  },
-  actions: {
-    display: 'flex',
-    gap: '5px',
-    justifyContent: 'center'
-  },
-  viewButton: {
-    backgroundColor: 'var(--color-patient)',
-    color: 'white',
-    padding: '5px 8px',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    fontSize: '12px'
-  },
-  editButton: {
-    backgroundColor: 'var(--color-warning)',
-    color: 'white',
-    padding: '5px 8px',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    fontSize: '12px'
-  },
-  deleteButton: {
-    backgroundColor: 'var(--color-danger)',
-    color: 'white',
-    padding: '5px 8px',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    fontSize: '12px'
-  },
-  badge: {
-    padding: '3px 8px',
-    borderRadius: '12px',
-    fontSize: '11px',
-    fontWeight: '500',
-    display: 'inline-block'
-  },
-  rolBadge: {
-    padding: '3px 8px',
-    borderRadius: '12px',
-    color: 'white',
-    fontSize: '11px',
-    fontWeight: '500',
-    display: 'inline-block',
-    textTransform: 'capitalize'
-  },
-  emptyState: {
-    textAlign: 'center',
-    padding: '40px',
-    color: 'var(--text-muted)',
-    backgroundColor: 'var(--bg-tertiary)',
-    borderRadius: '8px',
-    borderWidth: '1px',
-    borderStyle: 'solid',
-    borderColor: 'var(--border-color)'
-  },
-  modalOverlay: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1000
-  },
-  modal: {
-    backgroundColor: 'var(--bg-secondary)',
-    padding: '30px',
-    borderRadius: '15px',
-    maxWidth: '600px',
-    width: '90%',
-    maxHeight: '80vh',
-    overflowY: 'auto',
-    borderWidth: '1px',
-    borderStyle: 'solid',
-    borderColor: 'var(--border-color)'
-  },
-  modalTitle: {
-    fontSize: '20px',
-    color: 'var(--text-primary)',
-    marginBottom: '20px',
-    paddingBottom: '10px',
-    borderBottomWidth: '1px',
-    borderBottomStyle: 'solid',
-    borderBottomColor: 'var(--border-color)'
-  },
-  modalSubtitle: {
-    fontSize: '16px',
-    color: 'var(--color-admin)',
-    margin: '20px 0 10px 0',
-    paddingBottom: '5px',
-    borderBottomWidth: '1px',
-    borderBottomStyle: 'solid',
-    borderBottomColor: 'var(--border-color)'
-  },
-  formRow: {
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: '10px'
-  },
-  formGroup: {
-    marginBottom: '15px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '5px'
-  },
-  label: {
-    fontSize: '13px',
-    fontWeight: '600',
-    color: 'var(--text-primary)'
-  },
-  input: {
-    padding: '10px',
-    borderWidth: '1px',
-    borderStyle: 'solid',
-    borderColor: 'var(--border-color)',
-    borderRadius: '6px',
-    fontSize: '14px',
-    backgroundColor: 'var(--bg-primary)',
-    color: 'var(--text-primary)'
-  },
-  fileInput: {
-    padding: '10px',
-    borderWidth: '1px',
-    borderStyle: 'solid',
-    borderColor: 'var(--border-color)',
-    borderRadius: '6px',
-    fontSize: '14px',
-    backgroundColor: 'var(--bg-primary)',
-    color: 'var(--text-primary)',
-    width: '100%',
-    cursor: 'pointer'
-  },
-  textarea: {
-    padding: '10px',
-    borderWidth: '1px',
-    borderStyle: 'solid',
-    borderColor: 'var(--border-color)',
-    borderRadius: '6px',
-    fontSize: '14px',
-    resize: 'vertical',
-    backgroundColor: 'var(--bg-primary)',
-    color: 'var(--text-primary)',
-    minHeight: '80px'
-  },
-  select: {
-    padding: '10px',
-    borderWidth: '1px',
-    borderStyle: 'solid',
-    borderColor: 'var(--border-color)',
-    borderRadius: '6px',
-    fontSize: '14px',
-    backgroundColor: 'var(--bg-primary)',
-    color: 'var(--text-primary)'
-  },
-  autocompleteContainer: {
-    position: 'relative'
-  },
-  suggestionsList: {
-    position: 'absolute',
-    top: '100%',
-    left: 0,
-    right: 0,
-    backgroundColor: 'var(--bg-secondary)',
-    borderWidth: '1px',
-    borderStyle: 'solid',
-    borderColor: 'var(--border-color)',
-    borderRadius: '6px',
-    maxHeight: '200px',
-    overflowY: 'auto',
-    zIndex: 1000,
-    boxShadow: 'var(--box-shadow)'
-  },
-  suggestionItem: {
-    padding: '10px',
-    cursor: 'pointer',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderBottomWidth: '1px',
-    borderBottomStyle: 'solid',
-    borderBottomColor: 'var(--border-color)',
-    transition: 'background-color 0.2s'
-  },
-  suggestionName: {
-    fontWeight: '500',
-    color: 'var(--text-primary)'
-  },
-  suggestionUsername: {
-    color: 'var(--text-muted)',
-    fontSize: '12px'
-  },
-  noResults: {
-    padding: '10px',
-    textAlign: 'center',
-    color: 'var(--text-muted)'
-  },
-  fieldHint: {
-    fontSize: '11px',
-    color: 'var(--text-muted)',
-    marginTop: '4px'
-  },
-  hint: {
-    fontSize: '12px',
-    color: 'var(--text-muted)',
-    marginTop: '2px'
-  },
-  checkboxLabel: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    color: 'var(--text-primary)',
-    cursor: 'pointer'
-  },
-  modalButtons: {
-    display: 'flex',
-    gap: '10px',
-    marginTop: '20px'
-  },
-  saveButton: {
-    backgroundColor: 'var(--color-success)',
-    color: 'white',
-    padding: '12px',
-    border: 'none',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    flex: 2,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '5px',
-    fontSize: '14px',
-    fontWeight: '500'
-  },
-  cancelButton: {
-    backgroundColor: 'var(--color-cancelled)',
-    color: 'white',
-    padding: '12px',
-    border: 'none',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    flex: 1,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '5px',
-    fontSize: '14px',
-    fontWeight: '500'
-  },
-  closeButton: {
-    backgroundColor: 'var(--text-muted)',
-    color: 'white',
-    padding: '12px',
-    border: 'none',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    width: '100%',
-    fontSize: '14px',
-    fontWeight: '500'
-  },
-  infoCard: {
-    backgroundColor: 'var(--bg-tertiary)',
-    padding: '15px',
-    borderRadius: '8px',
-    marginTop: '20px',
-    borderWidth: '1px',
-    borderStyle: 'solid',
-    borderColor: 'var(--border-color)'
-  },
-  spinner: {
-    animation: 'spin 1s linear infinite'
-  },
-  imagesGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-    gap: '20px'
-  },
-  imageCard: {
-    backgroundColor: 'var(--bg-tertiary)',
-    padding: '15px',
-    borderRadius: '10px',
-    borderWidth: '1px',
-    borderStyle: 'solid',
-    borderColor: 'var(--border-color)',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '10px'
-  },
-  imagePreview: {
-    width: '100%',
-    aspectRatio: '16/9',
-    backgroundColor: 'var(--bg-primary)',
-    borderRadius: '8px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden'
-  },
-  imageThumb: {
-    width: '100%',
-    height: '100%',
-    objectFit: 'cover'
-  },
-  previewImage: {
-    maxWidth: '100%',
-    maxHeight: '200px',
-    objectFit: 'contain',
-    borderRadius: '4px'
-  },
-  imageInfo: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '4px'
-  },
-  imageType: {
-    fontSize: '12px',
-    color: 'var(--color-admin)',
-    fontWeight: '500'
-  },
-  imageStatus: {
-    fontSize: '12px',
-    fontWeight: '500'
-  },
-  imageActions: {
-    display: 'flex',
-    gap: '8px',
-    justifyContent: 'flex-end'
-  },
-  actionButton: {
-    background: 'transparent',
-    border: 'none',
-    cursor: 'pointer',
-    padding: '8px',
-    borderRadius: '4px',
-    color: 'var(--text-primary)',
-    transition: 'all 0.2s'
-  },
-  currentImageLabel: {
-    fontSize: '12px',
-    color: 'var(--text-secondary)',
-    marginTop: '8px'
+    container: {
+      display: 'flex',
+      height: '100vh',
+      backgroundColor: 'var(--bg-primary)',
+    },
+    header: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: '1rem 2rem',
+      backgroundColor: 'var(--header-bg)',
+      borderBottom: '1px solid var(--border-color)',
+    },
+    headerLeft: {
+      display: 'flex',
+      flexDirection: 'column',
+    },
+    title: {
+      margin: 0,
+      fontSize: '1.5rem',
+      color: 'var(--text-primary)',
+    },
+    subtitle: {
+      margin: '0.25rem 0 0 0',
+      fontSize: '0.875rem',
+      color: 'var(--text-secondary)',
+    },
+    backButton: {
+      background: 'var(--button-bg)',
+      color: 'var(--text-primary)',
+      border: '1px solid var(--border-color)',
+      padding: '0.5rem 1rem',
+      borderRadius: '4px',
+      cursor: 'pointer',
+      transition: 'all 0.2s',
+    },
+    backButton:hover: {
+      backgroundColor: 'var(--button-hover-bg)',
+    },
+    statsGrid: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+      gap: '1.5rem',
+      padding: '2rem',
+    },
+    statCard: {
+      background: 'var(--card-bg)',
+      border: '1px solid var(--border-color)',
+      borderRadius: '8px',
+      padding: '1.5rem',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '1rem',
+    },
+    statIcon: {
+      fontSize: '1.5rem',
+      color: 'var(--accent-color)',
+    },
+    statCard h3: {
+      margin: 0,
+      fontSize: '0.875rem',
+      color: 'var(--text-secondary)',
+    },
+    statCard p: {
+      margin: '0.5rem 0 0 0',
+      fontSize: '1.5rem',
+      fontWeight: 'bold',
+      color: 'var(--text-primary)',
+    },
+    tabs: {
+      display: 'flex',
+      gap: '0.5rem',
+      padding: '1rem 2rem',
+      borderBottom: '1px solid var(--border-color)',
+      backgroundColor: 'var(--bg-primary)',
+    },
+    tab: {
+      background: 'var(--card-bg)',
+      border: '1px solid var(--border-color)',
+      borderRadius: '4px 4px 0 0',
+      padding: '0.5rem 1rem',
+      cursor: 'pointer',
+      transition: 'all 0.2s',
+    },
+    activeTab: {
+      backgroundColor: 'var(--accent-color)',
+      color: 'white',
+      borderColor: 'var(--accent-color)',
+    },
+    content: {
+      padding: '2rem',
+      overflowY: 'auto',
+    },
+    sectionTitle: {
+      marginTop: '0',
+      marginBottom: '1.5rem',
+      color: 'var(--text-primary)',
+    },
+    dashboardGrid: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+      gap: '1.5rem',
+    },
+    tableHeader: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: '1.5rem',
+    },
+    createButton: {
+      background: 'var(--accent-color)',
+      color: 'white',
+      border: 'none',
+      padding: '0.5rem 1rem',
+      borderRadius: '4px',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '0.5rem',
+    },
+    emptyState: {
+      textAlign: 'center',
+      padding: '3rem',
+      color: 'var(--text-secondary)',
+    },
+    tableContainer: {
+      background: 'var(--card-bg)',
+      border: '1px solid var(--border-color)',
+      borderRadius: '8px',
+      overflow: 'hidden',
+    },
+    table: {
+      width: '100%',
+      borderCollapse: 'collapse',
+    },
+    thead: {
+      backgroundColor: 'var(--bg-secondary)',
+    },
+    th: {
+      textAlign: 'left',
+      padding: '1rem',
+      color: 'var(--text-secondary)',
+      fontWeight: 'normal',
+    },
+    td: {
+      padding: '1rem',
+      borderTop: '1px solid var(--border-color)',
+    },
+    actions: {
+      display: 'flex',
+      gap: '0.5rem',
+    },
+    viewButton: {
+      background: 'none',
+      border: '1px solid var(--border-color)',
+      padding: '0.25rem',
+      borderRadius: '4px',
+      cursor: 'pointer',
+    },
+    editButton: {
+      background: 'none',
+      border: '1px solid var(--border-color)',
+      padding: '0.25rem',
+      borderRadius: '4px',
+      cursor: 'pointer',
+    },
+    deleteButton: {
+      background: 'none',
+      border: '1px solid var(--border-color)',
+      padding: '0.25rem',
+      borderRadius: '4px',
+      cursor: 'pointer',
+    },
+    badge: {
+      padding: '0.2rem 0.5rem',
+      borderRadius: '12px',
+      fontSize: '0.75rem',
+      fontWeight: 'bold',
+    },
+    messageText: {
+      marginTop: '0.5rem',
+    },
+    loadingContainer: {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: '100vh',
+    },
+    loadingSpinner: {
+      width: '50px',
+      height: '50px',
+      marginBottom: '1rem',
+    },
+    loadingText: {
+      fontSize: '1.25rem',
+      color: 'var(--text-primary)',
+    },
+    loadingSubtext: {
+      fontSize: '0.875rem',
+      color: 'var(--text-secondary)',
+    },
+    errorContainer: {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: '100vh',
+    },
+    errorIcon: {
+      fontSize: '3rem',
+      color: 'var(--error-color)',
+    },
+    errorTitle: {
+      margin: '1rem 0',
+      color: 'var(--text-primary)',
+    },
+    errorText: {
+      color: 'var(--text-secondary)',
+    },
+    retryButton: {
+      background: 'var(--accent-color)',
+      color: 'white',
+      border: 'none',
+      padding: '0.5rem 1rem',
+      borderRadius: '4px',
+      cursor: 'pointer',
+      marginRight: '1rem',
+    },
+    backButton: {
+      background: 'var(--button-bg)',
+      color: 'var(--text-primary)',
+      border: '1px solid var(--border-color)',
+      padding: '0.5rem 1rem',
+      borderRadius: '4px',
+      cursor: 'pointer',
+    },
+    chatbotButton: {
+      background: 'var(--accent-color)',
+      color: 'white',
+      border: 'none',
+      padding: '0.75rem 1.5rem',
+      borderRadius: '25px',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '0.5rem',
+      fontSize: '0.875rem',
+      fontWeight: 'bold',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+      transition: 'all 0.2s',
+      position: 'fixed',
+      bottom: '2rem',
+      right: '2rem',
+      zIndex: 1000,
+    },
+    chatbotButton:hover {
+      transform: 'scale(1.05)',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+    },
+    chatbotIcon: {
+      fontSize: '1.2rem',
+    },
+    chatbotTab: {
+      position: 'fixed',
+      bottom: '0',
+      left: '0',
+      right: '0',
+      background: 'var(--card-bg)',
+      borderTop: '1px solid var(--border-color)',
+      padding: '1rem',
+      zIndex: 1000,
+      maxHeight: '80vh',
+      overflowY: 'auto',
+    },
   }
 }
 
