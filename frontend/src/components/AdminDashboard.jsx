@@ -32,6 +32,15 @@ function AdminDashboard() {
   const [patientSuggestions, setPatientSuggestions] = useState([])
   const [showPatientSuggestions, setShowPatientSuggestions] = useState(false)
   const [chatbotOpen, setChatbotOpen] = useState(false)
+  const [stats, setStats] = useState({
+    totalUsuarios: 0,
+    totalDoctores: 0,
+    totalEnfermeras: 0,
+    totalPacientes: 0,
+    citasHoy: 0,
+    citasPendientes: 0,
+    citasTotales: 0
+  })
 
   const navigate = useNavigate()
   const location = useLocation()
