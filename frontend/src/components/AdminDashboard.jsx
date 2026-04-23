@@ -9,7 +9,7 @@ import {
   FaEdit, FaTrash, FaEye, FaCheck, FaTimes, FaSpinner,
   FaExclamationTriangle, FaSync, FaSave, FaBan,
   FaEnvelope, FaPhone, FaIdCard, FaVenusMars, FaCalendarCheck,
-  FaImage, FaUpload, FaCommentDots
+  FaImage, FaUpload, FaCommentDots, FaUserInjured
 } from 'react-icons/fa'
 
 function AdminDashboard() {
