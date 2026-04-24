@@ -12,9 +12,10 @@ También, como parte del proyecto, se cuenta con el código del sitio web Consul
 ---
 ## 🧩 Arquitectura
 
-- **backend/** – aplicación Django 6.0 con autenticación JWT, modelos
-dependientes de un usuario personalizado (`usuarios.models.Usuario`), y API
-expuesta vía Django REST Framework. La base de datos de desarrollo es SQLite.
+ - **backend/** – aplicación Django 6.0 con autenticación JWT, modelos
+   dependientes de un usuario personalizado (`usuarios.models.Usuario`), y API
+   expuesta vía Django REST Framework. La base de datos local usa SQLite. En 
+   producción (Render) usa PostgreSQL para persistencia.
 - **frontend/** – interfaz React (JSX) que consume los endpoints del backend. Usa
 Vite para el bundling; los componentes están en `src/components`.
 - `Notas` – guía de mantenimiento y comandos útiles (reinicio de base, creación
