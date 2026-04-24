@@ -376,7 +376,7 @@ def buscar_pacientes(request):
         Q(last_name__icontains=query) |
         Q(username__icontains=query),
         rol='patient'
-    ).select_related('paciente')[:20]  # Limitar a 20 resultados
+    ).select_related('perfil_paciente')[:20]  # Limitar a 20 resultados
     
     resultados = []
     for usuario in usuarios_query:
