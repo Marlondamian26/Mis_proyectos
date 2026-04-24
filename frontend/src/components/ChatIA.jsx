@@ -16,23 +16,37 @@ const ChatIA = ({ onClose }) => {
     especialidad: null,
     doctor: null,
     fecha: null,
-    hora: null
+    hora: null,
+    paciente: null  // NUEVO: para admin/doctor
   });
   
   const [especialidades, setEspecialidades] = useState([]);
   const [doctores, setDoctores] = useState([]);
   const [horariosDisponibles, setHorariosDisponibles] = useState([]);
   const messageIdRef = useRef(0);
+  
+  // NUEVO: Estados para selección de pacientes
+  const [userRole, setUserRole] = useState(null);
+  const [busquedaPaciente, setBusquedaPaciente] = useState('');
+  const [sugerenciasPacientes, setSugerenciasPacientes] = useState([]);
+  const [mostrarSugerencias, setMostrarSugerencias] = useState(false);
+  const [accionCita, setAccionCita] = useState(null);
 
   const inicializar = useCallback(async (resetChat = false) => {
     if (resetChat) {
       setHistorial([]);
       setEstado('inicio');
-      setDatos({ especialidad: null, doctor: null, fecha: null, hora: null });
+      setDatos({ especialidad: null, doctor: null, fecha: null, hora: null, paciente: null });
       messageIdRef.current = 0;
     }
     setLoading(true);
     try {
+      // Obtener rol del usuario actual
+      if (!userRole) {
+        const usuarioResponse = await axiosInstance.get('usuario-actual/');
+        setUserRole(usuarioResponse.data.rol);
+      }
+      
       const espResponse = await axiosInstance.get('especialidades-publicas/');
       const espData = Array.isArray(espResponse.data) ? espResponse.data : (espResponse.data.results || []);
       setEspecialidades(espData);
@@ -79,6 +93,52 @@ const ChatIA = ({ onClose }) => {
     const newId = messageIdRef.current;
     setHistorial(prev => [...prev, { id: newId, tipo, texto, timestamp: new Date() }]);
   }, []);
+
+  // NUEVO: Función para buscar pacientes
+  const buscarPacientes = useCallback(async (query) => {
+    if (!query || query.length < 2) {
+      setSugerenciasPacientes([]);
+      setMostrarSugerencias(false);
+      return;
+    }
+
+    try {
+      const response = await axiosInstance.get('buscar-pacientes/', {
+        params: { query }
+      });
+      setSugerenciasPacientes(response.data.resultados || []);
+      setMostrarSugerencias(true);
+    } catch (error) {
+      console.error('Error buscando pacientes:', error);
+      setSugerenciasPacientes([]);
+    }
+  }, []);
+
+  // NUEVO: Función para seleccionar un paciente
+  const seleccionarPaciente = useCallback((paciente) => {
+    setDatos(prev => ({ ...prev, paciente }));
+    setBusquedaPaciente(paciente.display_text);
+    setMostrarSugerencias(false);
+    
+    // Mensaje del usuario
+    agregarMensaje(paciente.display_text, 'usuario');
+
+    if (estado === 'elegir_paciente_accion') {
+      if (accionCita) {
+        mostrarCitasParaAccion(accionCita, paciente.id);
+      }
+      setAccionCita(null);
+      return;
+    }
+
+    // Continuar con el flujo de agendamiento
+    agregarMensaje(t('whatSpecialty'));
+    setEstado('elegir_especialidad');
+    setOpciones(especialidades.map(esp => ({
+      id: esp.id,
+      texto: esp.nombre
+    })));
+  }, [especialidades, agregarMensaje, t, estado, accionCita]);
 
   const seleccionarOpcion = useCallback(async (opcionId) => {
     const opcionIdStr = String(opcionId);
@@ -270,14 +330,23 @@ const ChatIA = ({ onClose }) => {
               { id: 'mis_citas', texto: t('myAppointments') }
             ]);
           } else {
-            agregarMensaje(t('whatSpecialty'));
-            setEstado('elegir_especialidad');
-            setOpciones(especialidades.map(esp => ({
-              id: esp.id,
-              texto: esp.nombre
-            })));
-            if (especialidades.length > 0) {
-              agregarMensaje(t('selectSpecialtyOption'), 'ia');
+            // NUEVO: Si es admin o doctor, primero pedir que seleccione paciente
+            if (userRole === 'admin' || userRole === 'doctor') {
+              agregarMensaje(t('selectPatient') || 'Por favor, selecciona un paciente. Puedes escribir su nombre:');
+              setEstado('elegir_paciente');
+              setOpciones([]);
+              setBusquedaPaciente('');
+              setSugerenciasPacientes([]);
+            } else {
+              agregarMensaje(t('whatSpecialty'));
+              setEstado('elegir_especialidad');
+              setOpciones(especialidades.map(esp => ({
+                id: esp.id,
+                texto: esp.nombre
+              })));
+              if (especialidades.length > 0) {
+                agregarMensaje(t('selectSpecialtyOption'), 'ia');
+              }
             }
           }
           break;
@@ -515,11 +584,31 @@ const ChatIA = ({ onClose }) => {
           break;
 
         case 'cancelar_cita':
-          await mostrarCitasParaAccion('cancelar');
+          if (userRole === 'admin' || userRole === 'doctor') {
+            setAccionCita('cancelar');
+            setDatos(prev => ({ ...prev, paciente: null }));
+            agregarMensaje(t('selectPatient'));
+            setEstado('elegir_paciente_accion');
+            setOpciones([]);
+            setBusquedaPaciente('');
+            setSugerenciasPacientes([]);
+          } else {
+            await mostrarCitasParaAccion('cancelar');
+          }
           break;
 
         case 'posponer':
-          await mostrarCitasParaAccion('posponer');
+          if (userRole === 'admin' || userRole === 'doctor') {
+            setAccionCita('posponer');
+            setDatos(prev => ({ ...prev, paciente: null }));
+            agregarMensaje(t('selectPatient'));
+            setEstado('elegir_paciente_accion');
+            setOpciones([]);
+            setBusquedaPaciente('');
+            setSugerenciasPacientes([]);
+          } else {
+            await mostrarCitasParaAccion('posponer');
+          }
           break;
 
         case 'elegir_cita_cancelar':
@@ -668,13 +757,18 @@ ${t('confirmAppointment')}`;
   const crearCita = async () => {
     setLoading(true);
     try {
-      const response = await axiosInstance.post('citas/', {
+      const pacienteId = datos.paciente?.id || datos.paciente
+      const requestBody = {
         doctor: datos.doctor.id,
         fecha: datos.fecha,
         hora: datos.hora,
         motivo: ''
-      });
+      }
+      if (pacienteId) {
+        requestBody.paciente = pacienteId
+      }
 
+      const response = await axiosInstance.post('citas/', requestBody);
       const doctorName = `${datos.doctor?.usuario?.first_name || ''} ${datos.doctor?.usuario?.last_name || ''}`;
       agregarMensaje(t('appointmentConfirmed'));
       agregarMensaje(t('appointmentBooked', { doctorName, date: datos.fecha, time: datos.hora }));
@@ -756,10 +850,18 @@ ${t('confirmAppointment')}`;
     return dias;
   };
 
-  const mostrarCitasParaAccion = async (accion) => {
+  const mostrarCitasParaAccion = async (accion, pacienteId = null) => {
     setLoading(true);
     try {
-      const response = await axiosInstance.get('mis-citas/');
+      let response;
+      const params = {};
+      if (userRole === 'admin' || userRole === 'doctor') {
+        if (pacienteId) {
+          params.paciente = pacienteId;
+        }
+      }
+
+      response = await axiosInstance.get(userRole === 'patient' ? 'mis-citas/' : 'citas/', { params });
       const misCitas = Array.isArray(response.data) ? response.data : (response.data.results || []);
       const citasPendentes = misCitas.filter(c => c.estado === 'pendiente' || c.estado === 'confirmada');
       
@@ -768,13 +870,13 @@ ${t('confirmAppointment')}`;
       if (citasPendentes.length === 0) {
         agregarMensaje(accion === 'cancelar' ? t('noCitasToCancel') : t('noCitasToPostpone'));
         setEstado('inicio');
-setOpciones([
-        { id: 'agendar', texto: t('scheduleAppointment') },
-        { id: 'mis_citas', texto: t('myAppointments') },
-        { id: 'cancelar_cita', texto: t('cancelAppointmentOption') },
-        { id: 'posponer', texto: t('postponeAppointmentOption') },
-        { id: 'ayuda', texto: t('needHelp') }
-      ]);
+        setOpciones([
+          { id: 'agendar', texto: t('scheduleAppointment') },
+          { id: 'mis_citas', texto: t('myAppointments') },
+          { id: 'cancelar_cita', texto: t('cancelAppointmentOption') },
+          { id: 'posponer', texto: t('postponeAppointmentOption') },
+          { id: 'ayuda', texto: t('needHelp') }
+        ]);
       } else {
         agregarMensaje(accion === 'cancelar' ? t('selectAppointmentToCancel') : t('selectAppointmentToPostpone'));
         setEstado(accion === 'cancelar' ? 'elegir_cita_cancelar' : 'elegir_cita_posponer');
@@ -1020,6 +1122,44 @@ ${t('confirmPostponement')}`;
               {opcion.texto}
             </button>
           ))}
+        </div>
+      )}
+
+      {estado === 'elegir_paciente' && (
+        <div className="chat-ia-input chat-paciente-busqueda">
+          <input
+            type="text"
+            value={busquedaPaciente}
+            onChange={(e) => {
+              setBusquedaPaciente(e.target.value);
+              buscarPacientes(e.target.value);
+            }}
+            placeholder={t('typeToSearchPatient') || 'Escribe el nombre del paciente...'}
+            disabled={loading}
+            autoFocus
+          />
+          {mostrarSugerencias && sugerenciasPacientes.length > 0 && (
+            <div className="chat-paciente-sugerencias">
+              {sugerenciasPacientes.map((paciente) => (
+                <button
+                  key={paciente.id}
+                  className="paciente-sugerencia-item"
+                  onClick={() => seleccionarPaciente(paciente)}
+                  type="button"
+                >
+                  <span className="paciente-nombre">{paciente.display_text}</span>
+                  {paciente.foto_perfil && (
+                    <img src={paciente.foto_perfil} alt={paciente.display_text} className="paciente-foto" />
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+          {busquedaPaciente.length > 0 && mostrarSugerencias && sugerenciasPacientes.length === 0 && (
+            <div className="chat-paciente-sin-resultados">
+              {t('noPatientsFound') || 'No se encontraron pacientes'}
+            </div>
+          )}
         </div>
       )}
 

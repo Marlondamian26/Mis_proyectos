@@ -271,38 +271,62 @@ logger = logging.getLogger(__name__)
 def chat_ia(request):
     """
     Endpoint para el asistente de IA de agendamiento de citas.
+    Los pacientes usan su propio perfil.
+    Los admins y doctores deben especificar paciente_id.
     """
     from .ai_service import procesar_chat
     from .models import Paciente
-    
+
     mensaje = request.data.get('mensaje', '').strip()
-    
+    paciente_id = request.data.get('paciente_id')
+
     if not mensaje:
         return Response(
             {'error': 'El mensaje no puede estar vacío'},
             status=status.HTTP_400_BAD_REQUEST
         )
-    
+
     if len(mensaje) > 500:
         return Response(
             {'error': 'El mensaje no puede exceder 500 caracteres'},
             status=status.HTTP_400_BAD_REQUEST
         )
-    
-    # Obtener el paciente
-    paciente = Paciente.objects.filter(usuario=request.user).first()
-    
-    if not paciente:
-        logger.warning(f"Intento de chat por usuario no-paciente: {request.user.username}")
+
+    # Determinar el paciente
+    if request.user.rol == 'patient':
+        # Pacientes usan su propio perfil
+        paciente = Paciente.objects.filter(usuario=request.user).first()
+        if not paciente:
+            logger.warning(f"Paciente sin perfil: {request.user.username}")
+            return Response(
+                {'error': 'Tu cuenta no está registrada correctamente como paciente.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+    elif request.user.rol in ['admin', 'doctor']:
+        # Admins y doctores deben especificar paciente_id
+        if not paciente_id:
+            return Response(
+                {'error': 'Debes especificar paciente_id para usar el chat como admin o doctor.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        try:
+            paciente_id = int(paciente_id)
+            paciente = Paciente.objects.get(id=paciente_id)
+        except (ValueError, Paciente.DoesNotExist):
+            return Response(
+                {'error': 'Paciente no encontrado.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+    else:
         return Response(
-            {'error': 'Tu cuenta no está registrada como paciente. Esta función es solo para pacientes.'},
+            {'error': 'No tienes permiso para usar esta función.'},
             status=status.HTTP_403_FORBIDDEN
         )
-    
+
     # Procesar mensaje
-    logger.debug(f"Chat request - Usuario: {request.user.username}, Paciente ID: {paciente.id}")
+    logger.debug(f"Chat request - Usuario: {request.user.username} ({request.user.rol}), Paciente ID: {paciente.id}")
     respuesta = procesar_chat(paciente.id, mensaje)
-    
+
     return Response({
         'respuesta': respuesta
     })
@@ -327,6 +351,130 @@ def chat_ia_sugerencias(request):
     sugerencias = servicio.obtener_sugerencias() if servicio else []
     
     return Response({'sugerencias': sugerencias})
+# =========================
+
+
+# ===== BÚSQUEDA DE PACIENTES (para admin/doctor seleccionar en ChatIA) =====
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def buscar_pacientes(request):
+    """
+    Endpoint para buscar pacientes por nombre, apellido o username.
+    Parámetros: query (string)
+    Devuelve: Lista de pacientes que coinciden con la búsqueda
+    """
+    query = request.query_params.get('query', '').strip()
+    
+    if not query or len(query) < 2:
+        return Response({'error': 'La búsqueda debe tener al menos 2 caracteres'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    from django.db.models import Q
+    
+    # Buscar en usuarios con rol patient que coincidan con nombre, apellido o username
+    usuarios_query = Usuario.objects.filter(
+        Q(first_name__icontains=query) |
+        Q(last_name__icontains=query) |
+        Q(username__icontains=query),
+        rol='patient'
+    ).select_related('paciente')[:20]  # Limitar a 20 resultados
+    
+    resultados = []
+    for usuario in usuarios_query:
+        nombre_completo = f"{usuario.first_name} {usuario.last_name}".strip()
+        
+        # Determinar qué información mostrar
+        # Si hay múltiples usuarios con el mismo nombre completo, incluir username
+        usuarios_mismo_nombre = Usuario.objects.filter(
+            rol='patient',
+            first_name=usuario.first_name,
+            last_name=usuario.last_name
+        ).count()
+        
+        if usuarios_mismo_nombre > 1:
+            # Si hay múltiples con mismo nombre y apellido, mostrar también username
+            display_text = f"{nombre_completo} (@{usuario.username})"
+        else:
+            display_text = nombre_completo
+        
+        resultados.append({
+            'id': usuario.id,
+            'username': usuario.username,
+            'first_name': usuario.first_name,
+            'last_name': usuario.last_name,
+            'display_text': display_text,
+            'foto_perfil': usuario.foto_perfil.url if usuario.foto_perfil else None
+        })
+    
+    return Response({'resultados': resultados})
+# =========================
+
+
+# ===== FOTO DE PERFIL =====
+@api_view(['POST', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def gestionar_foto_perfil(request, usuario_id=None):
+    """
+    POST: Subir/actualizar foto de perfil
+    DELETE: Eliminar foto de perfil
+    
+    Los usuarios pueden actualizar su propia foto.
+    Los admins pueden actualizar la foto de cualquier usuario.
+    """
+    # Determinar el usuario a actualizar
+    if usuario_id:
+        # Admin actualizando a otro usuario
+        if request.user.rol != 'admin':
+            return Response({'error': 'No tienes permiso para actualizar fotos de otros usuarios'}, status=status.HTTP_403_FORBIDDEN)
+        try:
+            usuario = Usuario.objects.get(id=usuario_id)
+        except Usuario.DoesNotExist:
+            return Response({'error': 'Usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+    else:
+        # Usuario actualizando su propia foto
+        usuario = request.user
+    
+    if request.method == 'POST':
+        # Validar que haya una imagen en el request
+        if 'foto' not in request.FILES:
+            return Response({'error': 'Se requiere enviar una imagen en el campo "foto"'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        archivo_foto = request.FILES['foto']
+        
+        # Validar tipo de archivo
+        tipos_permitidos = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+        if archivo_foto.content_type not in tipos_permitidos:
+            return Response({'error': 'Solo se permiten imágenes (JPEG, PNG, GIF, WebP)'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Validar tamaño (máx 5MB)
+        if archivo_foto.size > 5 * 1024 * 1024:
+            return Response({'error': 'La imagen no debe superar 5MB'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Eliminar foto antigua si existe
+        if usuario.foto_perfil:
+            usuario.foto_perfil.delete()
+        
+        # Guardar nueva foto
+        usuario.foto_perfil = archivo_foto
+        usuario.save()
+        
+        serializer = UsuarioSerializer(usuario)
+        return Response({
+            'message': 'Foto de perfil actualizada correctamente',
+            'usuario': serializer.data
+        }, status=status.HTTP_200_OK)
+    
+    elif request.method == 'DELETE':
+        # Eliminar foto de perfil
+        if usuario.foto_perfil:
+            usuario.foto_perfil.delete()
+            usuario.foto_perfil = None
+            usuario.save()
+        
+        serializer = UsuarioSerializer(usuario)
+        return Response({
+            'message': 'Foto de perfil eliminada correctamente',
+            'usuario': serializer.data
+        }, status=status.HTTP_200_OK)
 # =========================
 
 
@@ -426,10 +574,19 @@ class CitaViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         user = self.request.user
+        queryset = Cita.objects.all().order_by('-fecha', '-hora')
+        
+        paciente_id = self.request.query_params.get('paciente')
+        doctor_id = self.request.query_params.get('doctor')
+        if paciente_id:
+            queryset = queryset.filter(paciente_id=paciente_id)
+        if doctor_id:
+            queryset = queryset.filter(doctor_id=doctor_id)
+
         if user.rol == 'paciente':
             try:
                 paciente = Paciente.objects.get(usuario=user)
-                return Cita.objects.filter(paciente=paciente).order_by('-fecha', '-hora')
+                return queryset.filter(paciente=paciente)
             except Paciente.DoesNotExist:
                 return Cita.objects.none()
         elif user.rol in ['doctor', 'enfermera']:
@@ -438,21 +595,35 @@ class CitaViewSet(viewsets.ModelViewSet):
                     perfil = Doctor.objects.get(usuario=user)
                 else:
                     perfil = Enfermera.objects.get(usuario=user)
-                return Cita.objects.filter(doctor=perfil).order_by('-fecha', '-hora')
+                return queryset.filter(doctor=perfil)
             except (Doctor.DoesNotExist, Enfermera.DoesNotExist):
                 return Cita.objects.none()
-        return Cita.objects.all().order_by('-fecha', '-hora')
+        return queryset
     
     def create(self, request, *args, **kwargs):
         user = request.user
-        try:
-            paciente = Paciente.objects.get(usuario=user)
-        except Paciente.DoesNotExist:
-            return Response({'error': 'No tienes perfil de paciente'}, status=400)
-        
         data = request.data.copy()
-        data['paciente'] = paciente.id
-        
+
+        if user.rol == 'patient':
+            try:
+                paciente = Paciente.objects.get(usuario=user)
+            except Paciente.DoesNotExist:
+                return Response({'error': 'No tienes perfil de paciente'}, status=400)
+            data['paciente'] = paciente.id
+        else:
+            paciente_id = data.get('paciente')
+            if not paciente_id:
+                return Response({'error': 'Se requiere seleccionar un paciente'}, status=400)
+            if not Paciente.objects.filter(id=paciente_id).exists():
+                return Response({'error': 'Paciente no encontrado'}, status=404)
+
+        if user.rol == 'doctor' and not data.get('doctor'):
+            try:
+                doctor = Doctor.objects.get(usuario=user)
+                data['doctor'] = doctor.id
+            except Doctor.DoesNotExist:
+                pass
+
         serializer = self.get_serializer(data=data)
         if serializer.is_valid():
             self.perform_create(serializer)

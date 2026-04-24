@@ -579,6 +579,35 @@ function AdminDashboard() {
     setErrorBackend('')
   }
 
+  // Manejar cambios en archivos (fotos de perfil)
+  const handleFileChange = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      setFormData(prev => ({
+        ...prev,
+        foto_perfil: file
+      }))
+    }
+  }
+
+  const eliminarFotoPerfilUsuario = async (usuarioId) => {
+    if (!usuarioId) return
+    setSaving(true)
+    try {
+      await axiosInstance.delete(`foto-perfil/${usuarioId}/`)
+      mostrarMensaje(t('removePhoto') + ' ' + t('success').toLowerCase(), 'success')
+      await loadAllData()
+      if (selectedItem && (selectedItem.id === usuarioId || selectedItem.usuario?.id === usuarioId)) {
+        setSelectedItem(null)
+      }
+    } catch (error) {
+      console.error('Error eliminando foto de perfil:', error)
+      mostrarMensaje(t('errorSaving', { type: t('profile').toLowerCase() }), 'error')
+    } finally {
+      setSaving(false)
+    }
+  }
+
   // Manejar búsqueda de paciente en autocomplete
   const handlePatientSearchChange = (e) => {
     const query = e.target.value
@@ -697,7 +726,16 @@ function AdminDashboard() {
         
         const doctorRes = await axiosInstance.post('doctores/', doctorData)
         console.log('Doctor creado:', doctorRes.data)
-        
+
+        // Subir foto de perfil si se proporcionó
+        if (formData.foto_perfil) {
+          const formDataFoto = new FormData()
+          formDataFoto.append('foto', formData.foto_perfil)
+          await axiosInstance.post(`foto-perfil/${nuevoUsuario.id}/`, formDataFoto, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+          })
+        }
+
         // Si se usó "otra_especialidad" y no se seleccionó una de la lista, crear la nueva especialidad
         if (formData.otra_especialidad && !formData.especialidad) {
           try {
@@ -748,7 +786,16 @@ function AdminDashboard() {
         
         const enfermeraRes = await axiosInstance.post('enfermeras/', enfermeraData)
         console.log('Enfermera creada:', enfermeraRes.data)
-        
+
+        // Subir foto de perfil si se proporcionó
+        if (formData.foto_perfil) {
+          const formDataFoto = new FormData()
+          formDataFoto.append('foto', formData.foto_perfil)
+          await axiosInstance.post(`foto-perfil/${nuevoUsuario.id}/`, formDataFoto, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+          })
+        }
+
         // Si se usó "otra_especialidad" y no se seleccionó una de la lista, crear la nueva especialidad
         if (formData.otra_especialidad && !formData.especialidad) {
           try {
@@ -787,6 +834,15 @@ function AdminDashboard() {
         const usuarioRes = await axiosInstance.post('usuarios/', usuarioData)
         const nuevoUsuario = usuarioRes.data
         console.log('✅ Usuario paciente creado:', nuevoUsuario)
+
+        // Subir foto de perfil si se proporcionó
+        if (formData.foto_perfil) {
+          const formDataFoto = new FormData()
+          formDataFoto.append('foto', formData.foto_perfil)
+          await axiosInstance.post(`foto-perfil/${nuevoUsuario.id}/`, formDataFoto, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+          })
+        }
 
         // El backend crea automáticamente el perfil de paciente via señal
         // Solo necesitamos actualizar los datos médicos si se proporcionaron
@@ -869,9 +925,24 @@ function AdminDashboard() {
         }
         mostrarMensaje(`✅ ${creados} ${t('schedule').toLowerCase()}(s) creado(s)`, 'success')
       }
+      else if (tipo === 'usuarios') {
+        const response = await axiosInstance.post(`${tipo}/`, formData)
+
+        // Subir foto de perfil si se proporcionó
+        if (formData.foto_perfil) {
+          const formDataFoto = new FormData()
+          formDataFoto.append('foto', formData.foto_perfil)
+          await axiosInstance.post(`foto-perfil/${response.data.id}/`, formDataFoto, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+          })
+        }
+
+        console.log('✅ Usuario creado:', response.data)
+        mostrarMensaje('✅ ' + t('itemCreated', { type: t('user') }), 'success')
+      }
       else {
-        // ✅ ESTA ES LA PARTE QUE SE EJECUTA PARA especialidades, usuarios, citas, horarios
-        // ✅ Usa formData.tipo que DEBE ser 'especialidades', 'usuarios', 'citas', 'horarios'
+        // ✅ ESTA ES LA PARTE QUE SE EJECUTA PARA especialidades, citas, horarios
+        // ✅ Usa formData.tipo que DEBE ser 'especialidades', 'citas', 'horarios'
         const response = await axiosInstance.post(`${tipo}/`, formData)
         console.log('✅ Creado:', response.data)
         mostrarMensaje('✅ ' + t('itemCreated', { type: tipo }), 'success')
@@ -888,8 +959,17 @@ function AdminDashboard() {
             telefono: formData.telefono || ''
           }
           await axiosInstance.patch(`usuarios/${selectedItem.usuario.id}/`, usuarioData)
+
+          // Subir foto de perfil si se proporcionó
+          if (formData.foto_perfil) {
+            const formDataFoto = new FormData()
+            formDataFoto.append('foto', formData.foto_perfil)
+            await axiosInstance.post(`foto-perfil/${selectedItem.usuario.id}/`, formDataFoto, {
+              headers: { 'Content-Type': 'multipart/form-data' }
+            })
+          }
         }
-        
+
         // Actualizar perfil de doctor
         const doctorData = {
           especialidad: formData.especialidad || '',
@@ -931,8 +1011,17 @@ function AdminDashboard() {
             telefono: formData.telefono || ''
           }
           await axiosInstance.patch(`usuarios/${selectedItem.usuario.id}/`, usuarioData)
+
+          // Subir foto de perfil si se proporcionó
+          if (formData.foto_perfil) {
+            const formDataFoto = new FormData()
+            formDataFoto.append('foto', formData.foto_perfil)
+            await axiosInstance.post(`foto-perfil/${selectedItem.usuario.id}/`, formDataFoto, {
+              headers: { 'Content-Type': 'multipart/form-data' }
+            })
+          }
         }
-        
+
         // Actualizar perfil de enfermera
         const enfermeraData = {
           especialidad: formData.especialidad || '',
@@ -975,6 +1064,15 @@ function AdminDashboard() {
             fecha_nacimiento: formData.fecha_nacimiento || null
           }
           await axiosInstance.patch(`usuarios/${selectedItem.usuario.id}/`, usuarioData)
+
+          // Subir foto de perfil si se proporcionó
+          if (formData.foto_perfil) {
+            const formDataFoto = new FormData()
+            formDataFoto.append('foto', formData.foto_perfil)
+            await axiosInstance.post(`foto-perfil/${selectedItem.usuario.id}/`, formDataFoto, {
+              headers: { 'Content-Type': 'multipart/form-data' }
+            })
+          }
         }
         // Actualizar perfil de paciente
         const pacienteData = {
@@ -1016,6 +1114,21 @@ function AdminDashboard() {
         const response = await axiosInstance.patch(`horarios/${selectedItem.id}/`, horarioData)
         console.log('✅ Horario actualizado:', response.data)
         mostrarMensaje('✅ ' + t('itemUpdated', { type: t('schedule') }), 'success')
+      }
+      else if (tipo === 'usuarios') {
+        const response = await axiosInstance.patch(`${tipo}/${selectedItem.id}/`, formData)
+
+        // Subir foto de perfil si se proporcionó
+        if (formData.foto_perfil) {
+          const formDataFoto = new FormData()
+          formDataFoto.append('foto', formData.foto_perfil)
+          await axiosInstance.post(`foto-perfil/${selectedItem.id}/`, formDataFoto, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+          })
+        }
+
+        console.log('✅ Usuario actualizado:', response.data)
+        mostrarMensaje('✅ ' + t('itemUpdated', { type: t('user') }), 'success')
       }
       else {
         const response = await axiosInstance.patch(`${tipo}/${selectedItem.id}/`, formData)
@@ -1917,24 +2030,70 @@ function AdminDashboard() {
                     />
                   </div>
 
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>{t('role')} {t('requiredFieldIndicator')}</label>
-                    <select
-                      name="rol"
-                      value={formData.rol || 'patient'}
-                      onChange={handleInputChange}
-                      disabled={modalMode === 'view'}
-                      style={styles.select}
-                      required
-                    >
-                      <option value="patient">{t('patient')}</option>
-                      <option value="doctor">{t('doctor')}</option>
-                      <option value="nurse">{t('nurse')}</option>
-                      <option value="admin">{t('administrator')}</option>
-                    </select>
-                  </div>
-                </>
-              )}
+                   <div style={styles.formGroup}>
+                     <label style={styles.label}>{t('role')} {t('requiredFieldIndicator')}</label>
+                     <select
+                       name="rol"
+                       value={formData.rol || 'patient'}
+                       onChange={handleInputChange}
+                       disabled={modalMode === 'view'}
+                       style={styles.select}
+                       required
+                     >
+                       <option value="patient">{t('patient')}</option>
+                       <option value="doctor">{t('doctor')}</option>
+                       <option value="nurse">{t('nurse')}</option>
+                       <option value="admin">{t('administrator')}</option>
+                     </select>
+                   </div>
+
+                   {/* Foto de perfil */}
+                   <h3 style={styles.modalSubtitle}>{t('profilePhoto')}</h3>
+
+                   {selectedItem?.foto_perfil_url && (
+                     <div style={styles.formGroup}>
+                       <label style={styles.label}>{t('currentPhoto')}</label>
+                       <div style={styles.photoPreview}>
+                         <img
+                           src={selectedItem.foto_perfil_url}
+                           alt={t('currentProfilePhoto')}
+                           style={styles.previewImageProfile}
+                         />
+                         <button
+                           type="button"
+                           onClick={() => eliminarFotoPerfilUsuario(selectedItem.id)}
+                           style={{
+                             marginTop: '8px',
+                             backgroundColor: 'var(--color-danger)',
+                             color: 'white',
+                             border: 'none',
+                             padding: '8px 12px',
+                             borderRadius: '6px',
+                             cursor: 'pointer'
+                           }}
+                         >
+                           {t('removePhoto')}
+                         </button>
+                       </div>
+                     </div>
+                   )}
+
+                   <div style={styles.formGroup}>
+                     <label style={styles.label}>{t('uploadNewPhoto')} ({t('optional')})</label>
+                     <input
+                       type="file"
+                       name="foto_perfil"
+                       accept="image/*"
+                       onChange={handleFileChange}
+                       disabled={modalMode === 'view'}
+                       style={styles.fileInput}
+                     />
+                     <small style={styles.hint}>
+                       {t('photoRequirements')}: JPEG, PNG, GIF, WebP. Máx 5MB.
+                     </small>
+                   </div>
+                 </>
+               )}
 
                {/* Modal para DOCTOR */}
               {formData.tipo === 'doctores' && (
@@ -2055,20 +2214,66 @@ function AdminDashboard() {
                      />
                    </div>
                    
-                   <div style={styles.formGroup}>
-                     <label style={styles.label}>{t('biography')} ({t('optional')})</label>
-                     <textarea
-                       name="biografia"
-                       value={formData.biografia || ''}
-                       onChange={handleInputChange}
-                       disabled={modalMode === 'view'}
-                       style={styles.textarea}
-                       rows="4"
-                       placeholder={t('bioPlaceholder')}
-                     />
-                   </div>
-                 </>
-               )}
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>{t('biography')} ({t('optional')})</label>
+                      <textarea
+                        name="biografia"
+                        value={formData.biografia || ''}
+                        onChange={handleInputChange}
+                        disabled={modalMode === 'view'}
+                        style={styles.textarea}
+                        rows="4"
+                        placeholder={t('bioPlaceholder')}
+                      />
+                    </div>
+
+                    {/* Foto de perfil */}
+                    <h3 style={styles.modalSubtitle}>{t('profilePhoto')}</h3>
+
+                    {selectedItem?.usuario?.foto_perfil_url && (
+                      <div style={styles.formGroup}>
+                        <label style={styles.label}>{t('currentPhoto')}</label>
+                        <div style={styles.photoPreview}>
+                          <img
+                            src={selectedItem.usuario.foto_perfil_url}
+                            alt={t('currentProfilePhoto')}
+                            style={styles.previewImage}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => eliminarFotoPerfilUsuario(selectedItem.usuario.id)}
+                            style={{
+                              marginTop: '8px',
+                              backgroundColor: 'var(--color-danger)',
+                              color: 'white',
+                              border: 'none',
+                              padding: '8px 12px',
+                              borderRadius: '6px',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            {t('removePhoto')}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>{t('uploadNewPhoto')} ({t('optional')})</label>
+                      <input
+                        type="file"
+                        name="foto_perfil"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        disabled={modalMode === 'view'}
+                        style={styles.fileInput}
+                      />
+                      <small style={styles.hint}>
+                        {t('photoRequirements')}: JPEG, PNG, GIF, WebP. Máx 5MB.
+                      </small>
+                    </div>
+                  </>
+                )}
 
                {/* Modal para ENFERMERA */}
               {formData.tipo === 'enfermeras' && (
@@ -2200,19 +2405,65 @@ function AdminDashboard() {
                      />
                    </div>
                   
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>Número de Licencia (opcional)</label>
-                    <input
-                      type="text"
-                      name="numero_licencia"
-                      value={formData.numero_licencia || ''}
-                      onChange={handleInputChange}
-                      disabled={modalMode === 'view'}
-                      style={styles.input}
-                    />
-                  </div>
-                </>
-              )}
+                   <div style={styles.formGroup}>
+                     <label style={styles.label}>Número de Licencia (opcional)</label>
+                     <input
+                       type="text"
+                       name="numero_licencia"
+                       value={formData.numero_licencia || ''}
+                       onChange={handleInputChange}
+                       disabled={modalMode === 'view'}
+                       style={styles.input}
+                     />
+                   </div>
+
+                   {/* Foto de perfil */}
+                   <h3 style={styles.modalSubtitle}>{t('profilePhoto')}</h3>
+
+                   {selectedItem?.usuario?.foto_perfil_url && (
+                     <div style={styles.formGroup}>
+                       <label style={styles.label}>{t('currentPhoto')}</label>
+                       <div style={styles.photoPreview}>
+                         <img
+                           src={selectedItem.usuario.foto_perfil_url}
+                           alt={t('currentProfilePhoto')}
+                           style={styles.previewImageProfile}
+                         />
+                         <button
+                           type="button"
+                           onClick={() => eliminarFotoPerfilUsuario(selectedItem.usuario.id)}
+                           style={{
+                             marginTop: '8px',
+                             backgroundColor: 'var(--color-danger)',
+                             color: 'white',
+                             border: 'none',
+                             padding: '8px 12px',
+                             borderRadius: '6px',
+                             cursor: 'pointer'
+                           }}
+                         >
+                           {t('removePhoto')}
+                         </button>
+                       </div>
+                     </div>
+                   )}
+
+                   <div style={styles.formGroup}>
+                     <label style={styles.label}>{t('uploadNewPhoto')} ({t('optional')})</label>
+                     <input
+                       type="file"
+                       name="foto_perfil"
+                       accept="image/*"
+                       onChange={handleFileChange}
+                       disabled={modalMode === 'view'}
+                       style={styles.fileInput}
+                     />
+                     <small style={styles.hint}>
+                       {t('photoRequirements')}: JPEG, PNG, GIF, WebP. Máx 5MB.
+                     </small>
+                   </div>
+                 </>
+               )}
 
                {/* Modal para PACIENTES */}
               {formData.tipo === 'pacientes' && (
@@ -2349,19 +2600,65 @@ function AdminDashboard() {
                      />
                    </div>
 
-                   <div style={styles.formGroup}>
-                     <label style={styles.label}>{t('emergencyPhone')}</label>
-                     <input
-                       type="text"
-                       name="telefono_emergencia"
-                       value={formData.telefono_emergencia || ''}
-                       onChange={handleInputChange}
-                       disabled={modalMode === 'view'}
-                       style={styles.input}
-                     />
-                   </div>
-                 </>
-               )}
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>{t('emergencyPhone')}</label>
+                      <input
+                        type="text"
+                        name="telefono_emergencia"
+                        value={formData.telefono_emergencia || ''}
+                        onChange={handleInputChange}
+                        disabled={modalMode === 'view'}
+                        style={styles.input}
+                      />
+                    </div>
+
+                    {/* Foto de perfil */}
+                    <h3 style={styles.modalSubtitle}>{t('profilePhoto')}</h3>
+
+                    {selectedItem?.usuario?.foto_perfil_url && (
+                      <div style={styles.formGroup}>
+                        <label style={styles.label}>{t('currentPhoto')}</label>
+                        <div style={styles.photoPreview}>
+                          <img
+                            src={selectedItem.usuario.foto_perfil_url}
+                            alt={t('currentProfilePhoto')}
+                            style={styles.previewImage}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => eliminarFotoPerfilUsuario(selectedItem.usuario.id)}
+                            style={{
+                              marginTop: '8px',
+                              backgroundColor: 'var(--color-danger)',
+                              color: 'white',
+                              border: 'none',
+                              padding: '8px 12px',
+                              borderRadius: '6px',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            {t('removePhoto')}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>{t('uploadNewPhoto')} ({t('optional')})</label>
+                      <input
+                        type="file"
+                        name="foto_perfil"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        disabled={modalMode === 'view'}
+                        style={styles.fileInput}
+                      />
+                      <small style={styles.hint}>
+                        {t('photoRequirements')}: JPEG, PNG, GIF, WebP. Máx 5MB.
+                      </small>
+                    </div>
+                  </>
+                )}
 
               {/* Modal para CITAS */}
               {formData.tipo === 'citas' && (
@@ -3477,6 +3774,23 @@ const styles = {
     zIndex: 1000,
     maxHeight: '80vh',
     overflowY: 'auto'
+  },
+  photoPreview: {
+    marginTop: '10px',
+    padding: '10px',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: 'var(--border-color)',
+    borderRadius: '6px',
+    backgroundColor: 'var(--bg-tertiary)',
+    display: 'inline-block'
+  },
+  previewImageProfile: {
+    maxWidth: '100px',
+    maxHeight: '100px',
+    objectFit: 'cover',
+    borderRadius: '4px',
+    display: 'block'
   }
 }
 

@@ -41,6 +41,9 @@ function Perfil() {
     numero_licencia: ''
   })
 
+  // Estado para foto de perfil
+  const [fotoPerfil, setFotoPerfil] = useState(null)
+
   // Estado para cambio de contraseña
   const [passwordForm, setPasswordForm] = useState({
     old_password: '',
@@ -261,6 +264,15 @@ function Perfil() {
         telefono: editForm.telefono
       })
 
+      // Subir foto de perfil si se seleccionó una nueva
+      if (fotoPerfil) {
+        const formDataFoto = new FormData()
+        formDataFoto.append('foto', fotoPerfil)
+        await axiosInstance.post(`foto-perfil/${user.id}/`, formDataFoto, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        })
+      }
+
       // Si es paciente, actualizar su perfil
       if (user.rol === 'patient' && paciente) {
         await axiosInstance.patch(`pacientes/${paciente.id}/`, {
@@ -311,6 +323,21 @@ function Perfil() {
       } else {
         mostrarMensaje(t('errorSaving', { type: t('profile').toLowerCase() }), 'error')
       }
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const eliminarFotoPerfil = async () => {
+    if (!user?.id) return
+    setSaving(true)
+    try {
+      await axiosInstance.delete(`foto-perfil/${user.id}/`)
+      mostrarMensaje(`${t('removePhoto')} ${t('success').toLowerCase()}`, 'success')
+      await fetchUserData()
+    } catch (error) {
+      console.error('Error eliminando foto de perfil:', error)
+      mostrarMensaje(t('errorSaving', { type: t('profile').toLowerCase() }), 'error')
     } finally {
       setSaving(false)
     }
@@ -501,21 +528,62 @@ function Perfil() {
                   />
                 </div>
 
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>
-                    <FaPhone /> Teléfono
-                  </label>
-                  <input
-                    type="text"
-                    name="telefono"
-                    value={editForm.telefono}
-                    onChange={handleEditChange}
-                    style={styles.input}
-                    placeholder="+244 XXX XXX XXX"
-                  />
-                </div>
+                 <div style={styles.formGroup}>
+                   <label style={styles.label}>
+                     <FaPhone /> Teléfono
+                   </label>
+                   <input
+                     type="text"
+                     name="telefono"
+                     value={editForm.telefono}
+                     onChange={handleEditChange}
+                     style={styles.input}
+                     placeholder="+244 XXX XXX XXX"
+                   />
+                 </div>
 
-                {user?.rol === 'patient' && (
+                 {/* Foto de perfil */}
+                 <div style={styles.formGroup}>
+                   <label style={styles.label}>
+                     <FaUser /> {t('profilePhoto')}
+                   </label>
+                   {user?.foto_perfil_url && (
+                     <div style={styles.photoPreview}>
+                       <img
+                         src={user.foto_perfil_url}
+                         alt={t('currentProfilePhoto')}
+                         style={styles.previewImage}
+                       />
+                       <p style={styles.currentPhotoLabel}>{t('currentPhoto')}</p>
+                       <button
+                         type="button"
+                         onClick={eliminarFotoPerfil}
+                         style={{
+                           marginTop: '8px',
+                           backgroundColor: 'var(--color-danger)',
+                           color: 'white',
+                           border: 'none',
+                           padding: '8px 12px',
+                           borderRadius: '6px',
+                           cursor: 'pointer'
+                         }}
+                       >
+                         {t('removePhoto')}
+                       </button>
+                     </div>
+                   )}
+                   <input
+                     type="file"
+                     accept="image/*"
+                     onChange={(e) => setFotoPerfil(e.target.files[0])}
+                     style={styles.fileInput}
+                   />
+                   <small style={styles.hint}>
+                     {t('photoRequirements')}: JPEG, PNG, GIF, WebP. Máx 5MB.
+                   </small>
+                 </div>
+
+                 {user?.rol === 'patient' && (
                   <>
                     <div style={styles.formGroup}>
                       <label style={styles.label}>
@@ -595,11 +663,14 @@ function Perfil() {
                     {saving ? <FaSpinner style={styles.spinner} /> : <FaSave />}
                     {saving ? t('saving') : t('saveChanges')}
                   </button>
-                  <button 
-                    onClick={() => setEditMode(false)} 
-                    style={styles.cancelButton}
-                    disabled={saving}
-                  >
+                   <button
+                     onClick={() => {
+                       setEditMode(false)
+                       setFotoPerfil(null)
+                     }}
+                     style={styles.cancelButton}
+                     disabled={saving}
+                   >
                     <FaTimes /> Cancelar
                   </button>
                 </div>
@@ -636,9 +707,23 @@ function Perfil() {
                       {user?.rol === 'patient' && t('patient')}
                     </span>
                   </div>
-                </div>
-                
-                {/* Información específica para pacientes */}
+                 </div>
+
+                 {/* Foto de perfil */}
+                 {user?.foto_perfil_url && (
+                   <div style={styles.photoDisplay}>
+                     <h4 style={styles.photoTitle}>{t('profilePhoto')}:</h4>
+                     <div style={styles.photoContainer}>
+                       <img
+                         src={user.foto_perfil_url}
+                         alt={t('profilePhoto')}
+                         style={styles.profileImage}
+                       />
+                     </div>
+                   </div>
+                 )}
+
+                 {/* Información específica para pacientes */}
                 {user?.rol === 'patient' && paciente && (
                   <div style={styles.medicalInfo}>
                     <h3 style={styles.medicalTitle}>
@@ -1287,6 +1372,67 @@ const styles = {
   },
   spinner: {
     animation: 'spin 1s linear infinite'
+  },
+  photoPreview: {
+    marginTop: '10px',
+    padding: '10px',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: 'var(--border-color)',
+    borderRadius: '6px',
+    backgroundColor: 'var(--bg-tertiary)',
+    display: 'inline-block'
+  },
+  previewImage: {
+    maxWidth: '100px',
+    maxHeight: '100px',
+    objectFit: 'cover',
+    borderRadius: '4px',
+    display: 'block'
+  },
+  currentPhotoLabel: {
+    fontSize: '12px',
+    color: 'var(--text-secondary)',
+    marginTop: '8px'
+  },
+  fileInput: {
+    width: '100%',
+    padding: '10px',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: 'var(--border-color)',
+    borderRadius: '6px',
+    backgroundColor: 'var(--bg-primary)',
+    color: 'var(--text-primary)',
+    fontSize: '14px'
+  },
+  hint: {
+    fontSize: '12px',
+    color: 'var(--text-muted)',
+    marginTop: '2px'
+  },
+  photoDisplay: {
+    marginTop: '20px',
+    paddingTop: '15px',
+    borderTop: '1px dashed var(--border-color)'
+  },
+  photoTitle: {
+    fontSize: '14px',
+    fontWeight: '600',
+    color: 'var(--text-primary)',
+    marginBottom: '10px'
+  },
+  photoContainer: {
+    display: 'flex',
+    justifyContent: 'center'
+  },
+  profileImage: {
+    width: '120px',
+    height: '120px',
+    objectFit: 'cover',
+    borderRadius: '50%',
+    border: '3px solid var(--border-color)',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
   }
 }
 

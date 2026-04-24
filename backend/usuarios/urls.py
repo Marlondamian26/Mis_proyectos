@@ -34,5 +34,11 @@ urlpatterns = [
     # Rutas del Asistente de IA
     path('chat-ia/', views.chat_ia, name='chat_ia'),
     path('chat-ia/sugerencias/', views.chat_ia_sugerencias, name='chat_ia_sugerencias'),
-
+    
+    # Búsqueda de pacientes (para ChatIA y AdminDashboard)
+    path('buscar-pacientes/', views.buscar_pacientes, name='buscar_pacientes'),
+    
+    # Gestión de foto de perfil
+    path('foto-perfil/', views.gestionar_foto_perfil, name='gestionar_foto_perfil'),
+    path('foto-perfil/<int:usuario_id>/', views.gestionar_foto_perfil, name='gestionar_foto_perfil_usuario'),
 ]

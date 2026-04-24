@@ -3,11 +3,21 @@ from .models import Usuario, Doctor, Enfermera, Paciente, Especialidad, Horario,
 
 class UsuarioSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=False)
+    foto_perfil_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Usuario
-        fields = ['id', 'username', 'password', 'first_name', 'last_name', 'email', 'rol', 'telefono', 'foto_perfil', 'fecha_nacimiento', 'is_superuser', 'is_staff']
+        fields = ['id', 'username', 'password', 'first_name', 'last_name', 'email', 'rol', 'telefono', 'foto_perfil', 'foto_perfil_url', 'fecha_nacimiento', 'is_superuser', 'is_staff']
         read_only_fields = ['id', 'is_superuser', 'is_staff']
+
+    def get_foto_perfil_url(self, obj):
+        """Retornar la URL completa de la foto de perfil o None si no existe"""
+        if obj.foto_perfil:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.foto_perfil.url)
+            return obj.foto_perfil.url
+        return None
 
     def create(self, validated_data):
         password = validated_data.pop('password', None)

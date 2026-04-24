@@ -127,8 +127,8 @@ function Doctores() {
         {doctoresFiltrados.map(doctor => (
           <div key={doctor.id} style={styles.card}>
             <div style={styles.cardHeader}>
-              <img 
-                src={doctor.usuario?.foto_perfil || 'https://via.placeholder.com/100'} 
+              <img
+                src={doctor.usuario?.foto_perfil_url || 'https://via.placeholder.com/100'}
                 alt={doctor.usuario?.first_name}
                 style={styles.avatar}
               />
@@ -165,8 +165,8 @@ function Doctores() {
             <button style={styles.modalClose} onClick={cerrarModal}>×</button>
             
             <div style={styles.modalHeader}>
-              <img 
-                src={doctorSeleccionado.usuario?.foto_perfil || 'https://via.placeholder.com/150'} 
+              <img
+                src={doctorSeleccionado.usuario?.foto_perfil_url || 'https://via.placeholder.com/150'}
                 alt={doctorSeleccionado.usuario?.first_name}
                 style={styles.modalAvatar}
               />

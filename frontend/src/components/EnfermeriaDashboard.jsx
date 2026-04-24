@@ -237,6 +237,13 @@ function EnfermeriaDashboard() {
             <FaUserNurse style={styles.titleIcon} />
             Panel de Enfermería
           </h1>
+          {user?.foto_perfil_url && (
+            <img
+              src={user.foto_perfil_url}
+              alt={`${user.first_name} ${user.last_name}`}
+              style={styles.profilePhotoSmall}
+            />
+          )}
           <p style={styles.subtitle}>
             {t('welcome')}, {user?.first_name} {user?.last_name}
             {enfermera && ` - ${getEspecialidadNombre()}`}
@@ -705,6 +712,14 @@ const styles = {
   },
   titleIcon: {
     color: 'var(--color-nurse)'
+  },
+  profilePhotoSmall: {
+    width: '80px',
+    height: '80px',
+    borderRadius: '50%',
+    objectFit: 'cover',
+    border: '2px solid var(--color-nurse)',
+    marginTop: '10px'
   },
   subtitle: {
     fontSize: '14px',
