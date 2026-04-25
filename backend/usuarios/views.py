@@ -397,7 +397,7 @@ def buscar_pacientes(request):
             display_text = nombre_completo
         
         resultados.append({
-            'id': usuario.id,
+            'id': usuario.perfil_paciente.id,
             'username': usuario.username,
             'first_name': usuario.first_name,
             'last_name': usuario.last_name,
