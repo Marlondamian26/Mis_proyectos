@@ -445,9 +445,9 @@ def gestionar_foto_perfil(request, usuario_id=None):
         if archivo_foto.content_type not in tipos_permitidos:
             return Response({'error': 'Solo se permiten imágenes (JPEG, PNG, GIF, WebP)'}, status=status.HTTP_400_BAD_REQUEST)
         
-        # Validar tamaño (máx 5MB)
-        if archivo_foto.size > 5 * 1024 * 1024:
-            return Response({'error': 'La imagen no debe superar 5MB'}, status=status.HTTP_400_BAD_REQUEST)
+        # Validar tamaño (máx 25MB)
+        if archivo_foto.size > 25 * 1024 * 1024:
+            return Response({'error': 'La imagen no debe superar 25MB'}, status=status.HTTP_400_BAD_REQUEST)
         
         # Eliminar foto antigua si existe
         if usuario.foto_perfil:

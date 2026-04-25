@@ -18,6 +18,14 @@ function Citas() {
   const [horariosDisponibles, setHorariosDisponibles] = useState([])
   const [cargandoHorarios, setCargandoHorarios] = useState(false)
   const [mensaje, setMensaje] = useState({ texto: '', tipo: '' })
+  const [user, setUser] = useState(null)
+  const [showModal, setShowModal] = useState(false)
+  const [modalMode, setModalMode] = useState('create')
+  const [formData, setFormData] = useState({})
+  const [pacientes, setPacientes] = useState([])
+  const [patientSearchQuery, setPatientSearchQuery] = useState('')
+  const [patientSuggestions, setPatientSuggestions] = useState([])
+  const [showPatientSuggestions, setShowPatientSuggestions] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
   
@@ -29,6 +37,7 @@ function Citas() {
   })
 
   useEffect(() => {
+    fetchUser()
     fetchCitas()
     fetchDoctores()
   }, [])
@@ -62,6 +71,29 @@ function Citas() {
     } catch (error) {
       console.error('Error cargando doctores:', error)
       setDoctores([])
+    }
+  }
+
+  const fetchUser = async () => {
+    try {
+      const response = await axiosInstance.get('usuario-actual/')
+      setUser(response.data)
+      if (response.data.rol === 'doctor' || response.data.rol === 'admin') {
+        fetchPacientes()
+      }
+    } catch (error) {
+      console.error('Error cargando usuario:', error)
+    }
+  }
+
+  const fetchPacientes = async () => {
+    try {
+      const response = await axiosInstance.get('pacientes/')
+      const pacientesData = Array.isArray(response.data) ? response.data : response.data.results || []
+      setPacientes(pacientesData)
+    } catch (error) {
+      console.error('Error cargando pacientes:', error)
+      setPacientes([])
     }
   }
 
@@ -120,6 +152,14 @@ function Citas() {
     }))
   }
 
+  const handleInputChangeForm = (e) => {
+    const { name, value } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }))
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     
@@ -147,6 +187,39 @@ function Citas() {
     }
   }
 
+  const handleSubmitForm = async (e) => {
+    e.preventDefault()
+    
+    if (!formData.doctor || !formData.fecha || !formData.hora) {
+      mostrarMensaje(t('requiredField'), 'error')
+      return
+    }
+
+    if ((user?.rol === 'doctor' || user?.rol === 'admin') && !formData.paciente) {
+      mostrarMensaje(t('selectPatient'), 'error')
+      return
+    }
+
+    try {
+      const citaData = {
+        paciente: formData.paciente,
+        doctor: formData.doctor,
+        fecha: formData.fecha,
+        hora: formData.hora,
+        motivo: formData.motivo
+      }
+      
+      await axiosInstance.post('citas/', citaData)
+      
+      mostrarMensaje(t('appointmentBooked'), 'success')
+      setShowModal(false)
+      fetchCitas()
+    } catch (error) {
+      console.error('Error creando cita:', error)
+      mostrarMensaje(error.response?.data?.message || t('errorSaving', { type: t('appointments').toLowerCase() }), 'error')
+    }
+  }
+
   const cancelarCita = async (citaId) => {
     if (!window.confirm(t('confirmCancel'))) return
     
@@ -160,9 +233,54 @@ function Citas() {
     }
   }
 
+  const handlePatientSearchChange = (e) => {
+    const query = e.target.value
+    setPatientSearchQuery(query)
+    if (query.length > 0) {
+      const filtered = pacientes.filter(p => 
+        `${p.first_name} ${p.last_name}`.toLowerCase().includes(query.toLowerCase()) ||
+        p.username.toLowerCase().includes(query.toLowerCase())
+      )
+      setPatientSuggestions(filtered.slice(0, 5))
+      setShowPatientSuggestions(true)
+    } else {
+      setPatientSuggestions([])
+      setShowPatientSuggestions(false)
+    }
+  }
+
+  const selectPatient = (paciente) => {
+    setFormData(prev => ({ ...prev, paciente: paciente.id }))
+    setPatientSearchQuery(`${paciente.first_name} ${paciente.last_name}`)
+    setShowPatientSuggestions(false)
+  }
+
+  const closePatientSuggestions = () => {
+    setTimeout(() => setShowPatientSuggestions(false), 200)
+  }
+
+  const handleCloseModal = () => {
+    setShowModal(false)
+    setFormData({})
+    setPatientSearchQuery('')
+  }
+
   const mostrarMensaje = (texto, tipo) => {
     setMensaje({ texto, tipo })
     setTimeout(() => setMensaje({ texto: '', tipo: '' }), 5000)
+  }
+
+  const handleCreateCita = () => {
+    setModalMode('create')
+    setFormData({
+      paciente: user?.rol === 'patient' ? user.id : '',
+      doctor: user?.rol === 'doctor' ? user.id : (location.state?.doctorSeleccionado?.id || ''),
+      fecha: format(new Date(), 'yyyy-MM-dd'),
+      hora: '',
+      motivo: ''
+    })
+    setPatientSearchQuery('')
+    setShowModal(true)
   }
 
   const getEstadoBadge = (estado) => {
@@ -197,8 +315,8 @@ function Citas() {
           <button onClick={() => setMostrarChatIA(true)} style={styles.chatButton}>
             <span style={{fontSize: '24px'}}>🤖</span>
           </button>
-          <button onClick={() => setShowForm(!showForm)} style={styles.newButton}>
-            {showForm ? '✕ ' + t('cancel') : '+ ' + t('newAppointment')}
+          <button onClick={() => handleCreateCita()} style={styles.newButton}>
+            + {t('newAppointment')}
           </button>
         </div>
       </div>
@@ -206,42 +324,6 @@ function Citas() {
       {mensaje.texto && (
         <div style={mensaje.tipo === 'success' ? styles.successMessage : styles.errorMessage}>
           {mensaje.texto}
-        </div>
-      )}
-
-      {showForm && (
-        <div style={styles.formContainer}>
-          <h2>{t('bookAppointment')}</h2>
-          <form onSubmit={handleSubmit} style={styles.form}>
-            <div style={styles.formGroup}>
-              <label style={styles.label}>{t('doctor')}:</label>
-              <select
-                name="doctor"
-                value={nuevaCita.doctor}
-                onChange={handleInputChange}
-                style={styles.select}
-                required
-              >
-                <option value="">{t('selectDoctor')}</option>
-                {doctores.map(doctor => {
-                  // Determinar la especialidad a mostrar
-                  const especialidadMostrar = doctor.especialidad_nombre || 
-                                             doctor.otra_especialidad || 
-                                             t('specialtyNotSpecified');
-                  
-                  // Agregar indicador si es una especialidad nueva (no en el catálogo)
-                  const esNueva = doctor.otra_especialidad && !doctor.especialidad_nueva;
-                  
-                  return (
-                    <option key={doctor.id} value={doctor.id}>
-                      Dr. {doctor.usuario?.first_name} {doctor.usuario?.last_name} - {especialidadMostrar}
-                      {esNueva && ' ✏️'}
-                    </option>
-                  );
-                })}
-              </select>
-            </div>
-          </form>
         </div>
       )}
 
@@ -304,6 +386,148 @@ function Citas() {
           )}
         </div>
       </div>
+
+      {/* Modal para crear cita */}
+      {showModal && (
+        <div style={styles.modalOverlay} onClick={handleCloseModal}>
+          <div style={styles.modal} onClick={e => e.stopPropagation()}>
+            <h2 style={styles.modalTitle}>{t('bookAppointment')}</h2>
+            
+            <form onSubmit={handleSubmitForm}>
+              {/* Selección de paciente para doctor/admin */}
+              {(user?.rol === 'doctor' || user?.rol === 'admin') && (
+                <div style={styles.formGroup}>
+                  <label style={styles.label}>{t('patient')} *</label>
+                  <div style={styles.autocompleteContainer}>
+                    <input
+                      type="text"
+                      name="pacienteSearch"
+                      value={patientSearchQuery}
+                      onChange={handlePatientSearchChange}
+                      onFocus={() => {
+                        if (patientSearchQuery.length > 0) {
+                          setShowPatientSuggestions(true)
+                        }
+                      }}
+                      onBlur={closePatientSuggestions}
+                      style={styles.input}
+                      placeholder={t('typeToSearchPatient')}
+                      autoComplete="off"
+                    />
+                    {showPatientSuggestions && (
+                      <div style={styles.suggestionsList}>
+                        {patientSuggestions.length > 0 ? (
+                          patientSuggestions.map(paciente => (
+                            <div
+                              key={paciente.id}
+                              style={styles.suggestionItem}
+                              onClick={() => selectPatient(paciente)}
+                            >
+                              <span style={styles.suggestionName}>
+                                {paciente.first_name} {paciente.last_name}
+                              </span>
+                              <span style={styles.suggestionUsername}>
+                                @{paciente.username}
+                              </span>
+                            </div>
+                          ))
+                        ) : (
+                          <div style={styles.noResults}>
+                            {t('noPatientsFound')}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  {!formData.paciente && (
+                    <span style={styles.fieldHint}>{t('selectPatient')}</span>
+                  )}
+                </div>
+              )}
+              
+              {/* Selección de doctor para paciente */}
+              {user?.rol === 'patient' && (
+                <div style={styles.formGroup}>
+                  <label style={styles.label}>{t('doctor')} *</label>
+                  <select
+                    name="doctor"
+                    value={formData.doctor || ''}
+                    onChange={handleInputChangeForm}
+                    style={styles.select}
+                    required
+                  >
+                    <option value="">{t('selectDoctor')}</option>
+                    {doctores.map(doctor => {
+                      const especialidadMostrar = doctor.especialidad_nombre || 
+                                                 doctor.otra_especialidad || 
+                                                 t('specialtyNotSpecified');
+                      const esNueva = doctor.otra_especialidad && !doctor.especialidad_nueva;
+                      
+                      return (
+                        <option key={doctor.id} value={doctor.id}>
+                          Dr. {doctor.usuario?.first_name} {doctor.usuario?.last_name} - {especialidadMostrar}
+                          {esNueva && ' ✏️'}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
+              )}
+              
+              <div style={styles.formRow}>
+                <div style={styles.formGroup}>
+                  <label style={styles.label}>{t('date')} *</label>
+                  <input
+                    type="date"
+                    name="fecha"
+                    value={formData.fecha || ''}
+                    onChange={handleInputChangeForm}
+                    style={styles.input}
+                    min={new Date().toISOString().split('T')[0]}
+                    required
+                  />
+                </div>
+                <div style={styles.formGroup}>
+                  <label style={styles.label}>{t('time')} *</label>
+                  <input
+                    type="time"
+                    name="hora"
+                    value={formData.hora || ''}
+                    onChange={handleInputChangeForm}
+                    style={styles.input}
+                    required
+                  />
+                </div>
+              </div>
+              
+              <div style={styles.formGroup}>
+                <label style={styles.label}>{t('appointmentReason')} ({t('optional')})</label>
+                <textarea
+                  name="motivo"
+                  value={formData.motivo || ''}
+                  onChange={handleInputChangeForm}
+                  style={styles.textarea}
+                  rows="3"
+                  placeholder={t('describeReason')}
+                />
+              </div>
+              
+              <div style={styles.modalActions}>
+                <button type="button" onClick={handleCloseModal} style={styles.cancelButton}>
+                  {t('cancel')}
+                </button>
+                <button type="submit" style={styles.saveButton}>
+                  {t('bookAppointment')}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {mostrarChatIA && (
+        <ChatIA onClose={() => setMostrarChatIA(false)} />
+      )}
     </div>
   )
 }
