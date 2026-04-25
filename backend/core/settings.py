@@ -26,7 +26,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-&)-^#6c1$g5jsvzxqo)zkjp42l
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'belkis-saude.com', 'www.belkis-saude.com', 'gestion-saude-backend.onrender.com', 'gestion-saude.onrender.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'belkis-saude.com', 'www.belkis-saude.com', 'gestion-saude-backend.onrender.com', 'gestion-saude.onrender.com', '*.onrender.com']
 
 # Cache configuration for rate limiting and session management
 # Using LocMemCache for development; use Redis for production
@@ -103,7 +103,7 @@ DATABASES = {
     'default': dj_database_url.config(
         default='sqlite:///db.sqlite3',
         conn_max_age=600,
-        ssl_require=True
+        ssl_require=False
     )
 }
 
