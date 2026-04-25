@@ -279,7 +279,7 @@ function Citas() {
 
   const selectDoctor = (doctor) => {
     setFormData(prev => ({ ...prev, doctor: doctor.id }))
-    setDoctorSearchQuery(`Dr. ${doctor.usuario?.first_name} ${doctor.usuario?.last_name} - ${doctor.especialidad_nombre || doctor.otra_especialidad || 'Especialidad no especificada'}`)
+    setDoctorSearchQuery(`${t('dr')} ${doctor.usuario?.first_name} ${doctor.usuario?.last_name} - ${doctor.especialidad_nombre || doctor.otra_especialidad || t('unspecifiedSpecialty')}`)
     setShowDoctorSuggestions(false)
   }
 
@@ -369,16 +369,16 @@ function Citas() {
               <div key={cita.id} style={styles.citaCard}>
                 <div style={styles.citaHeader}>
                   <div style={styles.citaDoctor}>
-                    <FaUserMd /> Dr. {cita.doctor_nombre}
+                    <FaUserMd /> {t('dr')} {cita.doctor_nombre}
                   </div>
                   {getEstadoBadge(cita.estado)}
                 </div>
                 <div style={styles.citaBody}>
-                  <p><FaCalendarAlt /> Fecha: {format(parseISO(cita.fecha), 'PPP', { locale: es })}</p>
-                  <p><FaClock /> Hora: {cita.hora}</p>
-                  {cita.motivo && (
-                    <p><FaNotesMedical /> Motivo: {cita.motivo}</p>
-                  )}
+                   <p><FaCalendarAlt /> {t('date')}: {format(parseISO(cita.fecha), 'PPP', { locale: es })}</p>
+                   <p><FaClock /> {t('time')}: {cita.hora}</p>
+                   {cita.motivo && (
+                     <p><FaNotesMedical /> {t('reason')}: {cita.motivo}</p>
+                   )}
                 </div>
                 {cita.estado !== 'cancelada' && cita.estado !== 'completada' && (
                   <div style={styles.citaFooter}>
@@ -401,13 +401,13 @@ function Citas() {
               <div key={cita.id} style={styles.citaCardHistorial}>
                 <div style={styles.citaHeader}>
                   <div style={styles.citaDoctor}>
-                    <FaUserMd /> Dr. {cita.doctor_nombre}
+                    <FaUserMd /> {t('dr')} {cita.doctor_nombre}
                   </div>
                   {getEstadoBadge(cita.estado)}
                 </div>
                 <div style={styles.citaBody}>
-                  <p><FaCalendarAlt /> {format(parseISO(cita.fecha), 'PPP', { locale: es })} - {cita.hora}</p>
-                  {cita.motivo && <p>Motivo: {cita.motivo}</p>}
+                   <p><FaCalendarAlt /> {format(parseISO(cita.fecha), 'PPP', { locale: es })} - {cita.hora}</p>
+                   {cita.motivo && <p>{t('reason')}: {cita.motivo}</p>}
                 </div>
               </div>
             ))
@@ -451,6 +451,13 @@ function Citas() {
                               style={styles.suggestionItem}
                               onClick={() => selectPatient(paciente)}
                             >
+                              {paciente.foto_perfil_url && (
+                                <img
+                                  src={paciente.foto_perfil_url}
+                                  alt={`${paciente.first_name} ${paciente.last_name}`}
+                                  style={styles.profilePhoto}
+                                />
+                              )}
                               <span style={styles.suggestionName}>
                                 {paciente.first_name} {paciente.last_name}
                               </span>
@@ -472,9 +479,9 @@ function Citas() {
                   )}
                 </div>
               )}
-              
-              {/* Selección de doctor para paciente */}
-              {user?.rol === 'patient' && (
+
+              {/* Selección de doctor para paciente/admin */}
+              {(user?.rol === 'patient' || user?.rol === 'admin') && (
                 <div style={styles.formGroup}>
                   <label style={styles.label}>{t('doctor')} *</label>
                   <div style={styles.autocompleteContainer}>
@@ -502,11 +509,18 @@ function Citas() {
                               style={styles.suggestionItem}
                               onClick={() => selectDoctor(doctor)}
                             >
+                              {doctor.usuario?.foto_perfil_url && (
+                                <img
+                                  src={doctor.usuario.foto_perfil_url}
+                                  alt={`Dr. ${doctor.usuario?.first_name} ${doctor.usuario?.last_name}`}
+                                  style={styles.profilePhoto}
+                                />
+                              )}
                               <span style={styles.suggestionName}>
-                                Dr. {doctor.usuario?.first_name} {doctor.usuario?.last_name}
+                                {t('dr')} {doctor.usuario?.first_name} {doctor.usuario?.last_name}
                               </span>
                               <span style={styles.suggestionSpecialty}>
-                                {doctor.especialidad_nombre || doctor.otra_especialidad || 'Especialidad no especificada'}
+                                {doctor.especialidad_nombre || doctor.otra_especialidad || t('unspecifiedSpecialty')}
                               </span>
                             </div>
                           ))
@@ -550,22 +564,23 @@ function Citas() {
                 </div>
               </div>
 
-              <div style={styles.formGroup}>
-                <label style={styles.label}>{t('status')} *</label>
-                <select
-                  name="estado"
-                  value={formData.estado || 'pendiente'}
-                  onChange={handleInputChangeForm}
-                  style={styles.select}
-                  disabled={user?.rol === 'patient'}  // Patients can't change status
-                >
-                  <option value="pendente">{t('pending')}</option>
-                  <option value="confirmada">{t('confirmed')}</option>
-                  <option value="completada">{t('completed')}</option>
-                  <option value="cancelada">{t('cancelled')}</option>
-                  <option value="no_asistio">{t('noShow')}</option>
-                </select>
-              </div>
+              {user?.rol !== 'patient' && (
+                <div style={styles.formGroup}>
+                  <label style={styles.label}>{t('status')} *</label>
+                  <select
+                    name="estado"
+                    value={formData.estado || 'pendiente'}
+                    onChange={handleInputChangeForm}
+                    style={styles.select}
+                  >
+                    <option value="pendente">{t('pending')}</option>
+                    <option value="confirmada">{t('confirmed')}</option>
+                    <option value="completada">{t('completed')}</option>
+                    <option value="cancelada">{t('cancelled')}</option>
+                    <option value="no_asistio">{t('noShow')}</option>
+                  </select>
+                </div>
+              )}
 
               <div style={styles.formGroup}>
                 <label style={styles.label}>{t('appointmentReason')} ({t('optional')})</label>
@@ -942,6 +957,13 @@ const styles = {
     color: 'var(--text-muted)',
     fontSize: '12px'
   },
+  profilePhoto: {
+    width: '30px',
+    height: '30px',
+    borderRadius: '50%',
+    marginRight: '10px',
+    objectFit: 'cover'
+  },
   noResults: {
     padding: '10px',
     textAlign: 'center',
@@ -986,7 +1008,13 @@ const styles = {
     gap: '5px',
     fontSize: '14px',
     fontWeight: '500'
-  }
+  },
+  dateTimeInput: `
+    input[type="date"]::-webkit-calendar-picker-indicator,
+    input[type="time"]::-webkit-clock-picker-indicator {
+      filter: invert(1);
+    }
+  `
 }
 
 export default Citas

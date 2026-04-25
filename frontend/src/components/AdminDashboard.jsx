@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+﻿import React, { useEffect, useState } from 'react'
 import axiosInstance from '../services/auth'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext'
@@ -678,7 +678,7 @@ function AdminDashboard() {
 
   // Seleccionar doctor de las sugerencias
   const selectDoctor = (doctor) => {
-    const nombreCompleto = `Dr. ${doctor.usuario?.first_name || ''} ${doctor.usuario?.last_name || ''} - ${doctor.especialidad_nombre || doctor.otra_especialidad || 'Especialidad no especificada'}`.trim()
+    const nombreCompleto = `${t('dr')} ${doctor.usuario?.first_name || ''} ${doctor.usuario?.last_name || ''} - ${doctor.especialidad_nombre || doctor.otra_especialidad || t('unspecifiedSpecialty')}`.trim()
     setDoctorSearchQuery(nombreCompleto)
     setFormData(prev => ({ ...prev, doctor: doctor.id }))
     setShowDoctorSuggestions(false)
@@ -2728,20 +2728,27 @@ function AdminDashboard() {
                       {showPatientSuggestions && (
                         <div style={styles.suggestionsList}>
                           {patientSuggestions.length > 0 ? (
-                            patientSuggestions.map(paciente => (
-                              <div
-                                key={paciente.id}
-                                style={styles.suggestionItem}
-                                onClick={() => selectPatient(paciente)}
-                              >
-                                <span style={styles.suggestionName}>
-                                  {paciente.first_name} {paciente.last_name}
-                                </span>
-                                <span style={styles.suggestionUsername}>
-                                  @{paciente.username}
-                                </span>
-                              </div>
-                            ))
+                          patientSuggestions.map(paciente => (
+                            <div
+                              key={paciente.id}
+                              style={styles.suggestionItem}
+                              onClick={() => selectPatient(paciente)}
+                            >
+                              {paciente.foto_perfil_url && (
+                                <img
+                                  src={paciente.foto_perfil_url}
+                                  alt={`${paciente.first_name} ${paciente.last_name}`}
+                                  style={styles.profilePhoto}
+                                />
+                              )}
+                              <span style={styles.suggestionName}>
+                                {paciente.first_name} {paciente.last_name}
+                              </span>
+                              <span style={styles.suggestionUsername}>
+                                @{paciente.username}
+                              </span>
+                            </div>
+                          ))
                           ) : (
                             <div style={styles.noResults}>
                               {t('noPatientsFound')}
@@ -2777,20 +2784,27 @@ function AdminDashboard() {
                       {showDoctorSuggestions && (
                         <div style={styles.suggestionsList}>
                           {doctorSuggestions.length > 0 ? (
-                            doctorSuggestions.map(doctor => (
-                              <div
-                                key={doctor.id}
-                                style={styles.suggestionItem}
-                                onClick={() => selectDoctor(doctor)}
-                              >
-                                <span style={styles.suggestionName}>
-                                  Dr. {doctor.usuario?.first_name} {doctor.usuario?.last_name}
-                                </span>
-                                <span style={styles.suggestionSpecialty}>
-                                  {doctor.especialidad_nombre || doctor.otra_especialidad || 'Especialidad no especificada'}
-                                </span>
-                              </div>
-                            ))
+                          doctorSuggestions.map(doctor => (
+                            <div
+                              key={doctor.id}
+                              style={styles.suggestionItem}
+                              onClick={() => selectDoctor(doctor)}
+                            >
+                              {doctor.usuario?.foto_perfil_url && (
+                                <img
+                                  src={doctor.usuario.foto_perfil_url}
+                                  alt={`Dr. ${doctor.usuario?.first_name} ${doctor.usuario?.last_name}`}
+                                  style={styles.profilePhoto}
+                                />
+                              )}
+                              <span style={styles.suggestionName}>
+                                {t('dr')} {doctor.usuario?.first_name} {doctor.usuario?.last_name}
+                              </span>
+                              <span style={styles.suggestionSpecialty}>
+                                {doctor.especialidad_nombre || doctor.otra_especialidad || t('unspecifiedSpecialty')}
+                              </span>
+                            </div>
+                          ))
                           ) : (
                             <div style={styles.noResults}>
                               {t('noDoctorsFound')}
@@ -3660,6 +3674,17 @@ const styles = {
   suggestionUsername: {
     color: 'var(--text-muted)',
     fontSize: '12px'
+  },
+  suggestionSpecialty: {
+    color: 'var(--text-muted)',
+    fontSize: '12px'
+  },
+  profilePhoto: {
+    width: '30px',
+    height: '30px',
+    borderRadius: '50%',
+    marginRight: '10px',
+    objectFit: 'cover'
   },
   noResults: {
     padding: '10px',
