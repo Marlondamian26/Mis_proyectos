@@ -31,6 +31,9 @@ function AdminDashboard() {
   const [patientSearchQuery, setPatientSearchQuery] = useState('')
   const [patientSuggestions, setPatientSuggestions] = useState([])
   const [showPatientSuggestions, setShowPatientSuggestions] = useState(false)
+  const [doctorSearchQuery, setDoctorSearchQuery] = useState('')
+  const [doctorSuggestions, setDoctorSuggestions] = useState([])
+  const [showDoctorSuggestions, setShowDoctorSuggestions] = useState(false)
   const [chatbotOpen, setChatbotOpen] = useState(false)
   const [stats, setStats] = useState({
     totalUsuarios: 0,
@@ -646,6 +649,46 @@ function AdminDashboard() {
   const closePatientSuggestions = () => {
     setTimeout(() => {
       setShowPatientSuggestions(false)
+    }, 200)
+  }
+
+  // Manejar búsqueda de doctor en autocomplete
+  const handleDoctorSearchChange = (e) => {
+    const query = e.target.value
+    setDoctorSearchQuery(query)
+
+    if (formData.tipo === 'citas') {
+      setFormData(prev => ({ ...prev, doctor: '' }))
+    }
+
+    if (query.length > 0) {
+      const doctoresFiltrados = doctores
+        .filter(d => {
+          const nombreCompleto = `Dr. ${d.usuario?.first_name || ''} ${d.usuario?.last_name || ''} ${d.especialidad_nombre || d.otra_especialidad || ''}`.toLowerCase()
+          return nombreCompleto.includes(query.toLowerCase())
+        })
+        .slice(0, 10)
+      setDoctorSuggestions(doctoresFiltrados)
+      setShowDoctorSuggestions(true)
+    } else {
+      setDoctorSuggestions([])
+      setShowDoctorSuggestions(false)
+    }
+  }
+
+  // Seleccionar doctor de las sugerencias
+  const selectDoctor = (doctor) => {
+    const nombreCompleto = `Dr. ${doctor.usuario?.first_name || ''} ${doctor.usuario?.last_name || ''} - ${doctor.especialidad_nombre || doctor.otra_especialidad || 'Especialidad no especificada'}`.trim()
+    setDoctorSearchQuery(nombreCompleto)
+    setFormData(prev => ({ ...prev, doctor: doctor.id }))
+    setShowDoctorSuggestions(false)
+    setDoctorSuggestions([])
+  }
+
+  // Cerrar sugerencias de doctor al hacer clic fuera
+  const closeDoctorSuggestions = () => {
+    setTimeout(() => {
+      setShowDoctorSuggestions(false)
     }, 200)
   }
 
@@ -2714,21 +2757,51 @@ function AdminDashboard() {
                   
                   <div style={styles.formGroup}>
                     <label style={styles.label}>{t('doctor')} {t('requiredFieldIndicator')}</label>
-                    <select
-                      name="doctor"
-                      value={formData.doctor || ''}
-                      onChange={handleInputChange}
-                      disabled={modalMode === 'view'}
-                      style={styles.select}
-                      required
-                    >
-                      <option value="">{t('selectDoctor')}</option>
-                      {doctores.map(d => (
-                        <option key={d.id} value={d.id}>
-                          Dr. {d.usuario?.first_name} {d.usuario?.last_name} - {d.especialidad_nombre || d.otra_especialidad || 'Especialidad no especificada'}
-                        </option>
-                      ))}
-                    </select>
+                    <div style={styles.autocompleteContainer}>
+                      <input
+                        type="text"
+                        name="doctorSearch"
+                        value={doctorSearchQuery}
+                        onChange={handleDoctorSearchChange}
+                        onFocus={() => {
+                          if (doctorSearchQuery.length > 0) {
+                            setShowDoctorSuggestions(true)
+                          }
+                        }}
+                        onBlur={closeDoctorSuggestions}
+                        disabled={modalMode === 'view'}
+                        style={styles.input}
+                        placeholder={t('typeToSearchDoctor')}
+                        autoComplete="off"
+                      />
+                      {showDoctorSuggestions && (
+                        <div style={styles.suggestionsList}>
+                          {doctorSuggestions.length > 0 ? (
+                            doctorSuggestions.map(doctor => (
+                              <div
+                                key={doctor.id}
+                                style={styles.suggestionItem}
+                                onClick={() => selectDoctor(doctor)}
+                              >
+                                <span style={styles.suggestionName}>
+                                  Dr. {doctor.usuario?.first_name} {doctor.usuario?.last_name}
+                                </span>
+                                <span style={styles.suggestionSpecialty}>
+                                  {doctor.especialidad_nombre || doctor.otra_especialidad || 'Especialidad no especificada'}
+                                </span>
+                              </div>
+                            ))
+                          ) : (
+                            <div style={styles.noResults}>
+                              {t('noDoctorsFound')}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    {!formData.doctor && modalMode !== 'view' && (
+                      <span style={styles.fieldHint}>{t('selectDoctor')}</span>
+                    )}
                   </div>
                   
                   <div style={styles.formRow}>

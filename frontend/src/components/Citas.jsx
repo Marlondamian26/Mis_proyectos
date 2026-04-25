@@ -26,6 +26,9 @@ function Citas() {
   const [patientSearchQuery, setPatientSearchQuery] = useState('')
   const [patientSuggestions, setPatientSuggestions] = useState([])
   const [showPatientSuggestions, setShowPatientSuggestions] = useState(false)
+  const [doctorSearchQuery, setDoctorSearchQuery] = useState('')
+  const [doctorSuggestions, setDoctorSuggestions] = useState([])
+  const [showDoctorSuggestions, setShowDoctorSuggestions] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
   
@@ -259,6 +262,31 @@ function Citas() {
     setTimeout(() => setShowPatientSuggestions(false), 200)
   }
 
+  const handleDoctorSearchChange = (e) => {
+    const query = e.target.value
+    setDoctorSearchQuery(query)
+    if (query.length > 0) {
+      const filtered = doctores.filter(d =>
+        `Dr. ${d.usuario?.first_name} ${d.usuario?.last_name} ${d.especialidad_nombre || d.otra_especialidad}`.toLowerCase().includes(query.toLowerCase())
+      )
+      setDoctorSuggestions(filtered.slice(0, 5))
+      setShowDoctorSuggestions(true)
+    } else {
+      setDoctorSuggestions([])
+      setShowDoctorSuggestions(false)
+    }
+  }
+
+  const selectDoctor = (doctor) => {
+    setFormData(prev => ({ ...prev, doctor: doctor.id }))
+    setDoctorSearchQuery(`Dr. ${doctor.usuario?.first_name} ${doctor.usuario?.last_name} - ${doctor.especialidad_nombre || doctor.otra_especialidad || 'Especialidad no especificada'}`)
+    setShowDoctorSuggestions(false)
+  }
+
+  const closeDoctorSuggestions = () => {
+    setTimeout(() => setShowDoctorSuggestions(false), 200)
+  }
+
   const handleCloseModal = () => {
     setShowModal(false)
     setFormData({})
@@ -391,7 +419,7 @@ function Citas() {
       {showModal && (
         <div style={styles.modalOverlay} onClick={handleCloseModal}>
           <div style={styles.modal} onClick={e => e.stopPropagation()}>
-            <h2 style={styles.modalTitle}>{t('bookAppointment')}</h2>
+            <h2 style={styles.modalTitle}>{t('createNew')} {t('appointment')}</h2>
             
             <form onSubmit={handleSubmitForm}>
               {/* Selección de paciente para doctor/admin */}
@@ -449,28 +477,50 @@ function Citas() {
               {user?.rol === 'patient' && (
                 <div style={styles.formGroup}>
                   <label style={styles.label}>{t('doctor')} *</label>
-                  <select
-                    name="doctor"
-                    value={formData.doctor || ''}
-                    onChange={handleInputChangeForm}
-                    style={styles.select}
-                    required
-                  >
-                    <option value="">{t('selectDoctor')}</option>
-                    {doctores.map(doctor => {
-                      const especialidadMostrar = doctor.especialidad_nombre || 
-                                                 doctor.otra_especialidad || 
-                                                 t('specialtyNotSpecified');
-                      const esNueva = doctor.otra_especialidad && !doctor.especialidad_nueva;
-                      
-                      return (
-                        <option key={doctor.id} value={doctor.id}>
-                          Dr. {doctor.usuario?.first_name} {doctor.usuario?.last_name} - {especialidadMostrar}
-                          {esNueva && ' ✏️'}
-                        </option>
-                      );
-                    })}
-                  </select>
+                  <div style={styles.autocompleteContainer}>
+                    <input
+                      type="text"
+                      name="doctorSearch"
+                      value={doctorSearchQuery}
+                      onChange={handleDoctorSearchChange}
+                      onFocus={() => {
+                        if (doctorSearchQuery.length > 0) {
+                          setShowDoctorSuggestions(true)
+                        }
+                      }}
+                      onBlur={closeDoctorSuggestions}
+                      style={styles.input}
+                      placeholder={t('typeToSearchDoctor')}
+                      autoComplete="off"
+                    />
+                    {showDoctorSuggestions && (
+                      <div style={styles.suggestionsList}>
+                        {doctorSuggestions.length > 0 ? (
+                          doctorSuggestions.map(doctor => (
+                            <div
+                              key={doctor.id}
+                              style={styles.suggestionItem}
+                              onClick={() => selectDoctor(doctor)}
+                            >
+                              <span style={styles.suggestionName}>
+                                Dr. {doctor.usuario?.first_name} {doctor.usuario?.last_name}
+                              </span>
+                              <span style={styles.suggestionSpecialty}>
+                                {doctor.especialidad_nombre || doctor.otra_especialidad || 'Especialidad no especificada'}
+                              </span>
+                            </div>
+                          ))
+                        ) : (
+                          <div style={styles.noResults}>
+                            {t('noDoctorsFound')}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  {!formData.doctor && (
+                    <span style={styles.fieldHint}>{t('selectDoctor')}</span>
+                  )}
                 </div>
               )}
               
@@ -499,7 +549,24 @@ function Citas() {
                   />
                 </div>
               </div>
-              
+
+              <div style={styles.formGroup}>
+                <label style={styles.label}>{t('status')} *</label>
+                <select
+                  name="estado"
+                  value={formData.estado || 'pendiente'}
+                  onChange={handleInputChangeForm}
+                  style={styles.select}
+                  disabled={user?.rol === 'patient'}  // Patients can't change status
+                >
+                  <option value="pendente">{t('pending')}</option>
+                  <option value="confirmada">{t('confirmed')}</option>
+                  <option value="completada">{t('completed')}</option>
+                  <option value="cancelada">{t('cancelled')}</option>
+                  <option value="no_asistio">{t('noShow')}</option>
+                </select>
+              </div>
+
               <div style={styles.formGroup}>
                 <label style={styles.label}>{t('appointmentReason')} ({t('optional')})</label>
                 <textarea
@@ -517,7 +584,7 @@ function Citas() {
                   {t('cancel')}
                 </button>
                 <button type="submit" style={styles.saveButton}>
-                  {t('bookAppointment')}
+                  {t('save')}
                 </button>
               </div>
             </form>
