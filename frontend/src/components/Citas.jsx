@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import axiosInstance from '../services/auth'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext'
-import { FaCalendarAlt, FaClock, FaUserMd, FaNotesMedical, FaCheck, FaTimes, FaComment } from 'react-icons/fa'
+import { FaCalendarAlt, FaClock, FaUserMd, FaNotesMedical, FaCheck, FaTimes, FaComment, FaSave, FaBan } from 'react-icons/fa'
 import { format, addDays, parseISO } from 'date-fns'
 import { ptBR, es } from 'date-fns/locale'
 import ChatIA from './ChatIA'
@@ -579,12 +579,14 @@ function Citas() {
                 />
               </div>
               
-              <div style={styles.modalActions}>
-                <button type="button" onClick={handleCloseModal} style={styles.cancelButton}>
-                  {t('cancel')}
-                </button>
+              <div style={styles.modalButtons}>
                 <button type="submit" style={styles.saveButton}>
+                  <FaSave />
                   {t('save')}
+                </button>
+                <button type="button" onClick={handleCloseModal} style={styles.cancelButton}>
+                  <FaBan />
+                  {t('cancel')}
                 </button>
               </div>
             </form>
@@ -701,33 +703,41 @@ const styles = {
     gap: '5px'
   },
   label: {
-    fontWeight: 'bold',
+    fontSize: '13px',
+    fontWeight: '600',
     color: 'var(--text-primary)'
   },
   input: {
     padding: '10px',
-    border: '1px solid var(--border-color)',
-    borderRadius: '5px',
-    fontSize: '16px',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: 'var(--border-color)',
+    borderRadius: '6px',
+    fontSize: '14px',
     backgroundColor: 'var(--bg-primary)',
     color: 'var(--text-primary)'
   },
   select: {
     padding: '10px',
-    border: '1px solid var(--border-color)',
-    borderRadius: '5px',
-    fontSize: '16px',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: 'var(--border-color)',
+    borderRadius: '6px',
+    fontSize: '14px',
     backgroundColor: 'var(--bg-primary)',
     color: 'var(--text-primary)'
   },
   textarea: {
     padding: '10px',
-    border: '1px solid var(--border-color)',
-    borderRadius: '5px',
-    fontSize: '16px',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: 'var(--border-color)',
+    borderRadius: '6px',
+    fontSize: '14px',
     resize: 'vertical',
     backgroundColor: 'var(--bg-primary)',
-    color: 'var(--text-primary)'
+    color: 'var(--text-primary)',
+    minHeight: '80px'
   },
   horariosGrid: {
     display: 'grid',
@@ -852,6 +862,130 @@ const styles = {
     textAlign: 'center',
     padding: '10px',
     color: 'var(--text-muted)'
+  },
+  modalOverlay: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000
+  },
+  modal: {
+    backgroundColor: 'var(--bg-secondary)',
+    padding: '30px',
+    borderRadius: '15px',
+    maxWidth: '600px',
+    width: '90%',
+    maxHeight: '80vh',
+    overflowY: 'auto',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: 'var(--border-color)'
+  },
+  modalTitle: {
+    fontSize: '20px',
+    color: 'var(--text-primary)',
+    marginBottom: '20px',
+    paddingBottom: '10px',
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: 'var(--border-color)'
+  },
+  formRow: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '10px'
+  },
+  autocompleteContainer: {
+    position: 'relative'
+  },
+  suggestionsList: {
+    position: 'absolute',
+    top: '100%',
+    left: 0,
+    right: 0,
+    backgroundColor: 'var(--bg-secondary)',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: 'var(--border-color)',
+    borderRadius: '6px',
+    maxHeight: '200px',
+    overflowY: 'auto',
+    zIndex: 1000,
+    boxShadow: 'var(--box-shadow)'
+  },
+  suggestionItem: {
+    padding: '10px',
+    cursor: 'pointer',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: 'var(--border-color)',
+    transition: 'background-color 0.2s'
+  },
+  suggestionName: {
+    fontWeight: '500',
+    color: 'var(--text-primary)'
+  },
+  suggestionUsername: {
+    color: 'var(--text-muted)',
+    fontSize: '12px'
+  },
+  suggestionSpecialty: {
+    color: 'var(--text-muted)',
+    fontSize: '12px'
+  },
+  noResults: {
+    padding: '10px',
+    textAlign: 'center',
+    color: 'var(--text-muted)'
+  },
+  fieldHint: {
+    fontSize: '11px',
+    color: 'var(--text-muted)',
+    marginTop: '4px'
+  },
+  modalButtons: {
+    display: 'flex',
+    gap: '10px',
+    marginTop: '20px'
+  },
+  saveButton: {
+    backgroundColor: 'var(--color-success)',
+    color: 'white',
+    padding: '12px',
+    border: 'none',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    flex: 2,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '5px',
+    fontSize: '14px',
+    fontWeight: '500'
+  },
+  cancelButton: {
+    backgroundColor: 'var(--color-cancelled)',
+    color: 'white',
+    padding: '12px',
+    border: 'none',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    flex: 1,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '5px',
+    fontSize: '14px',
+    fontWeight: '500'
   }
 }
 
