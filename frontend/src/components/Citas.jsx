@@ -1025,12 +1025,7 @@ const styles = {
     fontSize: '14px',
     fontWeight: '500'
   },
-  dateTimeInput: `
-    input[type="date"]::-webkit-calendar-picker-indicator,
-    input[type="time"]::-webkit-clock-picker-indicator {
-      filter: brightness(0) invert(1) contrast(10);
-    }
-  `
+
 }
 
 export default Citas
