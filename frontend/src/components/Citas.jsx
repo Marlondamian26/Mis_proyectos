@@ -240,11 +240,15 @@ function Citas() {
     const query = e.target.value
     setPatientSearchQuery(query)
     if (query.length > 0) {
-      const filtered = pacientes.filter(p =>
-        `${p.first_name} ${p.last_name}`.toLowerCase().includes(query.toLowerCase()) ||
-        p.username.toLowerCase().includes(query.toLowerCase()) ||
-        (p.email && p.email.toLowerCase().includes(query.toLowerCase()))
-      )
+      const filtered = pacientes.filter(p => {
+        const firstName = p.usuario?.first_name || p.first_name || ''
+        const lastName = p.usuario?.last_name || p.last_name || ''
+        const username = p.usuario?.username || p.username || ''
+        const email = p.usuario?.email || p.email || ''
+        return `${firstName} ${lastName}`.toLowerCase().includes(query.toLowerCase()) ||
+          username.toLowerCase().includes(query.toLowerCase()) ||
+          (email && email.toLowerCase().includes(query.toLowerCase()))
+      })
       setPatientSuggestions(filtered.slice(0, 5))
       setShowPatientSuggestions(true)
     } else {
@@ -255,7 +259,7 @@ function Citas() {
 
   const selectPatient = (paciente) => {
     setFormData(prev => ({ ...prev, paciente: paciente.id }))
-    setPatientSearchQuery(`${paciente.first_name} ${paciente.last_name}`)
+    setPatientSearchQuery(`${paciente.usuario?.first_name || paciente.first_name} ${paciente.usuario?.last_name || paciente.last_name}`)
     setShowPatientSuggestions(false)
   }
 
@@ -267,11 +271,16 @@ function Citas() {
     const query = e.target.value
     setDoctorSearchQuery(query)
     if (query.length > 0) {
-      const filtered = doctores.filter(d =>
-        `Dr. ${d.usuario?.first_name} ${d.usuario?.last_name} ${d.especialidad_nombre || d.otra_especialidad}`.toLowerCase().includes(query.toLowerCase()) ||
-        (d.usuario?.username && d.usuario.username.toLowerCase().includes(query.toLowerCase())) ||
-        (d.usuario?.email && d.usuario.email.toLowerCase().includes(query.toLowerCase()))
-      )
+      const filtered = doctores.filter(d => {
+        const firstName = d.usuario?.first_name || d.first_name || ''
+        const lastName = d.usuario?.last_name || d.last_name || ''
+        const username = d.usuario?.username || d.username || ''
+        const email = d.usuario?.email || d.email || ''
+        const specialty = d.especialidad_nombre || d.otra_especialidad || ''
+        return `Dr. ${firstName} ${lastName} ${specialty}`.toLowerCase().includes(query.toLowerCase()) ||
+          username.toLowerCase().includes(query.toLowerCase()) ||
+          (email && email.toLowerCase().includes(query.toLowerCase()))
+      })
       setDoctorSuggestions(filtered.slice(0, 5))
       setShowDoctorSuggestions(true)
     } else {
@@ -282,7 +291,10 @@ function Citas() {
 
   const selectDoctor = (doctor) => {
     setFormData(prev => ({ ...prev, doctor: doctor.id }))
-    setDoctorSearchQuery(`${t('dr')} ${doctor.usuario?.first_name} ${doctor.usuario?.last_name} - ${doctor.especialidad_nombre || doctor.otra_especialidad || t('unspecifiedSpecialty')}`)
+    const firstName = doctor.usuario?.first_name || doctor.first_name || ''
+    const lastName = doctor.usuario?.last_name || doctor.last_name || ''
+    const specialty = doctor.especialidad_nombre || doctor.otra_especialidad || t('unspecifiedSpecialty')
+    setDoctorSearchQuery(`${t('dr')} ${firstName} ${lastName} - ${specialty}`)
     setShowDoctorSuggestions(false)
   }
 
@@ -463,10 +475,10 @@ function Citas() {
                                 />
                               )}
                               <span style={styles.suggestionName}>
-                                {paciente.first_name} {paciente.last_name}
+                                {paciente.usuario?.first_name || paciente.first_name} {paciente.usuario?.last_name || paciente.last_name}
                               </span>
                               <span style={styles.suggestionUsername}>
-                                @{paciente.username}
+                                @{paciente.usuario?.username || paciente.username}
                               </span>
                             </div>
                           ))
@@ -521,7 +533,7 @@ function Citas() {
                                 />
                               )}
                               <span style={styles.suggestionName}>
-                                {t('dr')} {doctor.usuario?.first_name} {doctor.usuario?.last_name}
+                                {t('dr')} {doctor.usuario?.first_name || doctor.first_name} {doctor.usuario?.last_name || doctor.last_name}
                               </span>
                               <span style={styles.suggestionSpecialty}>
                                 {doctor.especialidad_nombre || doctor.otra_especialidad || t('unspecifiedSpecialty')}
