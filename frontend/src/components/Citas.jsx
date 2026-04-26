@@ -240,9 +240,10 @@ function Citas() {
     const query = e.target.value
     setPatientSearchQuery(query)
     if (query.length > 0) {
-      const filtered = pacientes.filter(p => 
+      const filtered = pacientes.filter(p =>
         `${p.first_name} ${p.last_name}`.toLowerCase().includes(query.toLowerCase()) ||
-        p.username.toLowerCase().includes(query.toLowerCase())
+        p.username.toLowerCase().includes(query.toLowerCase()) ||
+        (p.email && p.email.toLowerCase().includes(query.toLowerCase()))
       )
       setPatientSuggestions(filtered.slice(0, 5))
       setShowPatientSuggestions(true)
@@ -267,7 +268,9 @@ function Citas() {
     setDoctorSearchQuery(query)
     if (query.length > 0) {
       const filtered = doctores.filter(d =>
-        `Dr. ${d.usuario?.first_name} ${d.usuario?.last_name} ${d.especialidad_nombre || d.otra_especialidad}`.toLowerCase().includes(query.toLowerCase())
+        `Dr. ${d.usuario?.first_name} ${d.usuario?.last_name} ${d.especialidad_nombre || d.otra_especialidad}`.toLowerCase().includes(query.toLowerCase()) ||
+        (d.usuario?.username && d.usuario.username.toLowerCase().includes(query.toLowerCase())) ||
+        (d.usuario?.email && d.usuario.email.toLowerCase().includes(query.toLowerCase()))
       )
       setDoctorSuggestions(filtered.slice(0, 5))
       setShowDoctorSuggestions(true)

@@ -64,8 +64,10 @@ const translations = {
     confirmReservation: 'Confirmar Reserva',
     cancelAppointment: 'Cancelar consulta',
     specialtyNotSpecified: 'Especialidade não especificada',
-    noAppointmentHistory: 'Sem Histórico de consultas',
-    completedAppointmentsAppearHere: 'As consultas concluídas aparecerão aqui',
+     noAppointmentHistory: 'Sem Histórico de consultas',
+     completedAppointmentsAppearHere: 'As consultas concluídas aparecerão aqui',
+     noUpcomingAppointments: 'Você não tem consultas próximas',
+     noPastAppointments: 'Não há consultas no histórico',
     appointments: 'consultas',
     // Doctores
     contact: 'Contato',
