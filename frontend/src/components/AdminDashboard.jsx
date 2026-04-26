@@ -3889,6 +3889,16 @@ const styles = {
   }
 }
 
+// CSS for date/time input icons in dark mode
+const styleSheet = document.createElement("style")
+styleSheet.textContent = `
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="time"]::-webkit-clock-picker-indicator {
+    filter: brightness(0) invert(1) contrast(10);
+  }
+`
+document.head.appendChild(styleSheet)
+
 export default AdminDashboard
 
 
