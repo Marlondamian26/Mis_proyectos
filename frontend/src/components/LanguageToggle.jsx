@@ -8,9 +8,9 @@ const LanguageToggle = () => {
   const dropdownRef = useRef(null);
 
   const languages = [
-    { code: 'pt', name: 'Portugues', flag: '🇧🇷' },
-    { code: 'es', name: 'Espanol', flag: '🇪🇸' },
-    { code: 'en', name: 'English', flag: '🇺🇸' }
+    { code: 'pt', name: t('portuguese'), flag: '🇧🇷' },
+    { code: 'es', name: t('spanish'), flag: '🇪🇸' },
+    { code: 'en', name: t('english'), flag: '🇺🇸' }
   ];
 
   const currentLang = languages.find(l => l.code === language) || languages[0];

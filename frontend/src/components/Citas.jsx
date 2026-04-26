@@ -334,6 +334,7 @@ function Citas() {
 
   return (
     <div style={styles.container}>
+      <style>{styles.dateTimeInput}</style>
       <div style={styles.header}>
         <h1>📅 {t('appointmentsManagement')}</h1>
         <div>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 // reuse the preconfigured axios instance for consistency
 import axiosInstance from '../services/auth'
 import { useNavigate, Link } from 'react-router-dom'
-import { APP_NAME, APP_SLOGAN } from '../config/constants'
+import { APP_NAME } from '../config/constants'
 import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
 
@@ -112,7 +112,7 @@ function Login() {
       <div style={styles.card}>
         <div style={styles.logoContainer}>
           <h1 style={styles.title}>{APP_NAME}</h1>
-          <p style={styles.subtitle}>{APP_SLOGAN}</p>
+          <p style={styles.subtitle}>{t('appSlogan')}</p>
         </div>
 
         {error && (

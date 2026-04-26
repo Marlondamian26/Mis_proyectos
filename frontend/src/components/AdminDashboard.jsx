@@ -2132,7 +2132,7 @@ function AdminDashboard() {
                        style={styles.fileInput}
                      />
                      <small style={styles.hint}>
-                       {t('photoRequirements')}: JPEG, PNG, GIF, WebP. Máx 5MB.
+                       {t('photoRequirements')}: JPEG, PNG, GIF, WebP. Máx 25MB.
                      </small>
                    </div>
                  </>
@@ -2312,7 +2312,7 @@ function AdminDashboard() {
                         style={styles.fileInput}
                       />
                       <small style={styles.hint}>
-                        {t('photoRequirements')}: JPEG, PNG, GIF, WebP. Máx 5MB.
+                        {t('photoRequirements')}: JPEG, PNG, GIF, WebP. Máx 25MB.
                       </small>
                     </div>
                   </>
@@ -2502,7 +2502,7 @@ function AdminDashboard() {
                        style={styles.fileInput}
                      />
                      <small style={styles.hint}>
-                       {t('photoRequirements')}: JPEG, PNG, GIF, WebP. Máx 5MB.
+                       {t('photoRequirements')}: JPEG, PNG, GIF, WebP. Máx 25MB.
                      </small>
                    </div>
                  </>
@@ -2697,7 +2697,7 @@ function AdminDashboard() {
                         style={styles.fileInput}
                       />
                       <small style={styles.hint}>
-                        {t('photoRequirements')}: JPEG, PNG, GIF, WebP. Máx 5MB.
+                        {t('photoRequirements')}: JPEG, PNG, GIF, WebP. Máx 25MB.
                       </small>
                     </div>
                   </>

@@ -644,22 +644,18 @@ class CitaViewSet(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         """Al actualizar una cita, enviar notificación si es necesario"""
+        cita = serializer.instance
+        estado_anterior = cita.estado
         cita = serializer.save()
 
-        # Importación diferida
         from notificaciones.services import ServicioNotificaciones
 
-        # Si la cita fue creada/actualizada, notificar a todos los involucrados
-        if cita.estado in ('pendiente', 'confirmada', 'cancelada'):
-            ServicioNotificaciones.notificar_cita_creada(cita)
-
-        # Si la cita fue cancelada
-        if cita.estado == 'cancelada':
-            ServicioNotificaciones.notificar_cita_cancelada(cita, cancelado_por='admin')
-
-        # Si la cita fue confirmada
-        if cita.estado == 'confirmada':
-            ServicioNotificaciones.notificar_cita_confirmada(cita)
+        if estado_anterior != cita.estado:
+            if cita.estado == 'cancelada':
+                cancelado_por = 'paciente' if self.request.user.rol == 'patient' else 'admin'
+                ServicioNotificaciones.notificar_cita_cancelada(cita, cancelado_por=cancelado_por)
+            elif cita.estado == 'confirmada':
+                ServicioNotificaciones.notificar_cita_confirmada(cita)
 
         return cita
     
@@ -670,10 +666,9 @@ class CitaViewSet(viewsets.ModelViewSet):
         cita.estado = 'cancelada'
         cita.save()
         
-        # Importación diferida
         from notificaciones.services import ServicioNotificaciones
-        # Enviar notificaciones
-        ServicioNotificaciones.notificar_cita_cancelada(cita, cancelado_por='admin')
+        cancelado_por = 'paciente' if request.user.rol == 'patient' else 'admin'
+        ServicioNotificaciones.notificar_cita_cancelada(cita, cancelado_por=cancelado_por)
         
         serializer = self.get_serializer(cita)
         return Response(serializer.data)

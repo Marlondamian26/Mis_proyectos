@@ -58,9 +58,11 @@ class ServicioNotificaciones:
     
     @classmethod
     def notificar_cita_creada(cls, cita):
-        """Notificar al paciente que su cita fue creada"""
+        """Notificar al paciente y al doctor cuando se crea una cita"""
         paciente = cita.paciente.usuario
-        mensaje = f"""
+        doctor = cita.doctor.usuario
+
+        mensaje_paciente = f"""
         🏥 Belkis-saúde - Confirmación de Cita
         
         Hola {paciente.first_name},
@@ -69,19 +71,40 @@ class ServicioNotificaciones:
         
         📅 Fecha: {cita.fecha}
         ⏰ Hora: {cita.hora}
-        👨‍⚕️ Doctor: Dr. {cita.doctor.usuario.first_name} {cita.doctor.usuario.last_name}
+        👨‍⚕️ Doctor: Dr. {doctor.first_name} {doctor.last_name}
         📋 Motivo: {cita.motivo}
         
         Por favor, confirma tu asistencia 24 horas antes.
         
         Gracias por confiar en nosotros.
         """
+
+        mensaje_doctor = f"""
+        🏥 Belkis-saúde - Nueva Cita Agendada
         
+        Dr. {doctor.first_name},
+        
+        Se ha agendado una nueva cita:
+        
+        📅 Fecha: {cita.fecha}
+        ⏰ Hora: {cita.hora}
+        👤 Paciente: {paciente.first_name} {paciente.last_name}
+        📋 Motivo: {cita.motivo}
+        """
+
+        cls.crear_notificacion(
+            usuario=doctor,
+            tipo='nueva_cita',
+            titulo='Nueva Cita Agendada',
+            mensaje=mensaje_doctor,
+            objeto_relacionado=cita
+        )
+
         return cls.crear_notificacion(
             usuario=paciente,
             tipo='nueva_cita',
             titulo='Cita Registrada',
-            mensaje=mensaje,
+            mensaje=mensaje_paciente,
             objeto_relacionado=cita
         )
     
@@ -214,6 +237,28 @@ class ServicioNotificaciones:
                 tipo='cancelacion_cita',
                 titulo='Cita Cancelada por Paciente',
                 mensaje=mensaje_doctor,
+                objeto_relacionado=cita
+            )
+
+            mensaje_paciente = f"""
+            ✅ Cita Cancelada - Belkis-saúde
+            
+            Hola {paciente.first_name},
+            
+            Tu cita ha sido cancelada con éxito:
+            
+            📅 Fecha: {cita.fecha}
+            ⏰ Hora: {cita.hora}
+            👨‍⚕️ Doctor: Dr. {doctor.first_name} {doctor.last_name}
+            
+            Si necesitas reprogramar, por favor contacta al consultorio.
+            """
+            
+            cls.crear_notificacion(
+                usuario=paciente,
+                tipo='cancelacion_cita',
+                titulo='Cita Cancelada',
+                mensaje=mensaje_paciente,
                 objeto_relacionado=cita
             )
             
