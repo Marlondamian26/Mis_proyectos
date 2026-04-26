@@ -235,11 +235,12 @@ class CitaSerializer(serializers.ModelSerializer):
         return [v for v in validators if not isinstance(v, serializers.UniqueTogetherValidator)]
 
     def validate(self, data):
+        from datetime import datetime, time, date
         # Solo validar si se proporcionan doctor, fecha y hora
         doctor = data.get('doctor')
         fecha = data.get('fecha')
         hora = data.get('hora')
-        
+
         # Si alguno de los campos no está presente, usar el valor de la instancia existente
         if self.instance:
             if doctor is None:
@@ -248,20 +249,49 @@ class CitaSerializer(serializers.ModelSerializer):
                 fecha = self.instance.fecha
             if hora is None:
                 hora = self.instance.hora
-        
+
         # Solo validar si tenemos todos los campos necesarios
         if doctor and fecha and hora:
             instance_id = self.instance.id if self.instance else None
-            
+
+            # 1. Validar que no exista cita duplicada
             citas_existentes = Cita.objects.filter(
-                doctor=doctor, 
-                fecha=fecha, 
+                doctor=doctor,
+                fecha=fecha,
                 hora=hora
             ).exclude(id=instance_id)
-            
+
             if citas_existentes.exists():
                 raise serializers.ValidationError("Ya existe una cita para este doctor en esa fecha y hora")
-        
+
+            # 2. Validar que la fecha/hora estén dentro de los horarios activos del doctor para ese día
+            dia_semana = fecha.weekday()  # 0=Lunes, 6=Domingo
+            horarios_del_dia = Horario.objects.filter(
+                doctor=doctor,
+                dia_semana=dia_semana,
+                activo=True
+            )
+
+            if not horarios_del_dia.exists():
+                raise serializers.ValidationError("El doctor no atiende en este día de la semana")
+
+            # Verificar que la hora esté dentro de al menos un horario
+            hora_time = hora if isinstance(hora, time) else datetime.strptime(hora, '%H:%M').time()
+            en_horario = False
+            for horario in horarios_del_dia:
+                if horario.hora_inicio <= hora_time < horario.hora_fin:
+                    en_horario = True
+                    break
+
+            if not en_horario:
+                raise serializers.ValidationError("La hora seleccionada no está dentro del horario de atención del doctor")
+
+            # 3. Validar que no sea en el pasado (si es hoy)
+            if fecha == date.today():
+                ahora = datetime.now().time()
+                if hora_time <= ahora:
+                    raise serializers.ValidationError("No se pueden agendar citas en horas pasadas")
+
         return data
     
     def update(self, instance, validated_data):

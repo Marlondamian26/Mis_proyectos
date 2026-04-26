@@ -29,7 +29,11 @@ function Citas() {
   const [doctorSearchQuery, setDoctorSearchQuery] = useState('')
   const [doctorSuggestions, setDoctorSuggestions] = useState([])
   const [showDoctorSuggestions, setShowDoctorSuggestions] = useState(false)
+  const [slotsModal, setSlotsModal] = useState([])
+  const [cargandoSlotsModal, setCargandoSlotsModal] = useState(false)
+  const [errorSlotsModal, setErrorSlotsModal] = useState(null)
   const navigate = useNavigate()
+  const location = useLocation()
   const location = useLocation()
   
   const [nuevaCita, setNuevaCita] = useState({
@@ -45,11 +49,29 @@ function Citas() {
     fetchDoctores()
   }, [])
 
-  useEffect(() => {
-    if (nuevaCita.doctor && nuevaCita.fecha) {
-      fetchHorariosDisponibles()
-    }
-  }, [nuevaCita.doctor, nuevaCita.fecha])
+   useEffect(() => {
+     if (nuevaCita.doctor && nuevaCita.fecha) {
+       fetchHorariosDisponibles()
+     }
+   }, [nuevaCita.doctor, nuevaCita.fecha])
+
+   // Cargar slots para el modal cuando cambian doctor o fecha
+   useEffect(() => {
+     // Si el usuario es doctor y aún no se ha asignado doctor en formData, intentar asignarlo
+     if (!formData.doctor && user?.rol === 'doctor' && doctores.length > 0) {
+       const miDoctor = doctores.find(d => d.usuario?.id === user.id);
+       if (miDoctor) {
+         setFormData(prev => ({ ...prev, doctor: miDoctor.id }));
+         return; // El effect se volverá a ejecutar cuando formData.doctor cambie
+       }
+     }
+
+     if (formData.doctor && formData.fecha) {
+       // Resetear hora seleccionada al cambiar fecha
+       setFormData(prev => ({ ...prev, hora: '' }))
+       fetchSlotsModal()
+     }
+   }, [formData.doctor, formData.fecha, user, doctores])
 
   const fetchCitas = async () => {
     try {
@@ -100,52 +122,105 @@ function Citas() {
     }
   }
 
-  const fetchHorariosDisponibles = async () => {
-    setCargandoHorarios(true)
-    try {
-      const response = await axiosInstance.get(`horarios/disponibles/?doctor=${nuevaCita.doctor}&fecha=${nuevaCita.fecha}`)
-      const horariosData = Array.isArray(response.data) ? response.data : []
-      console.log('Horarios recibidos:', horariosData)
-      
-      const citasResponse = await axiosInstance.get('citas/', {
-        params: {
-          doctor: nuevaCita.doctor,
-          fecha: nuevaCita.fecha
-        }
-      })
-      const citasOcupadas = Array.isArray(citasResponse.data) ? citasResponse.data : []
-      const horariosOcupados = citasOcupadas.map(c => c.hora)
-      
-      const slots = []
-      horariosData.forEach(horario => {
-        if (!horario.activo) return
-        
-        const [horaInicio, minInicio] = horario.hora_inicio.split(':').map(Number)
-        const [horaFin, minFin] = horario.hora_fin.split(':').map(Number)
-        
-        let horaActual = new Date()
-        horaActual.setHours(horaInicio, minInicio, 0)
-        
-        const horaFinal = new Date()
-        horaFinal.setHours(horaFin, minFin, 0)
-        
-        while (horaActual < horaFinal) {
-          const horaStr = format(horaActual, 'HH:mm')
-          if (!horariosOcupados.includes(horaStr)) {
-            slots.push(horaStr)
-          }
-          horaActual.setMinutes(horaActual.getMinutes() + 30)
-        }
-      })
-      
-      setHorariosDisponibles(slots)
-    } catch (error) {
-      console.error('Error cargando horarios:', error)
-      setHorariosDisponibles([])
-    } finally {
-      setCargandoHorarios(false)
-    }
-  }
+   const fetchHorariosDisponibles = async () => {
+     setCargandoHorarios(true)
+     try {
+       const response = await axiosInstance.get(`horarios/disponibles/?doctor=${nuevaCita.doctor}&fecha=${nuevaCita.fecha}`)
+       const horariosData = Array.isArray(response.data) ? response.data : []
+       console.log('Horarios recibidos:', horariosData)
+
+       const citasResponse = await axiosInstance.get('citas/', {
+         params: {
+           doctor: nuevaCita.doctor,
+           fecha: nuevaCita.fecha
+         }
+       })
+       const citasOcupadas = Array.isArray(citasResponse.data) ? citasResponse.data : []
+       const horariosOcupados = citasOcupadas.map(c => c.hora)
+
+       const slots = []
+       horariosData.forEach(horario => {
+         if (!horario.activo) return
+
+         const [horaInicio, minInicio] = horario.hora_inicio.split(':').map(Number)
+         const [horaFin, minFin] = horario.hora_fin.split(':').map(Number)
+
+         let horaActual = new Date()
+         horaActual.setHours(horaInicio, minInicio, 0)
+
+         const horaFinal = new Date()
+         horaFinal.setHours(horaFin, minFin, 0)
+
+         while (horaActual < horaFinal) {
+           const horaStr = format(horaActual, 'HH:mm')
+           if (!horariosOcupados.includes(horaStr)) {
+             slots.push(horaStr)
+           }
+           horaActual.setMinutes(horaActual.getMinutes() + 30)
+         }
+       })
+
+       setHorariosDisponibles(slots)
+     } catch (error) {
+       console.error('Error cargando horarios:', error)
+       setHorariosDisponibles([])
+     } finally {
+       setCargandoHorarios(false)
+     }
+   }
+
+   const fetchSlotsModal = async () => {
+     setCargandoSlotsModal(true)
+     setErrorSlotsModal(null)
+     try {
+       const doctorId = formData.doctor
+       const response = await axiosInstance.get(`horarios/disponibles/?doctor=${doctorId}&fecha=${formData.fecha}`)
+       const horariosData = Array.isArray(response.data) ? response.data : []
+
+       const citasResponse = await axiosInstance.get('citas/', {
+         params: { doctor: doctorId, fecha: formData.fecha }
+       })
+       const citasOcupadas = Array.isArray(citasResponse.data) ? citasResponse.data : (citasResponse.data.results || [])
+       const horasOcupadas = citasOcupadas.map(c => c.hora)
+
+       const slots = []
+       const ahora = new Date()
+       const esHoy = formData.fecha === ahora.toISOString().split('T')[0]
+
+       horariosData.forEach(horario => {
+         if (!horario.activo) return
+         const [horaInicio, minInicio] = horario.hora_inicio.split(':').map(Number)
+         const [horaFin, minFin] = horario.hora_fin.split(':').map(Number)
+
+         let horaActual = new Date()
+         horaActual.setHours(horaInicio, minInicio, 0)
+         const horaFinal = new Date()
+         horaFinal.setHours(horaFin, minFin, 0)
+
+         while (horaActual < horaFinal) {
+           const horaStr = horaActual.toTimeString().slice(0, 5)
+           if (!horasOcupadas.includes(horaStr)) {
+             if (esHoy) {
+               if (horaActual > ahora) {
+                 slots.push(horaStr)
+               }
+             } else {
+               slots.push(horaStr)
+             }
+           }
+           horaActual.setMinutes(horaActual.getMinutes() + 30)
+         }
+       })
+
+       setSlotsModal(slots)
+     } catch (error) {
+       console.error('Error cargando horarios modal:', error)
+       setErrorSlotsModal('Error al cargar horarios')
+       setSlotsModal([])
+     } finally {
+       setCargandoSlotsModal(false)
+     }
+   }
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -192,9 +267,23 @@ function Citas() {
 
   const handleSubmitForm = async (e) => {
     e.preventDefault()
-    
+
     if (!formData.doctor || !formData.fecha || !formData.hora) {
       mostrarMensaje(t('requiredField'), 'error')
+      return
+    }
+
+    // Validar que la hora esté disponible
+    if (cargandoSlotsModal) {
+      mostrarMensaje('Espere a que carguen los horarios', 'error')
+      return
+    }
+    if (slotsModal.length === 0) {
+      mostrarMensaje('No hay horarios disponibles para la fecha seleccionada', 'error')
+      return
+    }
+    if (!slotsModal.includes(formData.hora)) {
+      mostrarMensaje('La hora seleccionada no está disponible', 'error')
       return
     }
 
@@ -211,9 +300,9 @@ function Citas() {
         hora: formData.hora,
         motivo: formData.motivo
       }
-      
+
       await axiosInstance.post('citas/', citaData)
-      
+
       mostrarMensaje(t('appointmentBooked'), 'success')
       setShowModal(false)
       fetchCitas()
@@ -315,9 +404,16 @@ function Citas() {
 
   const handleCreateCita = () => {
     setModalMode('create')
+    let doctorId = ''
+    if (user?.rol === 'doctor') {
+      const miDoctor = doctores.find(d => d.usuario?.id === user.id)
+      doctorId = miDoctor ? miDoctor.id : ''
+    } else {
+      doctorId = location.state?.doctorSeleccionado?.id || ''
+    }
     setFormData({
       paciente: user?.rol === 'patient' ? user.id : '',
-      doctor: user?.rol === 'doctor' ? user.id : (location.state?.doctorSeleccionado?.id || ''),
+      doctor: doctorId,
       fecha: format(new Date(), 'yyyy-MM-dd'),
       hora: '',
       motivo: ''
@@ -554,31 +650,41 @@ function Citas() {
                 </div>
               )}
               
-              <div style={styles.formRow}>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>{t('date')} *</label>
-                  <input
-                    type="date"
-                    name="fecha"
-                    value={formData.fecha || ''}
-                    onChange={handleInputChangeForm}
-                    style={styles.input}
-                    min={new Date().toISOString().split('T')[0]}
-                    required
-                  />
-                </div>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>{t('time')} *</label>
-                  <input
-                    type="time"
-                    name="hora"
-                    value={formData.hora || ''}
-                    onChange={handleInputChangeForm}
-                    style={styles.input}
-                    required
-                  />
-                </div>
-              </div>
+               <div style={styles.formRow}>
+                 <div style={styles.formGroup}>
+                   <label style={styles.label}>{t('date')} *</label>
+                   <input
+                     type="date"
+                     name="fecha"
+                     value={formData.fecha || ''}
+                     onChange={handleInputChangeForm}
+                     style={styles.input}
+                     min={new Date().toISOString().split('T')[0]}
+                     required
+                   />
+                 </div>
+                 <div style={styles.formGroup}>
+                   <label style={styles.label}>{t('time')} *</label>
+                   <input
+                     type="time"
+                     name="hora"
+                     value={formData.hora || ''}
+                     onChange={handleInputChangeForm}
+                     style={styles.input}
+                     required
+                     disabled={slotsModal.length === 0}
+                   />
+                 </div>
+               </div>
+
+               {/* Mostrar estado de horarios disponibles */}
+               <div style={styles.formGroup}>
+                 {cargandoSlotsModal && <p style={styles.loadingSmall}>Cargando horarios disponibles...</p>}
+                 {!cargandoSlotsModal && errorSlotsModal && <p style={{color: 'var(--color-error)'}}>{errorSlotsModal}</p>}
+                 {!cargandoSlotsModal && slotsModal.length === 0 && formData.fecha && !errorSlotsModal && (
+                   <p style={{color: 'var(--color-error)'}}>No hay horarios disponibles para esta fecha (el doctor no atiende o está completo).</p>
+                 )}
+               </div>
 
               {user?.rol !== 'patient' && (
                 <div style={styles.formGroup}>
@@ -610,16 +716,16 @@ function Citas() {
                 />
               </div>
               
-              <div style={styles.modalButtons}>
-                <button type="submit" style={styles.saveButton}>
-                  <FaSave />
-                  {t('save')}
-                </button>
-                <button type="button" onClick={handleCloseModal} style={styles.cancelButton}>
-                  <FaBan />
-                  {t('cancel')}
-                </button>
-              </div>
+               <div style={styles.modalButtons}>
+                 <button type="submit" style={styles.saveButton} disabled={cargandoSlotsModal || slotsModal.length === 0}>
+                   <FaSave />
+                   {t('save')}
+                 </button>
+                 <button type="button" onClick={handleCloseModal} style={styles.cancelButton}>
+                   <FaBan />
+                   {t('cancel')}
+                 </button>
+               </div>
             </form>
           </div>
         </div>

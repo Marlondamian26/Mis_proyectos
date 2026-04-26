@@ -23,6 +23,7 @@ const ChatIA = ({ onClose }) => {
   const [especialidades, setEspecialidades] = useState([]);
   const [doctores, setDoctores] = useState([]);
   const [horariosDisponibles, setHorariosDisponibles] = useState([]);
+  const [horariosSemana, setHorariosSemana] = useState([]); // Días de la semana que el doctor trabaja (0-6)
   const messageIdRef = useRef(0);
   
   // NUEVO: Estados para selección de pacientes
@@ -93,6 +94,21 @@ const ChatIA = ({ onClose }) => {
     const newId = messageIdRef.current;
     setHistorial(prev => [...prev, { id: newId, tipo, texto, timestamp: new Date() }]);
   }, []);
+
+  // Cargar horarios semanales de un doctor (devuelve array de dias de la semana)
+  const cargarHorariosSemana = async (doctorId) => {
+    try {
+      const response = await axiosInstance.get(`horarios/disponibles/?doctor=${doctorId}`);
+      const horarios = Array.isArray(response.data) ? response.data : [];
+      const dias = [...new Set(horarios.map(h => h.dia_semana))];
+      setHorariosSemana(dias);
+      return dias;
+    } catch (error) {
+      console.error('Error fetching horarios semana:', error);
+      setHorariosSemana([]);
+      return [];
+    }
+  };
 
   // NUEVO: Función para buscar pacientes
   const buscarPacientes = useCallback(async (query) => {
@@ -186,14 +202,71 @@ const ChatIA = ({ onClose }) => {
         console.log('[elegir_doctor] doctor encontrado:', doctor);
         if (doctor) {
           setDatos(prev => ({ ...prev, doctor }));
-          agregarMensaje(t('whatDate'));
-          setEstado('elegir_fecha');
-          setOpciones([
-            { id: 'hoy', texto: t('today') },
-            { id: 'manana', texto: t('tomorrow') },
-            { id: 'otra', texto: t('otherDate') }
-          ]);
-          console.log('[después de elegir_doctor] estado establecido a elegir_fecha');
+          setLoading(true);
+          try {
+            const dias = await cargarHorariosSemana(doctor.id);
+            agregarMensaje(t('whatDate'));
+
+            // Construir opciones de fecha según días que trabaja
+            const opcionesFecha = [];
+            const hoy = new Date();
+            const diaHoy = (hoy.getDay() + 6) % 7;
+            if (dias.includes(diaHoy)) {
+              opcionesFecha.push({ id: 'hoy', texto: t('today') });
+            }
+            const manana = new Date(hoy);
+            manana.setDate(manana.getDate() + 1);
+            const diaManana = (manana.getDay() + 6) % 7;
+            if (dias.includes(diaManana)) {
+              opcionesFecha.push({ id: 'manana', texto: t('tomorrow') });
+            }
+            opcionesFecha.push({ id: 'otra', texto: t('otherDate') });
+
+            setEstado('elegir_fecha');
+            setOpciones(opcionesFecha);
+          } catch (error) {
+            console.error('Error fetching horarios:', error);
+            agregarMensaje('Error al cargar horarios del doctor');
+            setEstado('elegir_doctor');
+            const doctoresFiltrados = doctores.filter(d => 
+              d.especialidad === datos.especialidad.id || 
+              d.especialidad_nombre === datos.especialidad.nombre
+            );
+            setOpciones(doctoresFiltrados.map(d => ({
+              id: d.id,
+              texto: `Dr. ${d.usuario?.first_name} ${d.usuario?.last_name} - ${d.especialidad_nombre || d.otra_especialidad}`
+            })));
+          } finally {
+            setLoading(false);
+          }
+          return;
+        }
+      }
+            const manana = new Date(hoy);
+            manana.setDate(manana.getDate() + 1);
+            const diaManana = (manana.getDay() + 6) % 7;
+            if (dias.includes(diaManana)) {
+              opcionesFecha.push({ id: 'manana', texto: t('tomorrow') });
+            }
+            opcionesFecha.push({ id: 'otra', texto: t('otherDate') });
+
+            setEstado('elegir_fecha');
+            setOpciones(opcionesFecha);
+          } catch (error) {
+            console.error('Error fetching horarios:', error);
+            agregarMensaje('Error al cargar horarios del doctor');
+            setEstado('elegir_doctor');
+            const doctoresFiltrados = doctores.filter(d => 
+              d.especialidad === datos.especialidad.id || 
+              d.especialidad_nombre === datos.especialidad.nombre
+            );
+            setOpciones(doctoresFiltrados.map(d => ({
+              id: d.id,
+              texto: `Dr. ${d.usuario?.first_name} ${d.usuario?.last_name} - ${d.especialidad_nombre || d.otra_especialidad}`
+            })));
+          } finally {
+            setLoading(false);
+          }
           return;
         }
       }
@@ -668,13 +741,14 @@ const ChatIA = ({ onClose }) => {
     } finally {
       setLoading(false);
     }
-  }, [estado, opciones, historial, especialidades, doctores, agregarMensaje, t, setLoading, setEstado, setOpciones, setDatos, datos]);
+   }, [estado, opciones, historial, especialidades, doctores, agregarMensaje, t, setLoading, setEstado, setOpciones, setDatos, datos]);
 
-  const cargarHorarios = async (doctorId, fecha) => {
+   const cargarHorarios = async (doctorId, fecha) => {
     setLoading(true);
     try {
       const response = await axiosInstance.get(`horarios/disponibles/?doctor=${doctorId}&fecha=${fecha}`);
-      
+      const horariosData = Array.isArray(response.data) ? response.data : [];
+
       const citasResponse = await axiosInstance.get('citas/', {
         params: { doctor: doctorId, fecha }
       });
@@ -682,35 +756,38 @@ const ChatIA = ({ onClose }) => {
       const horasOcupadas = citasOcupadas.map(c => c.hora);
 
       const slots = [];
-      // Default horarios if API doesn't return data
-      const horariosData = [
-        { hora_inicio: '08:00', hora_fin: '12:00', activo: true },
-        { hora_inicio: '14:00', hora_fin: '18:00', activo: true }
-      ];
-      
+      const ahora = new Date();
+      const esHoy = fecha === ahora.toISOString().split('T')[0];
+
       horariosData.forEach(horario => {
         if (!horario.activo) return;
-        
+
         const [horaInicio, minInicio] = horario.hora_inicio.split(':').map(Number);
         const [horaFin, minFin] = horario.hora_fin.split(':').map(Number);
-        
+
         let horaActual = new Date();
         horaActual.setHours(horaInicio, minInicio, 0);
-        
+
         const horaFinal = new Date();
         horaFinal.setHours(horaFin, minFin, 0);
-        
+
         while (horaActual < horaFinal) {
           const horaStr = horaActual.toTimeString().slice(0, 5);
           if (!horasOcupadas.includes(horaStr)) {
-            slots.push(horaStr);
+            if (esHoy) {
+              if (horaActual > ahora) {
+                slots.push(horaStr);
+              }
+            } else {
+              slots.push(horaStr);
+            }
           }
           horaActual.setMinutes(horaActual.getMinutes() + 30);
         }
       });
 
       setHorariosDisponibles(slots);
-      
+
       if (slots.length === 0) {
         agregarMensaje(t('noAvailableSlots'));
         setEstado('elegir_fecha');
@@ -830,18 +907,24 @@ ${t('confirmAppointment')}`;
 
   const generarDiasOptions = (anio, mes) => {
     const dias = [];
-    const fecha = new Date(anio, mes - 1, 1);
     const diasEnMes = new Date(anio, mes, 0).getDate();
     const diaActual = new Date().getDate();
     const anioActual = new Date().getFullYear();
     const mesActual = new Date().getMonth() + 1;
-    
+
     let diaInicio = 1;
     if (anio === anioActual && mes === mesActual) {
       diaInicio = diaActual;
     }
-    
+
     for (let d = diaInicio; d <= diasEnMes; d++) {
+      const jsDay = new Date(anio, mes - 1, d).getDay();
+      // Convertir a dia_semana de Django: 0=Lunes, ..., 6=Domingo
+      const diaSemanaDjango = (jsDay + 6) % 7;
+      // Si tenemos horariosSemana, filtrar solo días que el doctor trabaja
+      if (horariosSemana.length > 0 && !horariosSemana.includes(diaSemanaDjango)) {
+        continue;
+      }
       dias.push({
         id: `${anio}-${String(mes).padStart(2, '0')}-${String(d).padStart(2, '0')}`,
         texto: String(d)
@@ -910,13 +993,30 @@ ${t('confirmAppointment')}`;
     const cita = citasDisponibles.find(c => c.id === citaId);
     if (cita) {
       setCitaSeleccionada(cita);
+      const citaDoctor = cita.doctor || cita.doctor_id;
+      const doctorId = typeof citaDoctor === 'object' ? citaDoctor.id : citaDoctor;
+
+      // Cargar horarios semanales del doctor para filtrar días disponibles
+      const dias = await cargarHorariosSemana(doctorId);
+
+      // Construir opciones de fecha basadas en los días que el doctor trabaja
+      const opcionesFecha = [];
+      const hoy = new Date();
+      const diaHoy = (hoy.getDay() + 6) % 7;
+      if (dias.includes(diaHoy)) {
+        opcionesFecha.push({ id: 'hoy', texto: t('today') });
+      }
+      const manana = new Date(hoy);
+      manana.setDate(manana.getDate() + 1);
+      const diaManana = (manana.getDay() + 6) % 7;
+      if (dias.includes(diaManana)) {
+        opcionesFecha.push({ id: 'manana', texto: t('tomorrow') });
+      }
+      opcionesFecha.push({ id: 'otra', texto: t('otherDate') });
+
       agregarMensaje(t('selectNewDate'));
       setEstado('elegir_nueva_fecha');
-      setOpciones([
-        { id: 'hoy', texto: t('today') },
-        { id: 'manana', texto: t('tomorrow') },
-        { id: 'otra', texto: t('otherDate') }
-      ]);
+      setOpciones(opcionesFecha);
     }
   };
 
@@ -942,6 +1042,9 @@ setNuevaFecha(fechaSeleccionada);
   const cargarHorariosNuevos = async (doctorId, fecha) => {
     setLoading(true);
     try {
+      const response = await axiosInstance.get(`horarios/disponibles/?doctor=${doctorId}&fecha=${fecha}`);
+      const horariosData = Array.isArray(response.data) ? response.data : [];
+
       const citasResponse = await axiosInstance.get('citas/', {
         params: { doctor: doctorId, fecha }
       });
@@ -949,34 +1052,38 @@ setNuevaFecha(fechaSeleccionada);
       const horasOcupadas = citasOcupadas.map(c => c.hora);
 
       const slots = [];
-      const horariosData = [
-        { hora_inicio: '08:00', hora_fin: '12:00', activo: true },
-        { hora_inicio: '14:00', hora_fin: '18:00', activo: true }
-      ];
-      
+      const ahora = new Date();
+      const esHoy = fecha === ahora.toISOString().split('T')[0];
+
       horariosData.forEach(horario => {
         if (!horario.activo) return;
-        
+
         const [horaInicio, minInicio] = horario.hora_inicio.split(':').map(Number);
         const [horaFin, minFin] = horario.hora_fin.split(':').map(Number);
-        
+
         let horaActual = new Date();
         horaActual.setHours(horaInicio, minInicio, 0);
-        
+
         const horaFinal = new Date();
         horaFinal.setHours(horaFin, minFin, 0);
-        
+
         while (horaActual < horaFinal) {
           const horaStr = horaActual.toTimeString().slice(0, 5);
           if (!horasOcupadas.includes(horaStr)) {
-            slots.push(horaStr);
+            if (esHoy) {
+              if (horaActual > ahora) {
+                slots.push(horaStr);
+              }
+            } else {
+              slots.push(horaStr);
+            }
           }
           horaActual.setMinutes(horaActual.getMinutes() + 30);
         }
       });
 
       setHorariosNuevos(slots);
-      
+
       if (slots.length === 0) {
         agregarMensaje(t('noAvailableSlots'));
         setOpciones([
