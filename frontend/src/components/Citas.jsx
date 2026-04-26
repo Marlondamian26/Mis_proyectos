@@ -81,7 +81,7 @@ function Citas() {
     try {
       const response = await axiosInstance.get('usuario-actual/')
       setUser(response.data)
-      if (response.data.rol === 'doctor' || response.data.rol === 'admin') {
+      if (response.data.rol === 'doctor' || response.data.rol === 'admin' || response.data.rol === 'nurse') {
         fetchPacientes()
       }
     } catch (error) {
@@ -1013,7 +1013,7 @@ const styles = {
   dateTimeInput: `
     input[type="date"]::-webkit-calendar-picker-indicator,
     input[type="time"]::-webkit-clock-picker-indicator {
-      filter: brightness(0) invert(1);
+      filter: brightness(0) invert(1) contrast(10);
     }
   `
 }

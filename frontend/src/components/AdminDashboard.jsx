@@ -50,6 +50,15 @@ function AdminDashboard() {
   const [selectedItem, setSelectedItem] = useState(null)
   const [formData, setFormData] = useState({})
 
+  // Función para obtener el título correcto según el tipo
+  const getModalTitle = (tipo) => {
+    if (tipo === 'citas') {
+      return t('appointment')
+    }
+    const singular = tipo.slice(0, -1)
+    return t(singular) || singular.charAt(0).toUpperCase() + singular.slice(1)
+  }
+
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -1976,9 +1985,9 @@ function AdminDashboard() {
         <div style={styles.modalOverlay} onClick={handleCloseModal}>
           <div style={styles.modal} onClick={e => e.stopPropagation()}>
             <h2 style={styles.modalTitle}>
-              {modalMode === 'create' && `${t('createNew')} ${formData.tipo}`}
-              {modalMode === 'edit' && `${t('editItem')} ${formData.tipo}`}
-              {modalMode === 'view' && `${t('viewItem')} ${formData.tipo}`}
+              {modalMode === 'create' && `${t('createNew')} ${getModalTitle(formData.tipo)}`}
+              {modalMode === 'edit' && `${t('editItem')} ${getModalTitle(formData.tipo)}`}
+              {modalMode === 'view' && `${t('viewItem')} ${getModalTitle(formData.tipo)}`}
             </h2>
             
             {/* Error del backend */}

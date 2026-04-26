@@ -115,12 +115,8 @@ function EnfermeriaDashboard() {
       const pacientesConDetalle = await Promise.all(pacientesPromises)
       setPacientesHoy(pacientesConDetalle)
 
-      // Simular procedimientos pendientes (esto debería venir de un endpoint real)
-      setProcedimientosPendientes([
-        { id: 1, tipo: 'vacuna', paciente: 'María González', descripcion: 'Vacuna contra influenza', prioridad: 'alta' },
-        { id: 2, tipo: 'curacion', paciente: 'Juan Pérez', descripcion: 'Curación de herida post-operatoria', prioridad: 'media' },
-        { id: 3, tipo: 'toma_muestra', paciente: 'Ana López', descripcion: 'Toma de muestra para análisis', prioridad: 'baja' }
-      ])
+      // TODO: Fetch real procedimientos pendientes from API
+      setProcedimientosPendientes([])
 
     } catch (error) {
       console.error('Error cargando datos del día:', error)
@@ -228,14 +224,13 @@ function EnfermeriaDashboard() {
   return (
     <div style={styles.container}>
       <div style={styles.headerBar}>
-        <PromocionalToggle />
       </div>
       {/* Header */}
       <div style={styles.header}>
         <div style={styles.headerLeft}>
           <h1 style={styles.title}>
             <FaUserNurse style={styles.titleIcon} />
-            Panel de Enfermería
+            {t('nursingDashboard')}
           </h1>
           {user?.foto_perfil_url && (
             <img
