@@ -242,34 +242,6 @@ const ChatIA = ({ onClose }) => {
           return;
         }
       }
-            const manana = new Date(hoy);
-            manana.setDate(manana.getDate() + 1);
-            const diaManana = (manana.getDay() + 6) % 7;
-            if (dias.includes(diaManana)) {
-              opcionesFecha.push({ id: 'manana', texto: t('tomorrow') });
-            }
-            opcionesFecha.push({ id: 'otra', texto: t('otherDate') });
-
-            setEstado('elegir_fecha');
-            setOpciones(opcionesFecha);
-          } catch (error) {
-            console.error('Error fetching horarios:', error);
-            agregarMensaje('Error al cargar horarios del doctor');
-            setEstado('elegir_doctor');
-            const doctoresFiltrados = doctores.filter(d => 
-              d.especialidad === datos.especialidad.id || 
-              d.especialidad_nombre === datos.especialidad.nombre
-            );
-            setOpciones(doctoresFiltrados.map(d => ({
-              id: d.id,
-              texto: `Dr. ${d.usuario?.first_name} ${d.usuario?.last_name} - ${d.especialidad_nombre || d.otra_especialidad}`
-            })));
-          } finally {
-            setLoading(false);
-          }
-          return;
-        }
-      }
 
       // Manejar estados específicos antes del switch para casos especiales
       if (estado === 'elegir_fecha') {

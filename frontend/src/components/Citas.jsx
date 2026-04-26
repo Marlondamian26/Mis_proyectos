@@ -720,7 +720,7 @@ function Citas() {
                    <FaSave />
                    {t('save')}
                  </button>
-                 <button type="button" onClick={handleCloseModal} style={styles.cancelButton}>
+                 <button type="button" onClick={handleCloseModal} style={styles.modalCancelButton}>
                    <FaBan />
                    {t('cancel')}
                  </button>
@@ -1100,37 +1100,37 @@ const styles = {
     gap: '10px',
     marginTop: '20px'
   },
-  saveButton: {
-    backgroundColor: 'var(--color-success)',
-    color: 'white',
-    padding: '12px',
-    border: 'none',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    flex: 2,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '5px',
-    fontSize: '14px',
-    fontWeight: '500'
-  },
-  cancelButton: {
-    backgroundColor: 'var(--color-cancelled)',
-    color: 'white',
-    padding: '12px',
-    border: 'none',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    flex: 1,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '5px',
-    fontSize: '14px',
-    fontWeight: '500'
-  },
+   saveButton: {
+     backgroundColor: 'var(--color-success)',
+     color: 'white',
+     padding: '12px',
+     border: 'none',
+     borderRadius: '6px',
+     cursor: 'pointer',
+     flex: 2,
+     display: 'flex',
+     alignItems: 'center',
+     justifyContent: 'center',
+     gap: '5px',
+     fontSize: '14px',
+     fontWeight: '500'
+   },
+   modalCancelButton: {
+     backgroundColor: 'var(--color-cancelled)',
+     color: 'white',
+     padding: '12px',
+     border: 'none',
+     borderRadius: '6px',
+     cursor: 'pointer',
+     flex: 1,
+     display: 'flex',
+     alignItems: 'center',
+     justifyContent: 'center',
+     gap: '5px',
+     fontSize: '14px',
+     fontWeight: '500'
+   },
 
-}
+ }
 
 export default Citas
