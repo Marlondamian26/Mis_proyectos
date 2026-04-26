@@ -1013,7 +1013,7 @@ const styles = {
   dateTimeInput: `
     input[type="date"]::-webkit-calendar-picker-indicator,
     input[type="time"]::-webkit-clock-picker-indicator {
-      filter: invert(1);
+      filter: brightness(0) invert(1);
     }
   `
 }
