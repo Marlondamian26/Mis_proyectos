@@ -34,7 +34,6 @@ function Citas() {
   const [errorSlotsModal, setErrorSlotsModal] = useState(null)
   const navigate = useNavigate()
   const location = useLocation()
-  const location = useLocation()
   
   const [nuevaCita, setNuevaCita] = useState({
     doctor: location.state?.doctorSeleccionado?.id || '',
