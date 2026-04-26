@@ -423,8 +423,8 @@ function Citas() {
             <h2 style={styles.modalTitle}>{t('createNew')} {t('appointment')}</h2>
             
             <form onSubmit={handleSubmitForm}>
-              {/* Selección de paciente para doctor/admin */}
-              {(user?.rol === 'doctor' || user?.rol === 'admin') && (
+              {/* Selección de paciente para doctor/admin/enfermera */}
+              {(user?.rol === 'doctor' || user?.rol === 'admin' || user?.rol === 'nurse') && (
                 <div style={styles.formGroup}>
                   <label style={styles.label}>{t('patient')} *</label>
                   <div style={styles.autocompleteContainer}>

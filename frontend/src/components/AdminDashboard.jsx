@@ -2446,21 +2446,9 @@ function AdminDashboard() {
                        disabled={modalMode === 'view'}
                        style={styles.input}
                      />
-                   </div>
-                  
-                   <div style={styles.formGroup}>
-                     <label style={styles.label}>Número de Licencia (opcional)</label>
-                     <input
-                       type="text"
-                       name="numero_licencia"
-                       value={formData.numero_licencia || ''}
-                       onChange={handleInputChange}
-                       disabled={modalMode === 'view'}
-                       style={styles.input}
-                     />
-                   </div>
+                    </div>
 
-                   {/* Foto de perfil */}
+                    {/* Foto de perfil */}
                    <h3 style={styles.modalSubtitle}>{t('profilePhoto')}</h3>
 
                    {selectedItem?.usuario?.foto_perfil_url && (
