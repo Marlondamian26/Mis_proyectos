@@ -25,6 +25,7 @@ urlpatterns = [
     # Rutas públicas (que todos los usuarios autenticados pueden ver)
     path('especialidades-publicas/', views.especialidades_publicas, name='especialidades_publicas'),
     path('doctores-publicos/', views.doctores_publicos, name='doctores_publicos'),
+    path('especialistas-publicos/', views.especialistas_publicos, name='especialistas_publicos'),
     path('mis-citas/', views.mis_citas, name='mis_citas'),
     
     # Rutas de perfil personal para doctores y enfermeras

@@ -131,6 +131,36 @@ def doctores_publicos(request):
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
+def especialistas_publicos(request):
+    """Endpoint público para ver especialistas activos (doctores y enfermeras)"""
+    from django.core.cache import cache
+    
+    cache_key = 'especialistas_publicos'
+    cached_data = cache.get(cache_key)
+    if cached_data is not None:
+        return Response(cached_data)
+    
+    doctores = Doctor.objects.select_related('usuario', 'especialidad').all()
+    doctores_data = DoctorSerializer(doctores, many=True).data
+    
+    enfermeras = Enfermera.objects.select_related('usuario', 'especialidad').all()
+    enfermeras_data = EnfermeraSerializer(enfermeras, many=True).data
+    
+    especialistas = []
+    for doctor in doctores_data:
+        doctor['tipo'] = 'doctor'
+        especialistas.append(doctor)
+    
+    for enfermera in enfermeras_data:
+        enfermera['tipo'] = 'nurse'
+        especialistas.append(enfermera)
+    
+    cache.set(cache_key, especialistas, 300)
+    return Response(especialistas)
+
+
+@api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def mis_citas(request):
     """Obtener solo las citas del usuario actual"""

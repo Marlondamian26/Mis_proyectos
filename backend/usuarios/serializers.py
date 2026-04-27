@@ -118,7 +118,7 @@ class EnfermeraSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'usuario', 'usuario_id',
             'especialidad', 'especialidad_nombre', 'especialidad_detalle',
-            'otra_especialidad', 'numero_licencia'
+            'otra_especialidad', 'numero_licencia', 'biografia'
         ]
         read_only_fields = ['id']
     

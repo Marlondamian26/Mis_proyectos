@@ -198,6 +198,10 @@ class Enfermera(models.Model):
         blank=True,  # Ahora es opcional
         verbose_name='Número de licencia'
     )
+    biografia = models.TextField(
+        blank=True,
+        verbose_name='Biografía profesional'
+    )
     
     def __str__(self):
         return f"Enf. {self.usuario.first_name} {self.usuario.last_name}"

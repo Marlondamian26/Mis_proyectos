@@ -2,31 +2,31 @@ import React, { useEffect, useState } from 'react'
 import axiosInstance from '../services/auth'
 import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext'
-import { FaStar, FaMapMarkerAlt, FaPhone, FaEnvelope, FaCalendarAlt } from 'react-icons/fa'
+import { FaPhone, FaEnvelope, FaCalendarAlt } from 'react-icons/fa'
 
 function Doctores() {
   const { t } = useLanguage()
-  const [doctores, setDoctores] = useState([])
+  const [especialistas, setEspecialistas] = useState([])
   const [especialidades, setEspecialidades] = useState([])
   const [loading, setLoading] = useState(true)
   const [filtroEspecialidad, setFiltroEspecialidad] = useState('')
-  const [doctorSeleccionado, setDoctorSeleccionado] = useState(null)
+  const [especialistaSeleccionado, setEspecialistaSeleccionado] = useState(null)
   const [horarios, setHorarios] = useState([])
   const navigate = useNavigate()
 
   useEffect(() => {
-    fetchDoctores()
+    fetchEspecialistas()
     fetchEspecialidades()
   }, [])
 
-  const fetchDoctores = async () => {
+  const fetchEspecialistas = async () => {
     try {
-      const response = await axiosInstance.get('doctores-publicos/')
-      const doctoresData = Array.isArray(response.data) ? response.data : response.data.results || []
-      setDoctores(doctoresData)
+      const response = await axiosInstance.get('especialistas-publicos/')
+      const especialistasData = Array.isArray(response.data) ? response.data : response.data.results || []
+      setEspecialistas(especialistasData)
     } catch (error) {
-      console.error('Error cargando doctores:', error)
-      setDoctores([])
+      console.error('Error cargando especialistas:', error)
+      setEspecialistas([])
     } finally {
       setLoading(false)
     }
@@ -54,13 +54,17 @@ function Doctores() {
     }
   }
 
-  const verDetalles = (doctor) => {
-    setDoctorSeleccionado(doctor)
-    fetchHorarios(doctor.id)
+  const verDetalles = (especialista) => {
+    setEspecialistaSeleccionado(especialista)
+    if (especialista.tipo === 'doctor') {
+      fetchHorarios(especialista.id)
+    } else {
+      setHorarios([])
+    }
   }
 
   const cerrarModal = () => {
-    setDoctorSeleccionado(null)
+    setEspecialistaSeleccionado(null)
     setHorarios([])
   }
 
@@ -84,14 +88,14 @@ function Doctores() {
     return t('notSpecified')
   }
 
-  // Filtrar doctores por especialidad (usando el nombre para la comparación)
-  const doctoresArray = Array.isArray(doctores) ? doctores : []
-  const doctoresFiltrados = filtroEspecialidad
-    ? doctoresArray.filter(d => {
-        const espNombre = d.especialidad_nombre || d.otra_especialidad
+  // Filtrar especialistas por especialidad (usando el nombre para la comparación)
+  const especialistasArray = Array.isArray(especialistas) ? especialistas : []
+  const especialistasFiltrados = filtroEspecialidad
+    ? especialistasArray.filter(e => {
+        const espNombre = e.especialidad_nombre || e.otra_especialidad
         return espNombre === filtroEspecialidad
       })
-    : doctoresArray
+    : especialistasArray
 
   if (loading) {
     return <div style={styles.loading}>{t('loading')}</div>
@@ -122,70 +126,75 @@ function Doctores() {
         </select>
       </div>
 
-      {/* Grid de doctores */}
+      {/* Grid de especialistas */}
       <div style={styles.grid}>
-        {doctoresFiltrados.map(doctor => (
-          <div key={doctor.id} style={styles.card}>
-            <div style={styles.cardHeader}>
-              <img
-                src={doctor.usuario?.foto_perfil_url || 'https://via.placeholder.com/100'}
-                alt={doctor.usuario?.first_name}
-                style={styles.avatar}
-              />
-              <h3 style={styles.doctorName}>
-                Dr. {doctor.usuario?.first_name} {doctor.usuario?.last_name}
-              </h3>
+        {especialistasFiltrados.map(especialista => {
+          const isNurse = especialista.tipo === 'nurse'
+          const labelPrefix = isNurse ? t('nurseShort') : t('dr')
+
+          return (
+            <div key={especialista.id} style={styles.card}>
+              <div style={styles.cardHeader}>
+                <img
+                  src={especialista.usuario?.foto_perfil_url || 'https://via.placeholder.com/100'}
+                  alt={especialista.usuario?.first_name}
+                  style={styles.avatar}
+                />
+                <h3 style={styles.doctorName}>
+                  {labelPrefix} {especialista.usuario?.first_name} {especialista.usuario?.last_name}
+                </h3>
+              </div>
+              
+              <div style={styles.cardBody}>
+                <p style={styles.especialidad}>
+                  <strong>🔬 {getEspecialidadNombre(especialista)}</strong>
+                </p>
+                <p style={styles.biografia}>
+                  {especialista.biografia?.substring(0, 100) || t('notSpecified')}
+                </p>
+              </div>
+              
+              <div style={styles.cardFooter}>
+                <button 
+                  onClick={() => verDetalles(especialista)}
+                  style={styles.verMasButton}
+                >
+                  {t('viewAvailability')}
+                </button>
+              </div>
             </div>
-            
-            <div style={styles.cardBody}>
-              <p style={styles.especialidad}>
-                <strong>🔬 {getEspecialidadNombre(doctor)}</strong>
-              </p>
-              <p style={styles.biografia}>
-                {doctor.biografia?.substring(0, 100)}...
-              </p>
-            </div>
-            
-            <div style={styles.cardFooter}>
-              <button 
-                onClick={() => verDetalles(doctor)}
-                style={styles.verMasButton}
-              >
-                {t('viewAvailability')}
-              </button>
-            </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
-      {/* Modal de detalhes do medico */}
-      {doctorSeleccionado && (
+      {/* Modal de detalles del especialista */}
+      {especialistaSeleccionado && (
         <div style={styles.modalOverlay} onClick={cerrarModal}>
           <div style={styles.modal} onClick={e => e.stopPropagation()}>
             <button style={styles.modalClose} onClick={cerrarModal}>×</button>
             
             <div style={styles.modalHeader}>
               <img
-                src={doctorSeleccionado.usuario?.foto_perfil_url || 'https://via.placeholder.com/150'}
-                alt={doctorSeleccionado.usuario?.first_name}
+                src={especialistaSeleccionado.usuario?.foto_perfil_url || 'https://via.placeholder.com/150'}
+                alt={especialistaSeleccionado.usuario?.first_name}
                 style={styles.modalAvatar}
               />
               <div>
-                <h2>Dr. {doctorSeleccionado.usuario?.first_name} {doctorSeleccionado.usuario?.last_name}</h2>
-                <p style={styles.modalEspecialidad}>{getEspecialidadNombre(doctorSeleccionado)}</p>
+                <h2>{especialistaSeleccionado.tipo === 'nurse' ? t('nurseShort') : t('dr')} {especialistaSeleccionado.usuario?.first_name} {especialistaSeleccionado.usuario?.last_name}</h2>
+                <p style={styles.modalEspecialidad}>{getEspecialidadNombre(especialistaSeleccionado)}</p>
               </div>
             </div>
 
             <div style={styles.modalBody}>
               <div style={styles.modalSection}>
                 <h4>{t('professionalInfo')}</h4>
-                <p><strong>{t('biography')}:</strong> {doctorSeleccionado.biografia || t('notSpecified')}</p>
+                <p><strong>{t('biography')}:</strong> {especialistaSeleccionado.biografia || t('notSpecified')}</p>
               </div>
 
               <div style={styles.modalSection}>
                 <h4>📞 {t('contact')}</h4>
-                <p><FaPhone /> {doctorSeleccionado.usuario?.telefono || t('notSpecified')}</p>
-                <p><FaEnvelope /> {doctorSeleccionado.usuario?.email || 'No especificado'}</p>
+                <p><FaPhone /> {especialistaSeleccionado.usuario?.telefono || t('notSpecified')}</p>
+                <p><FaEnvelope /> {especialistaSeleccionado.usuario?.email || t('notSpecified')}</p>
               </div>
 
               <div style={styles.modalSection}>
@@ -204,23 +213,25 @@ function Doctores() {
                 )}
               </div>
 
-              <button 
-                style={styles.reservarButton}
-                onClick={() => {
-                  cerrarModal()
-                  navigate('/citas', { state: { doctorSeleccionado } })
-                }}
-              >
-                <FaCalendarAlt /> {t('bookAppointmentBtn')}
-              </button>
+              {especialistaSeleccionado.tipo === 'doctor' && (
+                <button 
+                  style={styles.reservarButton}
+                  onClick={() => {
+                    cerrarModal()
+                    navigate('/citas', { state: { doctorSeleccionado: especialistaSeleccionado } })
+                  }}
+                >
+                  <FaCalendarAlt /> {t('bookAppointmentBtn')}
+                </button>
+              )}
             </div>
           </div>
         </div>
       )}
 
-      {doctoresFiltrados.length === 0 && !loading && (
+      {especialistasFiltrados.length === 0 && !loading && (
         <div style={styles.noResults}>
-          {t('noDoctorsFound')} {filtroEspecialidad && `${t('withSpecialty')} "${filtroEspecialidad}"`}
+          {t('noSpecialistsFound')} {filtroEspecialidad && `${t('withSpecialty')} "${filtroEspecialidad}"`}
         </div>
       )}
     </div>

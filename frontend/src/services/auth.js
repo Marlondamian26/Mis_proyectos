@@ -41,7 +41,7 @@ axiosInstance.interceptors.response.use(
     const originalRequest = error.config
     
     // No redirigir para requests de login/registro
-    const noRedirigirUrls = ['/token/', '/token/refresh/', '/registro/', '/doctores-publicos/', '/especialidades-publicas/']
+    const noRedirigirUrls = ['/token/', '/token/refresh/', '/registro/', '/doctores-publicos/', '/especialidades-publicas/', '/especialistas-publicos/']
     const isAuthRequest = noRedirigirUrls.some(url => originalRequest.url?.includes(url))
     
     if (error.response?.status === 401 && !originalRequest._retry && !isAuthRequest) {

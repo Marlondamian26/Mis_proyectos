@@ -75,6 +75,20 @@ const translations = {
     noDoctorsFound: 'Não encontrou Médicos',
     withSpecialty: 'com especialidade',
     dr: 'Dr.',
+    nurseShort: 'Enf.',
+    noSpecialistsFound: 'Nenhum especialista encontrado',
+    // Doctors
+    ourSpecialists: 'Nossos Especialistas',
+    filterBySpecialty: 'Filtrar por especialidade',
+    allSpecialties: 'Todas as especialidades',
+    viewAvailability: 'Ver disponibilidade',
+    biography: 'Biografia',
+    notSpecified: 'Não especificada',
+    notProvided: 'Não especificado',
+    officeHours: 'Horários de Atendimento',
+    noScheduleConfigured: 'Não há horários configurados',
+    bookAppointmentBtn: 'Reservar Consulta',
+    noNursesFound: 'Não foram encontradas enfermeiras',
     // Dashboard
     quickAccessAdmin: 'Acesso Rápido de Administrador',
     viewAllAppointments: 'Ver Todas as Consultas',
@@ -703,7 +717,7 @@ const translations = {
     medicalSystem: 'Sistema de gestión médica',
     unreadNotifications: 'Tienes {count} notificación{count !== 1 ? "es" : ""} sin leer',
     administrator: 'Administrador',
-    nurse: 'Enfermería',
+    nurse: 'Enfermera',
     patient: 'Paciente',
 
      // Appointments
@@ -749,6 +763,8 @@ const translations = {
     officeHours: 'Horarios de Atención',
     noScheduleConfigured: 'No hay horarios configurados',
     bookAppointmentBtn: 'Reservar Cita',
+    nurseShort: 'Enf.',
+    noSpecialistsFound: 'No se encontraron especialistas',
     noNursesFound: 'No se encontraron enfermeras',
 
     // Admin Dashboard additional
@@ -1013,6 +1029,7 @@ const translations = {
     bloodType: 'Blood Type',
     newSpecialty: 'New Specialty',
     appointmentManagement: 'Appointment Management',
+    appointmentsManagement: 'Appointment Management',
     specialtyManagement: 'Specialty Management',
     scheduleManagement: 'Schedule Management',
     // Table headers
@@ -1189,7 +1206,7 @@ const translations = {
     notifications: 'Notifications',
     unreadNotifications: 'You have {count} unread notification{count !== 1 ? "s" : ""}',
     administrator: 'Administrator',
-    nurse: 'Nursing',
+    nurse: 'Nurse',
 
     // Appointments continued
     selectPatient: 'Select patient',
@@ -1226,6 +1243,8 @@ const translations = {
     officeHours: 'Office Hours',
     noScheduleConfigured: 'No schedule configured',
     bookAppointmentBtn: 'Book Appointment',
+    nurseShort: 'Nurse',
+    noSpecialistsFound: 'No specialists found',
     noNursesFound: 'No nurses found',
 
      // Admin Dashboard additional
