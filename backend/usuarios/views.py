@@ -131,16 +131,10 @@ def doctores_publicos(request):
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def especialistas_publicos(request):
     """Endpoint público para ver especialistas activos (doctores y enfermeras)"""
-    from django.core.cache import cache
-    
-    cache_key = 'especialistas_publicos'
-    cached_data = cache.get(cache_key)
-    if cached_data is not None:
-        return Response(cached_data)
-    
+    # Por ahora sin cache para debugging
     doctores = Doctor.objects.select_related('usuario', 'especialidad').all()
     doctores_data = DoctorSerializer(doctores, many=True).data
     
@@ -156,7 +150,6 @@ def especialistas_publicos(request):
         enfermera['tipo'] = 'nurse'
         especialistas.append(enfermera)
     
-    cache.set(cache_key, especialistas, 300)
     return Response(especialistas)
 
 
