@@ -128,5 +128,5 @@ button:focus-visible {
 /* Date and time input icons in dark mode */
 input[type="date"]::-webkit-calendar-picker-indicator,
 input[type="time"]::-webkit-clock-picker-indicator {
-  filter: brightness(0) invert(1) contrast(10);
+  filter: invert(1) brightness(2);
 }

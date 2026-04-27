@@ -424,7 +424,9 @@ const translations = {
     noShow: 'Não compareceu',
     created: 'Criada',
     imageTitle: 'Título',
+    imageTitlePlaceholder: 'Insira o título da imagem',
     imageDescription: 'Descrição',
+    imageDescriptionPlaceholder: 'Insira a descrição da imagem',
     imageType: 'Tipo de Imagem',
     typeHero: 'Imagem Hero (Início)',
     typeCarousel: 'Imagem do Carrossel',
@@ -463,7 +465,8 @@ const translations = {
     noCitasToPostpone: 'Você não tem citas para adiar.',
     chooseAppointment: 'Escolher cita',
     backToMenu: 'Voltar ao menu',
-
+    appointment: 'Consulta',
+    
 
   },
 
@@ -906,6 +909,7 @@ const translations = {
     saturday: 'Sábado',
     sunday: 'Domingo',
     appointmentHistory: 'Historial de Citas',
+    appointment: 'Cita',
     portuguese: 'Portugués',
     spanish: 'Español',
     english: 'Inglés',

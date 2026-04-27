@@ -55,6 +55,9 @@ function AdminDashboard() {
     if (tipo === 'citas') {
       return t('appointment')
     }
+    if (tipo === 'imagenes-sitio') {
+      return t('siteImages')
+    }
     const singular = tipo.slice(0, -1)
     return t(singular) || singular.charAt(0).toUpperCase() + singular.slice(1)
   }
