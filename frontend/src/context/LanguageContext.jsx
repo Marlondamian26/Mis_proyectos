@@ -507,6 +507,7 @@ const translations = {
     noDataAvailable: 'No disponible',
     required: 'Obligatorio',
     optional: 'Opcional',
+    description: 'Descripción',
     // Login
     login: 'Iniciar Sesión',
     logout: 'Cerrar Sesión',
@@ -771,6 +772,7 @@ const translations = {
 
     // Admin Dashboard additional
     specialties: 'Especialidades',
+    especialidade: 'Especialidad',
     specialtyType: 'Tipo de Especialidad',
     medical: 'Médica',
     nursing: 'Enfermería',
