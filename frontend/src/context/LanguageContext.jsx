@@ -784,6 +784,7 @@ const translations = {
     // Profile
     profile: 'Perfil',
     profileManagement: 'Gestion de Perfil',
+    name: 'Nombre',
     firstName: 'Nombre',
     lastName: 'Apellido',
     fullName: 'Nombre Completo',
