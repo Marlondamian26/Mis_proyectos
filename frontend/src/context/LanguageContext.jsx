@@ -505,6 +505,8 @@ const translations = {
     noResults: 'No se encontraron resultados',
     loadingData: 'Cargando datos...',
     noDataAvailable: 'No disponible',
+    required: 'Obligatorio',
+    optional: 'Opcional',
     // Login
     login: 'Iniciar Sesión',
     logout: 'Cerrar Sesión',
@@ -769,6 +771,10 @@ const translations = {
 
     // Admin Dashboard additional
     specialties: 'Especialidades',
+    specialtyType: 'Tipo de Especialidad',
+    medical: 'Médica',
+    nursing: 'Enfermería',
+    describeSpecialty: 'Describe la especialidad...',
     schedules: 'Horarios',
     siteImages: 'Imágenes del Sitio',
     siteImageManagement: 'Gestión de Imágenes',
