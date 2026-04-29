@@ -118,6 +118,8 @@ const translations = {
     generalNursing: 'Enfermagem Geral',
     patientsToday: 'Pacientes de Hoje',
     welcome: 'Bem-vinda',
+    nursingDashboard: 'Painel de Enfermagem',
+    goToNursingDashboard: 'Ir para Painel de Enfermagem',
     // Chat IA
     chatAssistantTitle: 'Assistente de Consultas',
     scheduleAppointment: 'Agendar consulta médica',
