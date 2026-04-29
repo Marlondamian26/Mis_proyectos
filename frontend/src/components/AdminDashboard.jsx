@@ -58,6 +58,9 @@ function AdminDashboard() {
     if (tipo === 'imagenes-sitio') {
       return t('siteImages')
     }
+    if (tipo === 'especialidades') {
+      return t('specialty')
+    }
     const singular = tipo.slice(0, -1)
     return t(singular) || singular.charAt(0).toUpperCase() + singular.slice(1)
   }
@@ -1797,9 +1800,9 @@ function AdminDashboard() {
                         <td>{esp.id}</td>
                         <td>{esp.nombre}</td>
                         <td>
-                          {esp.tipo === 'medica' && '🔬 Médica'}
-                          {esp.tipo === 'enfermeria' && '💉 Enfermería'}
-                          {esp.tipo === 'ambas' && '🔄 Ambas'}
+                          {esp.tipo === 'medica' && `🔬 ${t('medical')}`}
+                          {esp.tipo === 'enfermeria' && `💉 ${t('nursing')}`}
+                          {esp.tipo === 'ambas' && `🔄 ${t('both')}`}
                         </td>
                         <td>{esp.descripcion || '-'}</td>
                         <td>
@@ -2915,7 +2918,7 @@ function AdminDashboard() {
                     >
                       <option value="medica">🔬 {t('medical')}</option>
                       <option value="enfermeria">💉 {t('nursing')}</option>
-                      <option value="ambas">🔄 Ambas</option>
+                      <option value="ambas">🔄 {t('both')}</option>
                     </select>
                   </div>
                    
