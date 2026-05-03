@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'corsheaders',             # Para manejar CORS
     'usuarios',  
     'notificaciones',
+    'django_dbbackup',
 ]
 
 MIDDLEWARE = [
