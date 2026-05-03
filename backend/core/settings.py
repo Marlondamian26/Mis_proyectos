@@ -101,9 +101,9 @@ import dj_database_url
 
 DATABASES = {
     'default': dj_database_url.config(
-        default='sqlite:///db.sqlite3',
+        default='postgresql://postgres:Gestion-Saude@db.qzqghurkbjcirjgoosow.supabase.co:5432/postgres',
         conn_max_age=600,
-        ssl_require=False
+        ssl_require=True
     )
 }
 
