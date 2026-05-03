@@ -28,9 +28,24 @@ from rest_framework_simplejwt.views import (  # <-- NUEVAS IMPORTACIONES
 from usuarios.views import CustomTokenObtainPairView
 
 from django.http import JsonResponse
+from django.core.management import call_command
+from io import StringIO
 
 def health_check(request):
     return JsonResponse({"status": "ok"})
+
+def db_backup(request):
+    # Solo permitir en desarrollo o con auth
+    if not settings.DEBUG:
+        return JsonResponse({"error": "Not allowed in production"}, status=403)
+    
+    buffer = StringIO()
+    try:
+        call_command('dbbackup', stdout=buffer)
+        sql_content = buffer.getvalue()
+        return JsonResponse({"backup": sql_content})
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
 
 urlpatterns = [
     path('admin/', admin.site.urls),

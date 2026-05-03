@@ -54,9 +54,9 @@ INSTALLED_APPS = [
     # Nuevas apps de terceros
     'rest_framework',          # Django REST Framework
     'corsheaders',             # Para manejar CORS
-    'usuarios',  
+    'usuarios',
     'notificaciones',
-    'django_dbbackup',
+    'dbbackup',
 ]
 
 MIDDLEWARE = [
