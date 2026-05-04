@@ -47,6 +47,6 @@ if __name__ == '__main__':
         sys.exit(1)
     
     json_file = sys.argv[1]
-    db_url = "postgresql://postgres:Gestion-Saude@db.qzqghurkbjcirjgoosow.supabase.co:5432/postgres"
+    db_url = "postgresql://postgres:Gestion-Saude@qzqghurkbjcirjgoosow.supabase.co:5432/postgres"
     
     import_data(json_file, db_url)
