@@ -1,4 +1,5 @@
 from argparse import Action
+import logging
 
 from rest_framework import viewsets, generics, permissions, status
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
@@ -11,6 +12,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import update_session_auth_hash  # <-- NUEVO IMPORT
 from .models import Usuario, Doctor, Enfermera, Paciente, Especialidad, Horario, Cita, SitioImagen
+
+logger = logging.getLogger(__name__)
 
 # custom token endpoint to allow login via email/telefono or username
 from .serializers import CustomTokenObtainPairSerializer
@@ -655,15 +658,13 @@ class CitaViewSet(viewsets.ModelViewSet):
     
     def perform_create(self, serializer):
         """Al crear una cita, enviar notificación"""
+        cita = serializer.save()
         try:
-            cita = serializer.save()
             from notificaciones.services import ServicioNotificaciones
             ServicioNotificaciones.notificar_cita_creada(cita)
-            return cita
         except Exception as e:
-            import traceback
-            traceback.print_exc()
-            raise
+            logger.exception('Error enviando notificación de cita creada: %s', e)
+        return cita
 
     def perform_update(self, serializer):
         """Al actualizar una cita, enviar notificación si es necesario"""
@@ -671,14 +672,17 @@ class CitaViewSet(viewsets.ModelViewSet):
         estado_anterior = cita.estado
         cita = serializer.save()
 
-        from notificaciones.services import ServicioNotificaciones
+        try:
+            from notificaciones.services import ServicioNotificaciones
 
-        if estado_anterior != cita.estado:
-            if cita.estado == 'cancelada':
-                cancelado_por = 'paciente' if self.request.user.rol == 'patient' else 'admin'
-                ServicioNotificaciones.notificar_cita_cancelada(cita, cancelado_por=cancelado_por)
-            elif cita.estado == 'confirmada':
-                ServicioNotificaciones.notificar_cita_confirmada(cita)
+            if estado_anterior != cita.estado:
+                if cita.estado == 'cancelada':
+                    cancelado_por = 'paciente' if self.request.user.rol == 'patient' else 'admin'
+                    ServicioNotificaciones.notificar_cita_cancelada(cita, cancelado_por=cancelado_por)
+                elif cita.estado == 'confirmada':
+                    ServicioNotificaciones.notificar_cita_confirmada(cita)
+        except Exception as e:
+            logger.exception('Error enviando notificación de actualización de cita: %s', e)
 
         return cita
     
@@ -689,9 +693,12 @@ class CitaViewSet(viewsets.ModelViewSet):
         cita.estado = 'cancelada'
         cita.save()
         
-        from notificaciones.services import ServicioNotificaciones
-        cancelado_por = 'paciente' if request.user.rol == 'patient' else 'admin'
-        ServicioNotificaciones.notificar_cita_cancelada(cita, cancelado_por=cancelado_por)
+        try:
+            from notificaciones.services import ServicioNotificaciones
+            cancelado_por = 'paciente' if request.user.rol == 'patient' else 'admin'
+            ServicioNotificaciones.notificar_cita_cancelada(cita, cancelado_por=cancelado_por)
+        except Exception as e:
+            logger.exception('Error enviando notificación de cita cancelada: %s', e)
         
         serializer = self.get_serializer(cita)
         return Response(serializer.data)
@@ -703,10 +710,11 @@ class CitaViewSet(viewsets.ModelViewSet):
         cita.estado = 'confirmada'
         cita.save()
         
-        # Importación diferida
-        from notificaciones.services import ServicioNotificaciones
-        # Enviar notificaciones
-        ServicioNotificaciones.notificar_cita_confirmada(cita)
+        try:
+            from notificaciones.services import ServicioNotificaciones
+            ServicioNotificaciones.notificar_cita_confirmada(cita)
+        except Exception as e:
+            logger.exception('Error enviando notificación de cita confirmada: %s', e)
         
         serializer = self.get_serializer(cita)
         return Response(serializer.data)
