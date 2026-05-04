@@ -26,7 +26,6 @@ from rest_framework_simplejwt.views import (  # <-- NUEVAS IMPORTACIONES
 )
 # utilizaremos la vista personalizada que permite email/telefono
 from usuarios.views import CustomTokenObtainPairView
-from .views import backup_database
 
 from django.http import JsonResponse
 
@@ -36,7 +35,6 @@ def health_check(request):
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('health/', health_check),
-    path('db-backup/', backup_database),  # Endpoint temporal para backup
     
     # Rutas JWT (autenticación)
     path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
