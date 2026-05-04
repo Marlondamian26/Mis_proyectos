@@ -108,12 +108,6 @@ DATABASES = {
     )
 }
 
-# django-dbbackup settings
-DBBACKUP_STORAGE = 'django.core.files.storage.FileSystemStorage'
-DBBACKUP_STORAGE_OPTIONS = {
-    'location': '/tmp/dbbackups'
-}
-
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
