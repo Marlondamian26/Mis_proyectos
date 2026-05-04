@@ -295,16 +295,11 @@ const ChatIA = ({ onClose }) => {
 
       if (estado === 'elegir_hora') {
         console.log('[elegir_hora handler] opcionId:', opcionId, 'horariosDisponibles:', horariosDisponibles);
+        const horaSeleccionada = opcionId;
         const horaRegex = /^(\d{1,2}:\d{2})$/;
-        if (horaRegex.test(opcionId)) {
-          setDatos(prev => ({ ...prev, hora: opcionId }));
-          await confirmarCita();
-          return;
-        }
-        // Fallback: buscar en horariosDisponibles
-        if (horariosDisponibles.includes(opcionId)) {
-          setDatos(prev => ({ ...prev, hora: opcionId }));
-          await confirmarCita();
+        if (horaRegex.test(horaSeleccionada) || horariosDisponibles.includes(horaSeleccionada)) {
+          setDatos(prev => ({ ...prev, hora: horaSeleccionada }));
+          await confirmarCita(horaSeleccionada);
           return;
         }
         agregarMensaje(t('invalidOption'));
@@ -782,16 +777,17 @@ const ChatIA = ({ onClose }) => {
     }
   };
 
-  const confirmarCita = () => {
+  const confirmarCita = (horaSeleccionada = datos.hora) => {
     const doctorName = datos.doctor?.usuario?.first_name && datos.doctor?.usuario?.last_name 
       ? `${datos.doctor.usuario.first_name} ${datos.doctor.usuario.last_name}`
       : '';
+    const horaFinal = horaSeleccionada || datos.hora || t('notSpecified');
     
     const resumen = `${t('appointmentSummary')}:
 
 ${t('doctor')}: Dr. ${doctorName}
 ${t('date')}: ${datos.fecha}
-${t('time')}: ${datos.hora}
+${t('time')}: ${horaFinal}
 
 ${t('confirmAppointment')}`;
     
@@ -835,7 +831,14 @@ ${t('confirmAppointment')}`;
         agregarMensaje(t('appointmentConfirmed'));
         agregarMensaje(t('appointmentBooked', { doctorName, date: datos.fecha, time: datos.hora }));
       } else if (error.response?.data) {
-        agregarMensaje(`Error: ${JSON.stringify(error.response.data)}`);
+        const data = error.response.data;
+        if (data.non_field_errors) {
+          agregarMensaje(`Error: ${data.non_field_errors.join(', ')}`);
+        } else if (typeof data === 'string') {
+          agregarMensaje(`Error: ${data}`);
+        } else {
+          agregarMensaje(`Error: ${JSON.stringify(data)}`);
+        }
       } else {
         agregarMensaje(t('loadingError'));
       }
@@ -1117,6 +1120,15 @@ ${t('confirmPostponement')}`;
         agregarMensaje(t('appointmentCancelled'));
       } else if (error.response?.status === 404 && error.response?.data?.detail === 'Already cancelled') {
         agregarMensaje(t('appointmentCancelled'));
+      } else if (error.response?.data) {
+        const data = error.response.data;
+        if (data.detail) {
+          agregarMensaje(`Error: ${data.detail}`);
+        } else if (data.non_field_errors) {
+          agregarMensaje(`Error: ${data.non_field_errors.join(', ')}`);
+        } else {
+          agregarMensaje(`Error: ${JSON.stringify(data)}`);
+        }
       } else {
         agregarMensaje(t('loadingError'));
       }
@@ -1149,7 +1161,18 @@ ${t('confirmPostponement')}`;
       ]);
     } catch (error) {
       console.error('Error posponiendo cita:', error);
-      agregarMensaje(t('loadingError'));
+      if (error.response?.data) {
+        const data = error.response.data;
+        if (data.detail) {
+          agregarMensaje(`Error: ${data.detail}`);
+        } else if (data.non_field_errors) {
+          agregarMensaje(`Error: ${data.non_field_errors.join(', ')}`);
+        } else {
+          agregarMensaje(`Error: ${JSON.stringify(data)}`);
+        }
+      } else {
+        agregarMensaje(t('loadingError'));
+      }
     } finally {
       setLoading(false);
     }
