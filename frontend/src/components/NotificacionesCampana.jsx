@@ -95,7 +95,7 @@ const NotificacionesCampana = () => {
                   
                   <div style={styles.notificacionContent}>
                     <div style={styles.notificacionHeader}>
-                      <h4 style={styles.notificacionTitulo}>{notif.titulo}</h4>
+                      <h4 style={styles.notificacionTitulo}>{notif.titulo_traducido || notif.titulo}</h4>
                       <span style={styles.notificacionTiempo}>
                         <FaClock style={styles.clockIcon} />
                         {formatDistanceToNow(new Date(notif.fecha_creacion), { 
@@ -104,7 +104,7 @@ const NotificacionesCampana = () => {
                         })}
                       </span>
                     </div>
-                    <p style={styles.notificacionMensaje}>{notif.mensaje}</p>
+                    <p style={styles.notificacionMensaje}>{notif.mensaje_traducido || notif.mensaje}</p>
                     
                     <div style={styles.notificacionAcciones}>
                       {!notif.leida && (

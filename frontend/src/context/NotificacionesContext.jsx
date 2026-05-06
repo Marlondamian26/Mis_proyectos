@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import axiosInstance from '../services/auth';
 import { useAuth } from './AuthContext';
+import { useLanguage } from './LanguageContext';
 import { APP_NAME } from '../config/constants';
 
 const NotificacionesContext = createContext();
@@ -19,7 +20,92 @@ export const NotificacionesProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [pollingInterval, setPollingInterval] = useState(null);
-  const { user } = useAuth(); // Necesitas crear este contexto
+  const { user } = useAuth();
+  const { language, t } = useLanguage();
+
+  // Función para traducir y procesar notificaciones
+  const procesarNotificacion = (notif) => {
+    const datosMsg = notif.mensaje ? notif.mensaje.split('|') : [];
+    
+    // Mapeo de títulos a traducciones y formato
+    const traducciones = {
+      'nueva_cita_creada': {
+        titulo: t('notifications.appointmentCreated') || 'Nueva Cita Creada',
+        template: (datos) => `Tu cita con ${datos[1]} el ${datos[2]} a las ${datos[3]} ha sido creada.`
+      },
+      'nueva_cita_para_doctor': {
+        titulo: t('notifications.newAppointmentForDoctor') || 'Nueva Cita Agendada',
+        template: (datos) => `Nueva cita del paciente ${datos[1]} el ${datos[2]} a las ${datos[3]}.`
+      },
+      'cita_confirmada_paciente': {
+        titulo: t('notifications.appointmentConfirmed') || 'Cita Confirmada',
+        template: (datos) => `Tu cita con ${datos[1]} el ${datos[2]} a las ${datos[3]} ha sido confirmada.`
+      },
+      'cita_confirmada_doctor': {
+        titulo: t('notifications.patientConfirmedAppointment') || 'Paciente Confirmó Cita',
+        template: (datos) => `El paciente ${datos[1]} confirmó su cita para ${datos[2]} a las ${datos[3]}.`
+      },
+      'cita_cancelada_por_paciente_paciente': {
+        titulo: t('notifications.appointmentCancelled') || 'Cita Cancelada',
+        template: (datos) => `Tu cita con ${datos[1]} del ${datos[2]} a las ${datos[3]} ha sido cancelada.`
+      },
+      'cita_cancelada_por_paciente_doctor': {
+        titulo: t('notifications.patientCancelledAppointment') || 'Cita Cancelada por Paciente',
+        template: (datos) => `El paciente ${datos[1]} canceló su cita del ${datos[2]} a las ${datos[3]}.`
+      },
+      'cita_cancelada_por_admin_paciente': {
+        titulo: t('notifications.appointmentCancelledByAdmin') || 'Cita Cancelada',
+        template: (datos) => `Tu cita con ${datos[1]} del ${datos[2]} a las ${datos[3]} ha sido cancelada.`
+      },
+      'cita_pospuesta_por_paciente_paciente': {
+        titulo: t('notifications.appointmentPostponed') || 'Cita Reprogramada',
+        template: (datos) => `Tu cita con ${datos[1]} ha sido reprogramada del ${datos[2]} a las ${datos[3]} al ${datos[4]} a las ${datos[5]}.`
+      },
+      'cita_pospuesta_por_paciente_doctor': {
+        titulo: t('notifications.patientPostponedAppointment') || 'Cita Reprogramada por Paciente',
+        template: (datos) => `El paciente ${datos[1]} reprogramó su cita del ${datos[2]} a las ${datos[3]} al ${datos[4]} a las ${datos[5]}.`
+      },
+      'cita_pospuesta_por_admin_paciente': {
+        titulo: t('notifications.appointmentPostponedByAdmin') || 'Cita Reprogramada',
+        template: (datos) => `Tu cita con ${datos[1]} ha sido reprogramada del ${datos[2]} a las ${datos[3]} al ${datos[4]} a las ${datos[5]}.`
+      },
+      'nuevo_usuario_registrado_admin': {
+        titulo: t('notifications.newUserRegistered') || 'Nuevo Usuario Registrado',
+        template: (datos) => `Se registró un nuevo ${datos[1]}: ${datos[0]}.`
+      },
+      'imagen_perfil_actualizada_admin': {
+        titulo: t('notifications.profileImageUpdated') || 'Imagen de Perfil Actualizada',
+        template: (datos) => `${datos[0]} (${datos[1]}) actualizó su foto de perfil.`
+      },
+      'horarios_actualizado_admin': {
+        titulo: t('notifications.scheduleUpdated') || 'Horarios Actualizados',
+        template: (datos) => `${datos[0]} (${datos[1]}) actualizó sus horarios.`
+      },
+      'horarios_creada_admin': {
+        titulo: t('notifications.scheduleCreated') || 'Nuevo Horario Creado',
+        template: (datos) => `Se creó un nuevo horario para ${datos[0]} (${datos[1]}).`
+      },
+      'especialidad_creada_admin': {
+        titulo: t('notifications.specialtyCreated') || 'Nueva Especialidad Creada',
+        template: (datos) => `Se creó la especialidad: ${datos[0]}`
+      },
+      'especialidad_actualizado_admin': {
+        titulo: t('notifications.specialtyUpdated') || 'Especialidad Actualizada',
+        template: (datos) => `Se actualizó la especialidad: ${datos[0]}`
+      }
+    };
+
+    const config = traducciones[notif.titulo] || {
+      titulo: notif.titulo,
+      template: (datos) => notif.mensaje
+    };
+
+    return {
+      ...notif,
+      titulo_traducido: config.titulo,
+      mensaje_traducido: config.template(datosMsg)
+    };
+  };
 
   // Cargar notificaciones iniciales
   const cargarNotificaciones = useCallback(async () => {
@@ -29,9 +115,12 @@ export const NotificacionesProvider = ({ children }) => {
     try {
       const response = await axiosInstance.get('notificaciones/');
       const data = Array.isArray(response.data) ? response.data : [];
-      setNotificaciones(data);
       
-      const noLeidasCount = data.filter(n => !n.leida).length;
+      // Procesar notificaciones con traducción
+      const notificacionesProcesadas = data.map(notif => procesarNotificacion(notif));
+      setNotificaciones(notificacionesProcesadas);
+      
+      const noLeidasCount = notificacionesProcesadas.filter(n => !n.leida).length;
       setNoLeidas(noLeidasCount);
       
       // Actualizar el título del documento con el contador
@@ -47,7 +136,7 @@ export const NotificacionesProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, language]);
 
   // Configurar polling cada 30 segundos
   useEffect(() => {
@@ -66,7 +155,7 @@ export const NotificacionesProvider = ({ children }) => {
     const interval = setInterval(cargarNotificaciones, 30000); // 30 segundos
     setPollingInterval(interval);
 
-    return () => {
+    return () => {, language
       if (interval) clearInterval(interval);
     };
   }, [user, cargarNotificaciones]);
@@ -83,6 +172,14 @@ export const NotificacionesProvider = ({ children }) => {
       setNotificaciones(prev => 
         prev.map(n => 
           n.id === id ? { ...n, leida: true } : n
+      
+      // Actualizar título del documento
+      const noLeidasRestantes = notificaciones.filter(n => n.id !== id && !n.leida).length;
+      if (noLeidasRestantes > 0) {
+        document.title = `(${noLeidasRestantes}) ${APP_NAME}`;
+      } else {
+        document.title = APP_NAME;
+      }
         )
       );
       setNoLeidas(prev => Math.max(0, prev - 1));

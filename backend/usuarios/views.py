@@ -47,7 +47,7 @@ def registro_usuario(request):
         from rest_framework_simplejwt.tokens import RefreshToken
         refresh = RefreshToken.for_user(usuario)
         return Response({
-            'user': UsuarioSerializer(usuario).data,
+            'user': UsuarioSerializer(usuario, context={'request': request}).data,
             'refresh': str(refresh),
             'access': str(refresh.access_token),
         }, status=status.HTTP_201_CREATED)
@@ -58,7 +58,7 @@ def registro_usuario(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])  # <-- Requiere token
 def usuario_actual(request):
-    serializer = UsuarioSerializer(request.user)
+    serializer = UsuarioSerializer(request.user, context={'request': request})
     return Response(serializer.data)
 
 
@@ -139,10 +139,10 @@ def especialistas_publicos(request):
     """Endpoint público para ver especialistas activos (doctores y enfermeras)"""
     # Por ahora sin cache para debugging
     doctores = Doctor.objects.select_related('usuario', 'especialidad').all()
-    doctores_data = DoctorSerializer(doctores, many=True).data
+    doctores_data = DoctorSerializer(doctores, many=True, context={'request': request}).data
     
     enfermeras = Enfermera.objects.select_related('usuario', 'especialidad').all()
-    enfermeras_data = EnfermeraSerializer(enfermeras, many=True).data
+    enfermeras_data = EnfermeraSerializer(enfermeras, many=True, context={'request': request}).data
     
     especialistas = []
     for doctor in doctores_data:
@@ -483,7 +483,12 @@ def gestionar_foto_perfil(request, usuario_id=None):
         usuario.foto_perfil = archivo_foto
         usuario.save()
         
-        serializer = UsuarioSerializer(usuario)
+        # Notificar si es doctor o enfermera
+        if usuario.rol in ['doctor', 'nurse']:
+            from notificaciones.services import ServicioNotificaciones
+            ServicioNotificaciones.notificar_imagen_perfil_actualizada(usuario)
+        
+        serializer = UsuarioSerializer(usuario, context={'request': request})
         return Response({
             'message': 'Foto de perfil actualizada correctamente',
             'usuario': serializer.data
@@ -496,7 +501,7 @@ def gestionar_foto_perfil(request, usuario_id=None):
             usuario.foto_perfil = None
             usuario.save()
         
-        serializer = UsuarioSerializer(usuario)
+        serializer = UsuarioSerializer(usuario, context={'request': request})
         return Response({
             'message': 'Foto de perfil eliminada correctamente',
             'usuario': serializer.data
@@ -670,12 +675,23 @@ class CitaViewSet(viewsets.ModelViewSet):
         """Al actualizar una cita, enviar notificación si es necesario"""
         cita = serializer.instance
         estado_anterior = cita.estado
+        fecha_anterior = cita.fecha
+        hora_anterior = cita.hora
         cita = serializer.save()
 
         try:
             from notificaciones.services import ServicioNotificaciones
 
-            if estado_anterior != cita.estado:
+            # Detección de cambios de fecha/hora (pospuesta)
+            if fecha_anterior != cita.fecha or hora_anterior != cita.hora:
+                pospuesta_por = 'paciente' if self.request.user.rol == 'patient' else 'admin'
+                ServicioNotificaciones.notificar_cita_pospuesta(
+                    cita, 
+                    pospuesta_por=pospuesta_por,
+                    nueva_fecha=cita.fecha,
+                    nueva_hora=cita.hora
+                )
+            elif estado_anterior != cita.estado:
                 if cita.estado == 'cancelada':
                     cancelado_por = 'paciente' if self.request.user.rol == 'patient' else 'admin'
                     ServicioNotificaciones.notificar_cita_cancelada(cita, cancelado_por=cancelado_por)
