@@ -475,10 +475,15 @@ def gestionar_foto_perfil(request, usuario_id=None):
         if archivo_foto.size > 25 * 1024 * 1024:
             return Response({'error': 'La imagen no debe superar 25MB'}, status=status.HTTP_400_BAD_REQUEST)
         
+        # Asegurar que el directorio de media existe
+        import os
+        from django.conf import settings
+        os.makedirs(settings.MEDIA_ROOT / 'perfiles', exist_ok=True)
+
         # Eliminar foto antigua si existe
         if usuario.foto_perfil:
             usuario.foto_perfil.delete()
-        
+
         # Guardar nueva foto
         usuario.foto_perfil = archivo_foto
         usuario.save()

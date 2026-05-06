@@ -12,6 +12,8 @@ class ServicioNotificaciones:
     @staticmethod
     def enviar_email(destinatario, asunto, mensaje):
         """Enviar notificación por email"""
+        if not settings.EMAIL_HOST_USER:
+            return False, "Email no configurado"
         try:
             send_mail(
                 asunto,
@@ -27,6 +29,8 @@ class ServicioNotificaciones:
     @staticmethod
     def enviar_whatsapp(destinatario, mensaje):
         """Enviar notificación por WhatsApp (requiere Twilio)"""
+        if not settings.TWILIO_ACCOUNT_SID or not settings.TWILIO_AUTH_TOKEN or not settings.TWILIO_WHATSAPP_NUMBER:
+            return False, "WhatsApp no configurado"
         try:
             client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
             message = client.messages.create(
