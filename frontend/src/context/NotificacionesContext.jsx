@@ -169,10 +169,12 @@ export const NotificacionesProvider = ({ children }) => {
       await axiosInstance.post(`notificaciones/${id}/marcar_leida/`);
       
       // Actualizar estado local
-      setNotificaciones(prev => 
-        prev.map(n => 
+      setNotificaciones(prev =>
+        prev.map(n =>
           n.id === id ? { ...n, leida: true } : n
-      
+        )
+      );
+
       // Actualizar título del documento
       const noLeidasRestantes = notificaciones.filter(n => n.id !== id && !n.leida).length;
       if (noLeidasRestantes > 0) {
