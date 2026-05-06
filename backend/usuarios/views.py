@@ -558,25 +558,13 @@ class DoctorViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """Al crear un doctor, notificar a administradores"""
         doctor = serializer.save()
-        
-        try:
 
-    def perform_create(self, serializer):
-        """Al crear una enfermera, notificar a administradores"""
-        enfermera = serializer.save()
-        
         try:
-            from notificaciones.services import ServicioNotificaciones
-            ServicioNotificaciones.notificar_usuario_registrado(enfermera.usuario)
-        except Exception as e:
-            logger.exception('Error enviando notificación de enfermera registrada: %s', e)
-        
-        return enfermera
             from notificaciones.services import ServicioNotificaciones
             ServicioNotificaciones.notificar_usuario_registrado(doctor.usuario)
         except Exception as e:
             logger.exception('Error enviando notificación de doctor registrado: %s', e)
-        
+
         return doctor
 
 class EnfermeraViewSet(viewsets.ModelViewSet):
@@ -584,6 +572,18 @@ class EnfermeraViewSet(viewsets.ModelViewSet):
     serializer_class = EnfermeraSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
+
+    def perform_create(self, serializer):
+        """Al crear una enfermera, notificar a administradores"""
+        enfermera = serializer.save()
+
+        try:
+            from notificaciones.services import ServicioNotificaciones
+            ServicioNotificaciones.notificar_usuario_registrado(enfermera.usuario)
+        except Exception as e:
+            logger.exception('Error enviando notificación de enfermera registrada: %s', e)
+
+        return enfermera
 
 class PacienteViewSet(viewsets.ModelViewSet):
     queryset = Paciente.objects.all()
