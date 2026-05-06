@@ -182,8 +182,7 @@ export const NotificacionesProvider = ({ children }) => {
       } else {
         document.title = APP_NAME;
       }
-        )
-      );
+
       setNoLeidas(prev => Math.max(0, prev - 1));
       
     } catch (err) {
