@@ -493,8 +493,11 @@ def gestionar_foto_perfil(request, usuario_id=None):
             return Response({'error': f'Error creating directory: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         # Eliminar foto antigua si existe
-        if usuario.foto_perfil:
-            usuario.foto_perfil.delete()
+        try:
+            if usuario.foto_perfil:
+                usuario.foto_perfil.delete()
+        except Exception as e:
+            logger.warning('Error eliminando foto antigua: %s', e)
 
         # Guardar nueva foto
         usuario.foto_perfil = archivo_foto
@@ -504,9 +507,12 @@ def gestionar_foto_perfil(request, usuario_id=None):
             return Response({'error': f'Error saving user: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
         # Notificar si es doctor o enfermera
-        if usuario.rol in ['doctor', 'nurse']:
-            from notificaciones.services import ServicioNotificaciones
-            ServicioNotificaciones.notificar_imagen_perfil_actualizada(usuario)
+        try:
+            if usuario.rol in ['doctor', 'nurse']:
+                from notificaciones.services import ServicioNotificaciones
+                ServicioNotificaciones.notificar_imagen_perfil_actualizada(usuario)
+        except Exception as e:
+            logger.exception('Error enviando notificación de imagen de perfil actualizada: %s', e)
         
         serializer = UsuarioSerializer(usuario, context={'request': request})
         return Response({
@@ -516,11 +522,14 @@ def gestionar_foto_perfil(request, usuario_id=None):
     
     elif request.method == 'DELETE':
         # Eliminar foto de perfil
-        if usuario.foto_perfil:
-            usuario.foto_perfil.delete()
-            usuario.foto_perfil = None
-            usuario.save()
-        
+        try:
+            if usuario.foto_perfil:
+                usuario.foto_perfil.delete()
+                usuario.foto_perfil = None
+                usuario.save()
+        except Exception as e:
+            return Response({'error': f'Error eliminando foto: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
         serializer = UsuarioSerializer(usuario, context={'request': request})
         return Response({
             'message': 'Foto de perfil eliminada correctamente',
@@ -832,4 +841,4 @@ class SitioImagenViewSet(viewsets.ModelViewSet):
         if imagen:
             serializer = self.get_serializer(imagen)
             return Response(serializer.data)
-        return Response(None)
+        return Response({})
