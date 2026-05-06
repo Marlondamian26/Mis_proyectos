@@ -478,7 +478,7 @@ def gestionar_foto_perfil(request, usuario_id=None):
         # Asegurar que el directorio de media existe
         import os
         from django.conf import settings
-        os.makedirs(settings.MEDIA_ROOT / 'perfiles', exist_ok=True)
+        os.makedirs(str(settings.MEDIA_ROOT / 'perfiles'), exist_ok=True)
 
         # Eliminar foto antigua si existe
         if usuario.foto_perfil:
