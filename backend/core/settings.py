@@ -147,12 +147,15 @@ STATIC_URL = 'static/'
 
 # Media files (uploaded images)
 MEDIA_URL = '/sitio/'
-MEDIA_ROOT = Path('/tmp/sitio')
+MEDIA_ROOT = BASE_DIR / 'sitio'
 
 # Ensure media directories exist
 import os
-os.makedirs(str(MEDIA_ROOT), exist_ok=True)
-os.makedirs(str(MEDIA_ROOT / 'perfiles'), exist_ok=True)
+try:
+    os.makedirs(str(MEDIA_ROOT), exist_ok=True)
+    os.makedirs(str(MEDIA_ROOT / 'perfiles'), exist_ok=True)
+except Exception as e:
+    print(f"Warning: Could not create media directories: {e}")
 
 
 # Al final del archivo, añade la configuración de CORS:
