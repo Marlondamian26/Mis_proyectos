@@ -155,7 +155,7 @@ export const NotificacionesProvider = ({ children }) => {
     const interval = setInterval(cargarNotificaciones, 30000); // 30 segundos
     setPollingInterval(interval);
 
-    return () => {, language
+    return () => {
       if (interval) clearInterval(interval);
     };
   }, [user, cargarNotificaciones]);
