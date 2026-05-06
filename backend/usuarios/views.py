@@ -478,7 +478,10 @@ def gestionar_foto_perfil(request, usuario_id=None):
         # Asegurar que el directorio de media existe
         import os
         from django.conf import settings
-        os.makedirs(str(settings.MEDIA_ROOT / 'perfiles'), exist_ok=True)
+        try:
+            os.makedirs(str(settings.MEDIA_ROOT / 'perfiles'), exist_ok=True)
+        except Exception as e:
+            return Response({'error': f'Error creating directory: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         # Eliminar foto antigua si existe
         if usuario.foto_perfil:
@@ -486,7 +489,10 @@ def gestionar_foto_perfil(request, usuario_id=None):
 
         # Guardar nueva foto
         usuario.foto_perfil = archivo_foto
-        usuario.save()
+        try:
+            usuario.save()
+        except Exception as e:
+            return Response({'error': f'Error saving user: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
         # Notificar si es doctor o enfermera
         if usuario.rol in ['doctor', 'nurse']:
