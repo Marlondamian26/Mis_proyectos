@@ -1007,9 +1007,15 @@ function AdminDashboard() {
       }
     }
     else if (modalMode === 'edit') {
+      if (!selectedItem) {
+        setErrorBackend('No se seleccionó elemento para editar')
+        mostrarMensaje('No se seleccionó elemento para editar', 'error')
+        setSaving(false)
+        return
+      }
       if (tipo === 'doctores') {
         // Actualizar usuario
-        if (selectedItem.usuario) {
+        if (selectedItem && selectedItem.usuario) {
           const usuarioData = {
             first_name: formData.first_name,
             last_name: formData.last_name,
@@ -1033,6 +1039,9 @@ function AdminDashboard() {
           especialidad: formData.especialidad || '',
           otra_especialidad: formData.otra_especialidad || '',
           biografia: formData.biografia || ''
+        }
+        if (!selectedItem?.id) {
+          throw new Error('No se pudo obtener el ID del doctor')
         }
         const response = await axiosInstance.patch(`${tipo}/${selectedItem.id}/`, doctorData)
         console.log('Doctor actualizado:', response.data)
@@ -1061,7 +1070,7 @@ function AdminDashboard() {
       }
       else if (tipo === 'enfermeras') {
         // Actualizar usuario
-        if (selectedItem.usuario) {
+        if (selectedItem && selectedItem.usuario) {
           const usuarioData = {
             first_name: formData.first_name,
             last_name: formData.last_name,
@@ -1085,6 +1094,9 @@ function AdminDashboard() {
           especialidad: formData.especialidad || '',
           otra_especialidad: formData.otra_especialidad || '',
           numero_licencia: formData.numero_licencia || ''
+        }
+        if (!selectedItem?.id) {
+          throw new Error('No se pudo obtener el ID de la enfermera')
         }
         const response = await axiosInstance.patch(`${tipo}/${selectedItem.id}/`, enfermeraData)
         console.log('Enfermera actualizada:', response.data)
@@ -1113,7 +1125,7 @@ function AdminDashboard() {
       }
       else if (tipo === 'pacientes') {
         // Actualizar usuario paciente
-        if (selectedItem.usuario) {
+        if (selectedItem && selectedItem.usuario) {
           const usuarioData = {
             first_name: formData.first_name,
             last_name: formData.last_name,
@@ -1139,11 +1151,17 @@ function AdminDashboard() {
           contacto_emergencia: formData.contacto_emergencia || '',
           telefono_emergencia: formData.telefono_emergencia || ''
         }
+        if (!selectedItem?.id) {
+          throw new Error('No se pudo obtener el ID del paciente')
+        }
         const response = await axiosInstance.patch(`${tipo}/${selectedItem.id}/`, pacienteData)
         console.log('✅ Paciente actualizado:', response.data)
         mostrarMensaje('✅ ' + t('itemUpdated', { type: t('patient') }), 'success')
       }
       else if (tipo === 'imagenes-sitio') {
+        if (!selectedItem?.id) {
+          throw new Error('No se pudo obtener el ID de la imagen')
+        }
         const formDataObj = new FormData()
         formDataObj.append('titulo', formData.titulo || '')
         formDataObj.append('descripcion', formData.descripcion || '')
@@ -1160,6 +1178,9 @@ function AdminDashboard() {
         mostrarMensaje('✅ ' + t('imageUpdated'), 'success')
       }
       else if (tipo === 'horarios') {
+        if (!selectedItem?.id) {
+          throw new Error('No se pudo obtener el ID del horario')
+        }
         // Convertir array a número para el backend
         const diaSemana = Array.isArray(formData.dia_semana) ? formData.dia_semana[0] : formData.dia_semana
         const horarioData = {
@@ -1174,6 +1195,9 @@ function AdminDashboard() {
         mostrarMensaje('✅ ' + t('itemUpdated', { type: t('schedule') }), 'success')
       }
       else if (tipo === 'usuarios') {
+        if (!selectedItem?.id) {
+          throw new Error('No se pudo obtener el ID del usuario')
+        }
         const response = await axiosInstance.patch(`${tipo}/${selectedItem.id}/`, formData)
 
         // Subir foto de perfil si se proporcionó
@@ -1186,6 +1210,9 @@ function AdminDashboard() {
         }
 
         console.log('✅ Usuario actualizado:', response.data)
+        if (!selectedItem?.id) {
+          throw new Error('No se pudo obtener el ID del elemento')
+        }
         mostrarMensaje('✅ ' + t('itemUpdated', { type: t('user') }), 'success')
       }
       else {

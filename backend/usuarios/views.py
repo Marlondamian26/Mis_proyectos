@@ -43,6 +43,15 @@ def registro_usuario(request):
             except IntegrityError:
                 # ya había un perfil de paciente, no hagas nada
                 pass
+        
+        # Notificar si se registra un admin
+        try:
+            if usuario.rol == 'admin':
+                from notificaciones.services import ServicioNotificaciones
+                ServicioNotificaciones.notificar_usuario_registrado(usuario)
+        except Exception as e:
+            logger.exception('Error enviando notificación de usuario registrado: %s', e)
+        
         # Devolvemos también un token para que el usuario quede logueado automáticamente
         from rest_framework_simplejwt.tokens import RefreshToken
         refresh = RefreshToken.for_user(usuario)
@@ -526,11 +535,49 @@ class UsuarioViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]  # <-- Requiere token
     authentication_classes = [JWTAuthentication]  # <-- Usa JWT
 
+    def perform_create(self, serializer):
+        """Al crear un usuario, notificar a administradores si es relevante"""
+        usuario = serializer.save()
+        
+        # Notificar a otros admins si se crea un usuario nuevo
+        try:
+            if usuario.rol == 'admin':
+                from notificaciones.services import ServicioNotificaciones
+                ServicioNotificaciones.notificar_usuario_registrado(usuario)
+        except Exception as e:
+            logger.exception('Error enviando notificación de usuario registrado: %s', e)
+        
+        return usuario
+
 class DoctorViewSet(viewsets.ModelViewSet):
     queryset = Doctor.objects.all()
     serializer_class = DoctorSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
+
+    def perform_create(self, serializer):
+        """Al crear un doctor, notificar a administradores"""
+        doctor = serializer.save()
+        
+        try:
+
+    def perform_create(self, serializer):
+        """Al crear una enfermera, notificar a administradores"""
+        enfermera = serializer.save()
+        
+        try:
+            from notificaciones.services import ServicioNotificaciones
+            ServicioNotificaciones.notificar_usuario_registrado(enfermera.usuario)
+        except Exception as e:
+            logger.exception('Error enviando notificación de enfermera registrada: %s', e)
+        
+        return enfermera
+            from notificaciones.services import ServicioNotificaciones
+            ServicioNotificaciones.notificar_usuario_registrado(doctor.usuario)
+        except Exception as e:
+            logger.exception('Error enviando notificación de doctor registrado: %s', e)
+        
+        return doctor
 
 class EnfermeraViewSet(viewsets.ModelViewSet):
     queryset = Enfermera.objects.all()
