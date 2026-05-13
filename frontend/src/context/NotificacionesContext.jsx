@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import axiosInstance from '../services/auth';
+import axiosInstance, { wakeUpBackend } from '../services/auth';
 import { useAuth } from './AuthContext';
 import { useLanguage } from './LanguageContext';
 import { APP_NAME } from '../config/constants';
@@ -24,98 +24,98 @@ export const NotificacionesProvider = ({ children }) => {
   const { language, t } = useLanguage();
 
   // Función para traducir y procesar notificaciones
-  const procesarNotificacion = (notif) => {
+  const procesarNotificacion = (notif, t) => {
     const datosMsg = notif.mensaje ? notif.mensaje.split('|') : [];
-    
+
     // Mapeo de títulos a traducciones y formato
     const traducciones = {
       'nueva_cita_creada': {
         titulo: t('notifications.appointmentCreated') || 'Nueva Cita Creada',
-        template: (datos) => `Tu cita con ${datos[1]} el ${datos[2]} a las ${datos[3]} ha sido creada.`
+        template: (datos) => `${t('notifications.yourAppointmentWith')} ${datos[1]} ${t('notifications.onTheDate')} ${datos[2]} ${t('notifications.atTime')} ${datos[3]}.`
       },
       'nueva_cita_para_doctor': {
         titulo: t('notifications.newAppointmentForDoctor') || 'Nueva Cita Agendada',
-        template: (datos) => `Nueva cita del paciente ${datos[1]} el ${datos[2]} a las ${datos[3]}.`
+        template: (datos) => `${t('notifications.newAppointmentFromPatient')} ${datos[1]} ${t('notifications.onTheDate')} ${datos[2]} ${t('notifications.atTime')} ${datos[3]}.`
       },
       'cita_confirmada_paciente': {
         titulo: t('notifications.appointmentConfirmed') || 'Cita Confirmada',
-        template: (datos) => `Tu cita con ${datos[1]} el ${datos[2]} a las ${datos[3]} ha sido confirmada.`
+        template: (datos) => `${t('notifications.yourAppointmentWith')} ${datos[1]} ${t('notifications.onTheDate')} ${datos[2]} ${t('notifications.atTime')} ${datos[3]} ${t('notifications.hasBeenConfirmed')}.`
       },
       'cita_confirmada_doctor': {
         titulo: t('notifications.patientConfirmedAppointment') || 'Paciente Confirmó Cita',
-        template: (datos) => `El paciente ${datos[1]} confirmó su cita para ${datos[2]} a las ${datos[3]}.`
+        template: (datos) => `${t('notifications.thePatient')} ${datos[1]} ${t('notifications.confirmedTheirAppointmentFor')} ${datos[2]} ${t('notifications.atTime')} ${datos[3]}.`
       },
       'cita_cancelada_por_paciente_paciente': {
         titulo: t('notifications.appointmentCancelled') || 'Cita Cancelada',
-        template: (datos) => `Tu cita con ${datos[1]} del ${datos[2]} a las ${datos[3]} ha sido cancelada.`
+        template: (datos) => `${t('notifications.yourAppointmentWith')} ${datos[1]} ${t('notifications.fromTheDate')} ${datos[2]} ${t('notifications.atTime')} ${datos[3]} ${t('notifications.hasBeenCancelled')}.`
       },
       'cita_cancelada_por_paciente_doctor': {
         titulo: t('notifications.patientCancelledAppointment') || 'Cita Cancelada por Paciente',
-        template: (datos) => `El paciente ${datos[1]} canceló su cita del ${datos[2]} a las ${datos[3]}.`
+        template: (datos) => `${t('notifications.thePatient')} ${datos[1]} ${t('notifications.cancelledTheirAppointmentFrom')} ${datos[2]} ${t('notifications.atTime')} ${datos[3]}.`
       },
       'cita_cancelada_por_admin_paciente': {
         titulo: t('notifications.appointmentCancelledByAdmin') || 'Cita Cancelada',
-        template: (datos) => `Tu cita con ${datos[1]} del ${datos[2]} a las ${datos[3]} ha sido cancelada.`
-      },
-      'cita_pospuesta_por_paciente_paciente': {
-        titulo: t('notifications.appointmentPostponed') || 'Cita Reprogramada',
-        template: (datos) => `Tu cita con ${datos[1]} ha sido reprogramada del ${datos[2]} a las ${datos[3]} al ${datos[4]} a las ${datos[5]}.`
-      },
-      'cita_pospuesta_por_paciente_doctor': {
-        titulo: t('notifications.patientPostponedAppointment') || 'Cita Reprogramada por Paciente',
-        template: (datos) => `El paciente ${datos[1]} reprogramó su cita del ${datos[2]} a las ${datos[3]} al ${datos[4]} a las ${datos[5]}.`
-      },
-      'cita_cancelada_por_doctor_paciente': {
-        titulo: t('notifications.appointmentCancelledByDoctor') || 'Cita Cancelada por Doctor',
-        template: (datos) => `Tu cita con ${datos[1]} el ${datos[2]} a las ${datos[3]} ha sido cancelada.`
-      },
-      'cita_pospuesta_por_doctor_paciente': {
-        titulo: t('notifications.appointmentPostponedByDoctor') || 'Cita Reprogramada por Doctor',
-        template: (datos) => `Tu cita con ${datos[1]} ha sido reprogramada del ${datos[2]} a las ${datos[3]} al ${datos[4]} a las ${datos[5]}.`
+        template: (datos) => `${t('notifications.yourAppointmentWith')} ${datos[1]} ${t('notifications.fromTheDate')} ${datos[2]} ${t('notifications.atTime')} ${datos[3]} ${t('notifications.hasBeenCancelled')}.`
       },
       'cita_cancelada_por_admin_doctor': {
         titulo: t('notifications.appointmentCancelledByAdminDoctor') || 'Cita Cancelada por Administrador',
-        template: (datos) => `La cita del paciente ${datos[1]} del ${datos[2]} a las ${datos[3]} ha sido cancelada por un administrador.`
+        template: (datos) => `${t('notifications.theAppointmentOfPatient')} ${datos[1]} ${t('notifications.fromTheDate')} ${datos[2]} ${t('notifications.atTime')} ${datos[3]} ${t('notifications.hasBeenCancelledByAdmin')}.`
+      },
+      'cita_pospuesta_por_paciente_paciente': {
+        titulo: t('notifications.appointmentPostponed') || 'Cita Reprogramada',
+        template: (datos) => `${t('notifications.yourAppointmentWith')} ${datos[1]} ${t('notifications.hasBeenRescheduledFrom')} ${datos[2]} ${t('notifications.atTime')} ${datos[3]} ${t('notifications.to')} ${datos[4]} ${t('notifications.atTime')} ${datos[5]}.`
+      },
+      'cita_pospuesta_por_paciente_doctor': {
+        titulo: t('notifications.patientPostponedAppointment') || 'Cita Reprogramada por Paciente',
+        template: (datos) => `${t('notifications.thePatient')} ${datos[1]} ${t('notifications.rescheduledTheirAppointmentFrom')} ${datos[2]} ${t('notifications.atTime')} ${datos[3]} ${t('notifications.to')} ${datos[4]} ${t('notifications.atTime')} ${datos[5]}.`
+      },
+      'cita_pospuesta_por_doctor_paciente': {
+        titulo: t('notifications.appointmentPostponedByDoctor') || 'Cita Reprogramada por Doctor',
+        template: (datos) => `${t('notifications.yourAppointmentWith')} ${datos[1]} ${t('notifications.hasBeenRescheduledFrom')} ${datos[2]} ${t('notifications.atTime')} ${datos[3]} ${t('notifications.to')} ${datos[4]} ${t('notifications.atTime')} ${datos[5]}.`
+      },
+      'cita_pospuesta_por_admin_paciente': {
+        titulo: t('notifications.appointmentPostponedByAdmin') || 'Cita Reprogramada por Administrador',
+        template: (datos) => `${t('notifications.yourAppointmentWith')} ${datos[1]} ${t('notifications.hasBeenRescheduledFrom')} ${datos[2]} ${t('notifications.atTime')} ${datos[3]} ${t('notifications.to')} ${datos[4]} ${t('notifications.atTime')} ${datos[5]}.`
       },
       'cita_pospuesta_por_admin_doctor': {
         titulo: t('notifications.appointmentPostponedByAdminDoctor') || 'Cita Reprogramada por Administrador',
-        template: (datos) => `La cita del paciente ${datos[1]} ha sido reprogramada del ${datos[2]} a las ${datos[3]} al ${datos[4]} a las ${datos[5]} por un administrador.`
+        template: (datos) => `${t('notifications.theAppointmentOfPatient')} ${datos[1]} ${t('notifications.hasBeenRescheduledFrom')} ${datos[2]} ${t('notifications.atTime')} ${datos[3]} ${t('notifications.to')} ${datos[4]} ${t('notifications.atTime')} ${datos[5]} ${t('notifications.byAdmin')}.`
       },
       'nuevo_usuario_registrado_admin': {
         titulo: t('notifications.newUserRegistered') || 'Nuevo Usuario Registrado',
-        template: (datos) => `Se registró un nuevo ${datos[1]}: ${datos[0]}.`
+        template: (datos) => `${t('notifications.aNew')} ${datos[1]} ${t('notifications.wasRegistered')}: ${datos[0]}.`
       },
       'imagen_perfil_actualizada_admin': {
         titulo: t('notifications.profileImageUpdated') || 'Imagen de Perfil Actualizada',
-        template: (datos) => `${datos[0]} (${datos[1]}) actualizó su foto de perfil.`
+        template: (datos) => `${datos[0]} (${datos[1]}) ${t('notifications.updatedTheirProfilePhoto')}.`
       },
       'horarios_actualizado_admin': {
         titulo: t('notifications.scheduleUpdated') || 'Horarios Actualizados',
-        template: (datos) => `${datos[0]} (${datos[1]}) actualizó sus horarios.`
+        template: (datos) => `${datos[0]} (${datos[1]}) ${t('notifications.updatedTheirSchedule')}.`
       },
       'horarios_creada_admin': {
         titulo: t('notifications.scheduleCreated') || 'Nuevo Horario Creado',
-        template: (datos) => `Se creó un nuevo horario para ${datos[0]} (${datos[1]}).`
+        template: (datos) => `${t('notifications.aNewScheduleWasCreatedFor')} ${datos[0]} (${datos[1]}).`
       },
       'especialidad_creada_admin': {
         titulo: t('notifications.specialtyCreated') || 'Nueva Especialidad Creada',
-        template: (datos) => `Se creó la especialidad: ${datos[0]}`
+        template: (datos) => `${t('notifications.theSpecialtyWasCreated')}: ${datos[0]}`
       },
       'especialidad_actualizada_admin': {
         titulo: t('notifications.specialtyUpdated') || 'Especialidad Actualizada',
-        template: (datos) => `Se actualizó la especialidad: ${datos[0]}`
+        template: (datos) => `${t('notifications.theSpecialtyWasUpdated')}: ${datos[0]}`
       },
       'imagen_sitio_añadida_admin': {
         titulo: t('notifications.siteImageAdded') || 'Imagen del Sitio Añadida',
-        template: (datos) => `Se añadió la imagen: ${datos[0]}`
+        template: (datos) => `${t('notifications.theImageWasAdded')}: ${datos[0]}`
       },
       'imagen_sitio_actualizada_admin': {
         titulo: t('notifications.siteImageUpdated') || 'Imagen del Sitio Actualizada',
-        template: (datos) => `Se actualizó la imagen: ${datos[0]}`
+        template: (datos) => `${t('notifications.theImageWasUpdated')}: ${datos[0]}`
       },
       'imagen_sitio_eliminada_admin': {
         titulo: t('notifications.siteImageDeleted') || 'Imagen del Sitio Eliminada',
-        template: (datos) => `Se eliminó la imagen: ${datos[0]}`
+        template: (datos) => `${t('notifications.theImageWasDeleted')}: ${datos[0]}`
       }
     };
 
@@ -134,14 +134,15 @@ export const NotificacionesProvider = ({ children }) => {
   // Cargar notificaciones iniciales
   const cargarNotificaciones = useCallback(async () => {
     if (!user) return;
-    
+
     setLoading(true);
     try {
+      await wakeUpBackend();
       const response = await axiosInstance.get('notificaciones/');
       const data = Array.isArray(response.data) ? response.data : [];
       
       // Procesar notificaciones con traducción
-      const notificacionesProcesadas = data.map(notif => procesarNotificacion(notif));
+      const notificacionesProcesadas = data.map(notif => procesarNotificacion(notif, t));
       setNotificaciones(notificacionesProcesadas);
       
       const noLeidasCount = notificacionesProcesadas.filter(n => !n.leida).length;
