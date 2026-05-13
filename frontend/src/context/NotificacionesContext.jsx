@@ -65,9 +65,21 @@ export const NotificacionesProvider = ({ children }) => {
         titulo: t('notifications.patientPostponedAppointment') || 'Cita Reprogramada por Paciente',
         template: (datos) => `El paciente ${datos[1]} reprogramó su cita del ${datos[2]} a las ${datos[3]} al ${datos[4]} a las ${datos[5]}.`
       },
-      'cita_pospuesta_por_admin_paciente': {
-        titulo: t('notifications.appointmentPostponedByAdmin') || 'Cita Reprogramada',
+      'cita_cancelada_por_doctor_paciente': {
+        titulo: t('notifications.appointmentCancelledByDoctor') || 'Cita Cancelada por Doctor',
+        template: (datos) => `Tu cita con ${datos[1]} el ${datos[2]} a las ${datos[3]} ha sido cancelada.`
+      },
+      'cita_pospuesta_por_doctor_paciente': {
+        titulo: t('notifications.appointmentPostponedByDoctor') || 'Cita Reprogramada por Doctor',
         template: (datos) => `Tu cita con ${datos[1]} ha sido reprogramada del ${datos[2]} a las ${datos[3]} al ${datos[4]} a las ${datos[5]}.`
+      },
+      'cita_cancelada_por_admin_doctor': {
+        titulo: t('notifications.appointmentCancelledByAdminDoctor') || 'Cita Cancelada por Administrador',
+        template: (datos) => `La cita del paciente ${datos[1]} del ${datos[2]} a las ${datos[3]} ha sido cancelada por un administrador.`
+      },
+      'cita_pospuesta_por_admin_doctor': {
+        titulo: t('notifications.appointmentPostponedByAdminDoctor') || 'Cita Reprogramada por Administrador',
+        template: (datos) => `La cita del paciente ${datos[1]} ha sido reprogramada del ${datos[2]} a las ${datos[3]} al ${datos[4]} a las ${datos[5]} por un administrador.`
       },
       'nuevo_usuario_registrado_admin': {
         titulo: t('notifications.newUserRegistered') || 'Nuevo Usuario Registrado',
@@ -89,9 +101,33 @@ export const NotificacionesProvider = ({ children }) => {
         titulo: t('notifications.specialtyCreated') || 'Nueva Especialidad Creada',
         template: (datos) => `Se creó la especialidad: ${datos[0]}`
       },
-      'especialidad_actualizado_admin': {
+      'horarios_creada_admin': {
+        titulo: t('notifications.scheduleCreated') || 'Nuevo Horario Creado',
+        template: (datos) => `Se creó un nuevo horario para ${datos[0]} (${datos[1]}).`
+      },
+      'horarios_actualizada_admin': {
+        titulo: t('notifications.scheduleUpdated') || 'Horarios Actualizados',
+        template: (datos) => `Se actualizaron los horarios de ${datos[0]} (${datos[1]}).`
+      },
+      'especialidad_creada_admin': {
+        titulo: t('notifications.specialtyCreated') || 'Nueva Especialidad Creada',
+        template: (datos) => `Se creó la especialidad: ${datos[0]}`
+      },
+      'especialidad_actualizada_admin': {
         titulo: t('notifications.specialtyUpdated') || 'Especialidad Actualizada',
         template: (datos) => `Se actualizó la especialidad: ${datos[0]}`
+      },
+      'imagen_sitio_añadida_admin': {
+        titulo: t('notifications.siteImageAdded') || 'Imagen del Sitio Añadida',
+        template: (datos) => `Se añadió la imagen: ${datos[0]}`
+      },
+      'imagen_sitio_actualizada_admin': {
+        titulo: t('notifications.siteImageUpdated') || 'Imagen del Sitio Actualizada',
+        template: (datos) => `Se actualizó la imagen: ${datos[0]}`
+      },
+      'imagen_sitio_eliminada_admin': {
+        titulo: t('notifications.siteImageDeleted') || 'Imagen del Sitio Eliminada',
+        template: (datos) => `Se eliminó la imagen: ${datos[0]}`
       }
     };
 

@@ -288,6 +288,7 @@
   justify-content: space-between;
   transition: background 0.2s;
   color: var(--text-primary);
+  width: 100%;
 }
 
 .paciente-sugerencia-item:hover {

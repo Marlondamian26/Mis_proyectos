@@ -323,7 +323,6 @@ const translations = {
     otherSpecialty: 'Outra Especialidade',
     selectSpecialtyHint: 'Selecione uma especialidade existente ou escreva uma nova abaixo',
     exampleSpecialtyPlaceholder: 'Ex: Medicina Tropical',
-    biography: 'Biografia',
     bioPlaceholder: 'Formação, experiência, etc.',
     birthDate: 'Data de Nascimento',
     gender: 'Gênero',

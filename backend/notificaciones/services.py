@@ -210,7 +210,20 @@ class ServicioNotificaciones:
             # Notificar disponibilidad
             cls.notificar_disponibilidad_doctor(doctor, cita.fecha, cita.hora)
             
-        else:  # cancelado por admin/doctor
+        elif cancelado_por == 'doctor':
+            # Mensaje para el paciente (con nombre del doctor)
+            titulo_paciente = 'cita_cancelada_por_doctor_paciente'
+            mensaje_paciente = f"{paciente.first_name}|{doctor.first_name} {doctor.last_name}|{cita.fecha}|{cita.hora}"
+            
+            cls.crear_notificacion(
+                usuario=paciente,
+                tipo='cancelacion_cita',
+                titulo=titulo_paciente,
+                mensaje=mensaje_paciente,
+                objeto_relacionado=cita
+            )
+            
+        elif cancelado_por == 'admin':
             # Mensaje para el paciente (admin no se menciona por seguridad)
             titulo_paciente = 'cita_cancelada_por_admin_paciente'
             mensaje_paciente = f"{paciente.first_name}|{doctor.first_name} {doctor.last_name}|{cita.fecha}|{cita.hora}"
@@ -220,6 +233,18 @@ class ServicioNotificaciones:
                 tipo='cancelacion_cita',
                 titulo=titulo_paciente,
                 mensaje=mensaje_paciente,
+                objeto_relacionado=cita
+            )
+            
+            # Mensaje para el doctor (admin no se menciona)
+            titulo_doctor = 'cita_cancelada_por_admin_doctor'
+            mensaje_doctor = f"{doctor.first_name}|{paciente.first_name} {paciente.last_name}|{cita.fecha}|{cita.hora}"
+            
+            cls.crear_notificacion(
+                usuario=doctor,
+                tipo='cancelacion_cita',
+                titulo=titulo_doctor,
+                mensaje=mensaje_doctor,
                 objeto_relacionado=cita
             )
 
@@ -253,7 +278,20 @@ class ServicioNotificaciones:
                 mensaje=mensaje_paciente,
                 objeto_relacionado=cita
             )
-        else:  # pospuesta por admin/doctor
+        elif pospuesta_por == 'doctor':
+            # Mensaje para el paciente (con nombre del doctor)
+            titulo_paciente = 'cita_pospuesta_por_doctor_paciente'
+            mensaje_paciente = f"{paciente.first_name}|{doctor.first_name} {doctor.last_name}|{cita.fecha}|{cita.hora}|{nueva_fecha}|{nueva_hora}"
+            
+            cls.crear_notificacion(
+                usuario=paciente,
+                tipo='modificacion_cita',
+                titulo=titulo_paciente,
+                mensaje=mensaje_paciente,
+                objeto_relacionado=cita
+            )
+            
+        elif pospuesta_por == 'admin':
             # Mensaje para el paciente (admin no se menciona)
             titulo_paciente = 'cita_pospuesta_por_admin_paciente'
             mensaje_paciente = f"{paciente.first_name}|{doctor.first_name} {doctor.last_name}|{cita.fecha}|{cita.hora}|{nueva_fecha}|{nueva_hora}"
@@ -263,6 +301,18 @@ class ServicioNotificaciones:
                 tipo='modificacion_cita',
                 titulo=titulo_paciente,
                 mensaje=mensaje_paciente,
+                objeto_relacionado=cita
+            )
+            
+            # Mensaje para el doctor (admin no se menciona)
+            titulo_doctor = 'cita_pospuesta_por_admin_doctor'
+            mensaje_doctor = f"{doctor.first_name}|{paciente.first_name} {paciente.last_name}|{cita.fecha}|{cita.hora}|{nueva_fecha}|{nueva_hora}"
+            
+            cls.crear_notificacion(
+                usuario=doctor,
+                tipo='modificacion_cita',
+                titulo=titulo_doctor,
+                mensaje=mensaje_doctor,
                 objeto_relacionado=cita
             )
     
@@ -340,6 +390,22 @@ class ServicioNotificaciones:
             cls.crear_notificacion(
                 usuario=admin,
                 tipo='cambio_especialidades',
+                titulo=titulo,
+                mensaje=mensaje
+            )
+    
+    @classmethod
+    def notificar_cambios_imagenes_sitio(cls, accion='añadida', imagen_titulo=None):
+        """Notificar a administradores cuando se cambian imágenes del sitio"""
+        admins = Usuario.objects.filter(rol='admin')
+        
+        titulo = f'imagen_sitio_{accion}_admin'
+        mensaje = imagen_titulo or 'Cambio en imágenes del sitio'
+        
+        for admin in admins:
+            cls.crear_notificacion(
+                usuario=admin,
+                tipo='cambio_imagenes_sitio',
                 titulo=titulo,
                 mensaje=mensaje
             )

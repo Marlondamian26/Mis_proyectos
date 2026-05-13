@@ -606,6 +606,22 @@ class EspecialidadViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
     
+    def perform_create(self, serializer):
+        especialidad = serializer.save()
+        try:
+            from notificaciones.services import ServicioNotificaciones
+            ServicioNotificaciones.notificar_cambios_especialidades('creada', especialidad.nombre)
+        except Exception as e:
+            logger.exception('Error enviando notificación de especialidad creada: %s', e)
+    
+    def perform_update(self, serializer):
+        especialidad = serializer.save()
+        try:
+            from notificaciones.services import ServicioNotificaciones
+            ServicioNotificaciones.notificar_cambios_especialidades('actualizada', especialidad.nombre)
+        except Exception as e:
+            logger.exception('Error enviando notificación de especialidad actualizada: %s', e)
+    
     @action(detail=False, methods=['get'])
     def medicas(self, request):
         """Filtrar solo especialidades médicas"""
@@ -625,6 +641,22 @@ class HorarioViewSet(viewsets.ModelViewSet):
     serializer_class = HorarioSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
+    
+    def perform_create(self, serializer):
+        horario = serializer.save()
+        try:
+            from notificaciones.services import ServicioNotificaciones
+            ServicioNotificaciones.notificar_cambios_horarios(horario.doctor.usuario, 'creada')
+        except Exception as e:
+            logger.exception('Error enviando notificación de horario creado: %s', e)
+    
+    def perform_update(self, serializer):
+        horario = serializer.save()
+        try:
+            from notificaciones.services import ServicioNotificaciones
+            ServicioNotificaciones.notificar_cambios_horarios(horario.doctor.usuario, 'actualizada')
+        except Exception as e:
+            logger.exception('Error enviando notificación de horario actualizado: %s', e)
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -751,7 +783,7 @@ class CitaViewSet(viewsets.ModelViewSet):
 
             # Detección de cambios de fecha/hora (pospuesta)
             if fecha_anterior != cita.fecha or hora_anterior != cita.hora:
-                pospuesta_por = 'paciente' if self.request.user.rol == 'patient' else 'admin'
+                pospuesta_por = self.request.user.rol
                 ServicioNotificaciones.notificar_cita_pospuesta(
                     cita, 
                     pospuesta_por=pospuesta_por,
@@ -760,7 +792,7 @@ class CitaViewSet(viewsets.ModelViewSet):
                 )
             elif estado_anterior != cita.estado:
                 if cita.estado == 'cancelada':
-                    cancelado_por = 'paciente' if self.request.user.rol == 'patient' else 'admin'
+                    cancelado_por = self.request.user.rol
                     ServicioNotificaciones.notificar_cita_cancelada(cita, cancelado_por=cancelado_por)
                 elif cita.estado == 'confirmada':
                     ServicioNotificaciones.notificar_cita_confirmada(cita)
@@ -778,7 +810,7 @@ class CitaViewSet(viewsets.ModelViewSet):
         
         try:
             from notificaciones.services import ServicioNotificaciones
-            cancelado_por = 'paciente' if request.user.rol == 'patient' else 'admin'
+            cancelado_por = request.user.rol
             ServicioNotificaciones.notificar_cita_cancelada(cita, cancelado_por=cancelado_por)
         except Exception as e:
             logger.exception('Error enviando notificación de cita cancelada: %s', e)
@@ -807,6 +839,31 @@ class SitioImagenViewSet(viewsets.ModelViewSet):
     """ViewSet para gestionar imágenes del sitio promocional"""
     queryset = SitioImagen.objects.all()
     serializer_class = SitioImagenSerializer
+    
+    def perform_create(self, serializer):
+        imagen = serializer.save()
+        try:
+            from notificaciones.services import ServicioNotificaciones
+            ServicioNotificaciones.notificar_cambios_imagenes_sitio('añadida', imagen.titulo or 'imagen')
+        except Exception as e:
+            logger.exception('Error enviando notificación de imagen añadida: %s', e)
+    
+    def perform_update(self, serializer):
+        imagen = serializer.save()
+        try:
+            from notificaciones.services import ServicioNotificaciones
+            ServicioNotificaciones.notificar_cambios_imagenes_sitio('actualizada', imagen.titulo or 'imagen')
+        except Exception as e:
+            logger.exception('Error enviando notificación de imagen actualizada: %s', e)
+    
+    def perform_destroy(self, instance):
+        titulo = instance.titulo or 'imagen'
+        instance.delete()
+        try:
+            from notificaciones.services import ServicioNotificaciones
+            ServicioNotificaciones.notificar_cambios_imagenes_sitio('eliminada', titulo)
+        except Exception as e:
+            logger.exception('Error enviando notificación de imagen eliminada: %s', e)
     
     def get_permissions(self):
         # Permitir acceso público a acciones de lectura sin autenticación

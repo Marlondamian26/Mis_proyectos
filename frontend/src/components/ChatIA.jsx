@@ -1265,6 +1265,44 @@ ${t('confirmPostponement')}`;
         </div>
       )}
 
+      {estado === 'elegir_paciente_accion' && (
+        <div className="chat-ia-input chat-paciente-busqueda">
+          <input
+            type="text"
+            value={busquedaPaciente}
+            onChange={(e) => {
+              setBusquedaPaciente(e.target.value);
+              buscarPacientes(e.target.value);
+            }}
+            placeholder={t('typeToSearchPatient') || 'Escribe el nombre del paciente...'}
+            disabled={loading}
+            autoFocus
+          />
+          {mostrarSugerencias && sugerenciasPacientes.length > 0 && (
+            <div className="chat-paciente-sugerencias">
+              {sugerenciasPacientes.map((paciente) => (
+                <button
+                  key={paciente.id}
+                  className="paciente-sugerencia-item"
+                  onClick={() => seleccionarPaciente(paciente)}
+                  type="button"
+                >
+                  <span className="paciente-nombre">{paciente.display_text}</span>
+                  {paciente.foto_perfil && (
+                    <img src={paciente.foto_perfil} alt={paciente.display_text} className="paciente-foto" />
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+          {busquedaPaciente.length > 0 && mostrarSugerencias && sugerenciasPacientes.length === 0 && (
+            <div className="chat-paciente-sin-resultados">
+              {t('noPatientsFound') || 'No se encontraron pacientes'}
+            </div>
+          )}
+        </div>
+      )}
+
       {estado === 'esperando_fecha' && (
         <form className="chat-ia-input" onSubmit={manejarInput}>
           <input

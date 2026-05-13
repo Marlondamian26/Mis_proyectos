@@ -42,6 +42,38 @@ function EnfermeriaDashboard() {
   const [saving, setSaving] = useState(false)
   const navigate = useNavigate()
 
+  // Estados para búsqueda de pacientes
+  const [busquedaPaciente, setBusquedaPaciente] = useState('')
+  const [sugerenciasPacientes, setSugerenciasPacientes] = useState([])
+  const [mostrarSugerencias, setMostrarSugerencias] = useState(false)
+
+  // Función para buscar pacientes
+  const buscarPacientes = useCallback(async (query) => {
+    if (!query || query.length < 2) {
+      setSugerenciasPacientes([])
+      setMostrarSugerencias(false)
+      return
+    }
+
+    try {
+      const response = await axiosInstance.get('buscar-pacientes/', {
+        params: { query }
+      })
+      setSugerenciasPacientes(response.data.resultados || [])
+      setMostrarSugerencias(true)
+    } catch (error) {
+      console.error('Error buscando pacientes:', error)
+      setSugerenciasPacientes([])
+    }
+  }, [])
+
+  // Función para seleccionar paciente
+  const seleccionarPaciente = useCallback((paciente) => {
+    setProcedimiento(prev => ({ ...prev, paciente: paciente.id }))
+    setBusquedaPaciente(paciente.display_text)
+    setMostrarSugerencias(false)
+  }, [])
+
   useEffect(() => {
     checkAccessAndLoadData()
   }, [])
@@ -586,14 +618,40 @@ function EnfermeriaDashboard() {
 
               <div style={styles.formGroup}>
                 <label>{t('patient')}:</label>
-                <select style={styles.select}>
-                  <option value="">{t('selectPatient')}</option>
-                  {pacientesHoy.map(cita => (
-                    <option key={cita.id} value={cita.paciente}>
-                      {cita.paciente_nombre} - {cita.hora}
-                    </option>
-                  ))}
-                </select>
+                <div style={styles.pacienteBusquedaContainer}>
+                  <input
+                    type="text"
+                    value={busquedaPaciente}
+                    onChange={(e) => {
+                      setBusquedaPaciente(e.target.value)
+                      buscarPacientes(e.target.value)
+                    }}
+                    placeholder={t('typeToSearchPatient') || 'Escribe el nombre del paciente...'}
+                    style={styles.select}
+                  />
+                  {mostrarSugerencias && sugerenciasPacientes.length > 0 && (
+                    <div style={styles.sugerenciasContainer}>
+                      {sugerenciasPacientes.map((paciente) => (
+                        <button
+                          key={paciente.id}
+                          style={styles.sugerenciaItem}
+                          onClick={() => seleccionarPaciente(paciente)}
+                          type="button"
+                        >
+                          <span>{paciente.display_text}</span>
+                          {paciente.foto_perfil && (
+                            <img src={paciente.foto_perfil} alt={paciente.display_text} style={styles.pacienteFoto} />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {busquedaPaciente.length > 0 && mostrarSugerencias && sugerenciasPacientes.length === 0 && (
+                    <div style={styles.sinResultados}>
+                      {t('noPatientsFound') || 'No se encontraron pacientes'}
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div style={styles.formGroup}>
@@ -1072,6 +1130,48 @@ const styles = {
   },
   spinner: {
     animation: 'spin 1s linear infinite'
+  },
+  pacienteBusquedaContainer: {
+    position: 'relative'
+  },
+  sugerenciasContainer: {
+    position: 'absolute',
+    top: '100%',
+    left: 0,
+    right: 0,
+    backgroundColor: 'var(--bg-secondary)',
+    border: '1px solid var(--border-color)',
+    borderRadius: '6px',
+    maxHeight: '200px',
+    overflowY: 'auto',
+    zIndex: 1000,
+    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+  },
+  sugerenciaItem: {
+    width: '100%',
+    padding: '10px 12px',
+    background: 'transparent',
+    border: 'none',
+    borderBottom: '1px solid var(--border-color)',
+    textAlign: 'left',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    transition: 'background 0.2s',
+    color: 'var(--text-primary)'
+  },
+  pacienteFoto: {
+    width: '32px',
+    height: '32px',
+    borderRadius: '50%',
+    objectFit: 'cover'
+  },
+  sinResultados: {
+    padding: '10px',
+    textAlign: 'center',
+    color: 'var(--text-muted)',
+    fontSize: '13px'
   }
 }
 
