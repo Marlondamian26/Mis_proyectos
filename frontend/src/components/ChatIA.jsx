@@ -1228,18 +1228,20 @@ ${t('confirmPostponement')}`;
       )}
 
       {estado === 'elegir_paciente' && (
-        <div className="chat-ia-input chat-paciente-busqueda">
-          <input
-            type="text"
-            value={busquedaPaciente}
-            onChange={(e) => {
-              setBusquedaPaciente(e.target.value);
-              buscarPacientes(e.target.value);
-            }}
-            placeholder={t('typeToSearchPatient') || 'Escribe el nombre del paciente...'}
-            disabled={loading}
-            autoFocus
-          />
+        <>
+          <div className="chat-ia-input chat-paciente-busqueda">
+            <input
+              type="text"
+              value={busquedaPaciente}
+              onChange={(e) => {
+                setBusquedaPaciente(e.target.value);
+                buscarPacientes(e.target.value);
+              }}
+              placeholder={t('typeToSearchPatient') || 'Escribe el nombre del paciente...'}
+              disabled={loading}
+              autoFocus
+            />
+          </div>
           {mostrarSugerencias && sugerenciasPacientes.length > 0 && (
             <div className="chat-paciente-sugerencias">
               {sugerenciasPacientes.map((paciente) => (
@@ -1262,22 +1264,24 @@ ${t('confirmPostponement')}`;
               {t('noPatientsFound') || 'No se encontraron pacientes'}
             </div>
           )}
-        </div>
+        </>
       )}
 
       {estado === 'elegir_paciente_accion' && (
-        <div className="chat-ia-input chat-paciente-busqueda">
-          <input
-            type="text"
-            value={busquedaPaciente}
-            onChange={(e) => {
-              setBusquedaPaciente(e.target.value);
-              buscarPacientes(e.target.value);
-            }}
-            placeholder={t('typeToSearchPatient') || 'Escribe el nombre del paciente...'}
-            disabled={loading}
-            autoFocus
-          />
+        <>
+          <div className="chat-ia-input chat-paciente-busqueda">
+            <input
+              type="text"
+              value={busquedaPaciente}
+              onChange={(e) => {
+                setBusquedaPaciente(e.target.value);
+                buscarPacientes(e.target.value);
+              }}
+              placeholder={t('typeToSearchPatient') || 'Escribe el nombre del paciente...'}
+              disabled={loading}
+              autoFocus
+            />
+          </div>
           {mostrarSugerencias && sugerenciasPacientes.length > 0 && (
             <div className="chat-paciente-sugerencias">
               {sugerenciasPacientes.map((paciente) => (
@@ -1300,7 +1304,7 @@ ${t('confirmPostponement')}`;
               {t('noPatientsFound') || 'No se encontraron pacientes'}
             </div>
           )}
-        </div>
+        </>
       )}
 
       {estado === 'esperando_fecha' && (

@@ -279,7 +279,7 @@
 }
 
 .paciente-sugerencia-item {
-  padding: 8px 16px;
+  padding: 8px 0;
   background: transparent;
   border: none;
   border-bottom: 1px solid var(--border-color);
@@ -320,7 +320,7 @@
 }
 
 .chat-paciente-sin-resultados {
-  padding: 16px;
+  padding: 16px 0;
   text-align: center;
   color: var(--text-muted);
   font-size: 13px;
