@@ -1,6 +1,23 @@
 import axios from 'axios'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api/'
+const getApiUrl = () => {
+  if (typeof import.meta !== 'undefined' && import.meta.env) {
+    const url = import.meta.env.VITE_API_URL
+    if (url) return url.replace(/\/$/, '')
+  }
+
+  const defaultBackend = 'https://gestion-saude-backend.onrender.com/api'
+
+  if (typeof window !== 'undefined' && window.location) {
+    const origin = window.location.origin
+    const isLocal = origin.includes('localhost') || origin.includes('127.0.0.1')
+    return isLocal ? `${origin}/api` : defaultBackend
+  }
+
+  return defaultBackend
+}
+
+const API_URL = getApiUrl()
 
 let isRefreshing = false
 let failedQueue = []
@@ -19,7 +36,7 @@ const processQueue = (error, token = null) => {
 // Configura axios para incluir token automáticamente
 const axiosInstance = axios.create({
   baseURL: API_URL,
-  timeout: 30000
+  timeout: 120000
 })
 
 // Interceptor para agregar token a cada petición

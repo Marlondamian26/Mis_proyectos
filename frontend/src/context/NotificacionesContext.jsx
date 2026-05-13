@@ -101,18 +101,6 @@ export const NotificacionesProvider = ({ children }) => {
         titulo: t('notifications.specialtyCreated') || 'Nueva Especialidad Creada',
         template: (datos) => `Se creó la especialidad: ${datos[0]}`
       },
-      'horarios_creada_admin': {
-        titulo: t('notifications.scheduleCreated') || 'Nuevo Horario Creado',
-        template: (datos) => `Se creó un nuevo horario para ${datos[0]} (${datos[1]}).`
-      },
-      'horarios_actualizada_admin': {
-        titulo: t('notifications.scheduleUpdated') || 'Horarios Actualizados',
-        template: (datos) => `Se actualizaron los horarios de ${datos[0]} (${datos[1]}).`
-      },
-      'especialidad_creada_admin': {
-        titulo: t('notifications.specialtyCreated') || 'Nueva Especialidad Creada',
-        template: (datos) => `Se creó la especialidad: ${datos[0]}`
-      },
       'especialidad_actualizada_admin': {
         titulo: t('notifications.specialtyUpdated') || 'Especialidad Actualizada',
         template: (datos) => `Se actualizó la especialidad: ${datos[0]}`

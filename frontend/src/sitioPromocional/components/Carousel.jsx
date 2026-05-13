@@ -7,10 +7,27 @@ const getApiUrl = () => {
     const envUrl = import.meta.env.VITE_API_URL;
     if (envUrl) return envUrl.replace(/\/$/, '');
   }
-  return 'http://127.0.0.1:8000/api';
+  const defaultBackend = 'https://gestion-saude-backend.onrender.com/api';
+  if (typeof window !== 'undefined' && window.location) {
+    const origin = window.location.origin;
+    const isLocal = origin.includes('localhost') || origin.includes('127.0.0.1');
+    return isLocal ? `${origin}/api` : defaultBackend;
+  }
+  return defaultBackend;
 };
 
 const API_URL = getApiUrl();
+
+const fetchWithTimeout = async (url, options = {}, timeout = 120000) => {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+  try {
+    const response = await fetch(url, { ...options, signal: controller.signal });
+    return response;
+  } finally {
+    clearTimeout(timer);
+  }
+};
 
 // Helper to get full image URL
 const getImageUrl = (path) => {
@@ -38,7 +55,7 @@ function Carousel() {
       const url = `${API_URL}/sitio-imagenes/carousel/`;
       console.log('[Carousel] Fetching from:', url);
       
-      const response = await fetch(url);
+      const response = await fetchWithTimeout(url, {}, 60000);
       console.log('[Carousel] Response status:', response.status, 'ok:', response.ok);
       
       if (!response.ok) {
