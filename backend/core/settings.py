@@ -174,8 +174,29 @@ CORS_ALLOWED_ORIGINS = [
 # Opcional: Si quieres permitir credenciales (cookies, sesiones)
 CORS_ALLOW_CREDENTIALS = True
 
-# Configuración adicional de CORS
+# Permitir todas las orígenes desde el frontend desplegado y manejo global de CORS
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
 CORS_EXPOSE_HEADERS = ["Content-Type", "Authorization"]
+CORS_PREFLIGHT_MAX_AGE = 86400
 CORS_PREFLIGHT_THRESHOLD = 86400
 
 
