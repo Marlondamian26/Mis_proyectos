@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { FaStethoscope, FaHeart, FaMapMarkerAlt, FaArrowRight, FaWhatsapp } from 'react-icons/fa';
 import { useLanguage } from '../../context/LanguageContext';
 import { DOCTOR_NAME, DOCTOR_SPECIALTY, CLINIC_LOCATION, CLINIC_PHONE, PLATFORM_URL, REGISTRO_URL } from '../config/constants';
+import { wakeUpBackend } from '../../utils/apiUtils';
 
 const getApiUrl = () => {
   if (typeof import.meta !== 'undefined' && import.meta.env) {
@@ -20,14 +21,26 @@ const getApiUrl = () => {
 
 const API_URL = getApiUrl();
 
-const fetchWithTimeout = async (url, options = {}, timeout = 120000) => {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeout);
-  try {
-    const response = await fetch(url, { ...options, signal: controller.signal });
-    return response;
-  } finally {
-    clearTimeout(timer);
+const fetchWithTimeout = async (url, options = {}, timeout = 30000, retries = 2) => {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeout);
+    
+    try {
+      console.log(`[Hero] Attempt ${attempt + 1}/${retries + 1} fetching:`, url);
+      const response = await fetch(url, { ...options, signal: controller.signal });
+      console.log(`[Hero] Attempt ${attempt + 1} success, status:`, response.status);
+      return response;
+    } catch (err) {
+      console.warn(`[Hero] Attempt ${attempt + 1} failed:`, err.message);
+      if (attempt === retries) {
+        throw err;
+      }
+      // Wait before retry (exponential backoff)
+      await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+    } finally {
+      clearTimeout(timer);
+    }
   }
 };
 
@@ -53,22 +66,22 @@ function Hero() {
   const fetchHeroImage = async () => {
     try {
       setLoadingImage(true);
-      const url = `${API_URL}/sitio-imagenes/hero/`;
-      console.log('[Hero] Fetching from:', url);
       
-      const response = await fetchWithTimeout(url, {}, 60000);
-      console.log('[Hero] Response status:', response.status, 'ok:', response.ok);
+      // Despertar el backend antes de hacer la petición
+      await wakeUpBackend();
+      
+      const url = `${API_URL}/sitio-imagenes/hero/`;
+      
+      const response = await fetchWithTimeout(url, {}, 15000, 3); // 15s timeout, 3 retries
       
       if (!response.ok) {
-        console.error('[Hero] Response not ok');
+        console.error('[Hero] Response not ok:', response.status, response.statusText);
         return;
       }
       
       const contentType = response.headers.get('content-type');
-      console.log('[Hero] Content-Type:', contentType);
-      
       if (!contentType || !contentType.includes('application/json')) {
-        console.error('[Hero] Invalid content-type');
+        console.error('[Hero] Invalid content-type:', contentType);
         return;
       }
       
@@ -78,7 +91,8 @@ function Hero() {
         setHeroImage(data);
       }
     } catch (err) {
-      console.error('[Hero] Fetch error:', err);
+      console.error('[Hero] Fetch error after retries:', err);
+      // Don't show error to user, just log it
     } finally {
       setLoadingImage(false);
     }

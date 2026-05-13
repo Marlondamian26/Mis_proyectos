@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FaChevronLeft, FaChevronRight, FaCircle } from 'react-icons/fa';
 import { useLanguage } from '../../context/LanguageContext';
+import { wakeUpBackend } from '../../utils/apiUtils';
 
 const getApiUrl = () => {
   if (typeof import.meta !== 'undefined' && import.meta.env) {
@@ -18,14 +19,26 @@ const getApiUrl = () => {
 
 const API_URL = getApiUrl();
 
-const fetchWithTimeout = async (url, options = {}, timeout = 120000) => {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeout);
-  try {
-    const response = await fetch(url, { ...options, signal: controller.signal });
-    return response;
-  } finally {
-    clearTimeout(timer);
+const fetchWithTimeout = async (url, options = {}, timeout = 30000, retries = 2) => {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeout);
+    
+    try {
+      console.log(`[Carousel] Attempt ${attempt + 1}/${retries + 1} fetching:`, url);
+      const response = await fetch(url, { ...options, signal: controller.signal });
+      console.log(`[Carousel] Attempt ${attempt + 1} success, status:`, response.status);
+      return response;
+    } catch (err) {
+      console.warn(`[Carousel] Attempt ${attempt + 1} failed:`, err.message);
+      if (attempt === retries) {
+        throw err;
+      }
+      // Wait before retry (exponential backoff)
+      await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+    } finally {
+      clearTimeout(timer);
+    }
   }
 };
 
@@ -52,23 +65,23 @@ function Carousel() {
   const fetchCarouselImages = async () => {
     try {
       setLoading(true);
-      const url = `${API_URL}/sitio-imagenes/carousel/`;
-      console.log('[Carousel] Fetching from:', url);
       
-      const response = await fetchWithTimeout(url, {}, 60000);
-      console.log('[Carousel] Response status:', response.status, 'ok:', response.ok);
+      // Despertar el backend antes de hacer la petición
+      await wakeUpBackend();
+      
+      const url = `${API_URL}/sitio-imagenes/carousel/`;
+      
+      const response = await fetchWithTimeout(url, {}, 15000, 3); // 15s timeout, 3 retries
       
       if (!response.ok) {
-        console.error('[Carousel] Response not ok');
+        console.error('[Carousel] Response not ok:', response.status, response.statusText);
         setError(tPromo('errorLoading'));
         return;
       }
       
       const contentType = response.headers.get('content-type');
-      console.log('[Carousel] Content-Type:', contentType);
-      
       if (!contentType || !contentType.includes('application/json')) {
-        console.error('[Carousel] Invalid content-type');
+        console.error('[Carousel] Invalid content-type:', contentType);
         setError(tPromo('errorLoading'));
         return;
       }
@@ -78,7 +91,7 @@ function Carousel() {
       setImages(data);
       setError(null);
     } catch (err) {
-      console.error('[Carousel] Fetch error:', err);
+      console.error('[Carousel] Fetch error after retries:', err);
       setError(tPromo('connectionError'));
     } finally {
       setLoading(false);

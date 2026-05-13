@@ -33,10 +33,21 @@ const processQueue = (error, token = null) => {
   failedQueue = []
 }
 
+// Función para despertar el backend (útil para Render free tier)
+const wakeUpBackend = async () => {
+  try {
+    console.log('[Auth] Waking up backend...');
+    await axios.get(`${API_URL.replace('/api', '')}/health/`, { timeout: 5000 });
+    console.log('[Auth] Backend is awake');
+  } catch (err) {
+    console.warn('[Auth] Health check failed, but continuing:', err.message);
+  }
+};
+
 // Configura axios para incluir token automáticamente
 const axiosInstance = axios.create({
   baseURL: API_URL,
-  timeout: 120000
+  timeout: 30000
 })
 
 // Interceptor para agregar token a cada petición
@@ -75,7 +86,7 @@ axiosInstance.interceptors.response.use(
           
           const response = await axios.post(`${API_URL}token/refresh/`, {
             refresh: refreshToken
-          }, { timeout: 5000 })
+          }, { timeout: 10000 })
           
           const newToken = response.data.access
           localStorage.setItem('access_token', newToken)

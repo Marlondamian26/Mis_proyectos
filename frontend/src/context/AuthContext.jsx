@@ -1,6 +1,18 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axiosInstance from '../services/auth';
 
+// Función para despertar el backend
+const wakeUpBackend = async () => {
+  try {
+    console.log('[Auth] Waking up backend...');
+    const API_URL = axiosInstance.defaults.baseURL;
+    await axiosInstance.get('/health/', { timeout: 5000 });
+    console.log('[Auth] Backend is awake');
+  } catch (err) {
+    console.warn('[Auth] Health check failed, but continuing:', err.message);
+  }
+};
+
 const AuthContext = createContext();
 
 export const useAuth = () => {
@@ -58,6 +70,9 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (username, password) => {
     try {
+      // Despertar el backend antes del login
+      await wakeUpBackend();
+      
       const response = await axiosInstance.post('token/', {
         username,
         password
