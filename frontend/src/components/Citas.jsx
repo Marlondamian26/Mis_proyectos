@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import axiosInstance from '../services/auth'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext'
@@ -41,12 +41,19 @@ function Citas() {
     hora: '',
     motivo: ''
   })
+  const historyRef = useRef(null)
 
   useEffect(() => {
     fetchUser()
     fetchCitas()
     fetchDoctores()
   }, [])
+
+  useEffect(() => {
+    if (location.state?.scrollToHistory && historyRef.current) {
+      historyRef.current.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [location.state])
 
    useEffect(() => {
      if (nuevaCita.doctor && nuevaCita.fecha) {
@@ -504,7 +511,7 @@ function Citas() {
         </div>
 
         <div style={styles.section}>
-          <h2>📋 {t('appointmentHistory')}</h2>
+          <h2 ref={historyRef}>📋 {t('appointmentHistory')}</h2>
           {citasPasadas.length === 0 ? (
             <p style={styles.emptyState}>{t('noPastAppointments')}</p>
           ) : (

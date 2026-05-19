@@ -1480,12 +1480,12 @@ function AdminDashboard() {
             <h2 style={styles.sectionTitle}>{t('generalSummary')}</h2>
             {/* Floating Chatbot Button */}
             <button
-              onClick={() => setActiveTab('chatbot')}
+              onClick={() => setChatbotOpen(true)}
               style={styles.chatbotButton}
-              title="Abrir asistente de citas"
+              title="Abrir asistente"
             >
               <span style={{ fontSize: '22px' }}>🤖</span>
-              <span style={{ fontSize: '10px', fontWeight: 'bold', marginLeft: '8px' }}>{t('chatAssistant')}</span>
+              <span style={{ fontSize: '10px', fontWeight: 'bold', marginLeft: '8px' }}>{t('assistant')}</span>
             </button>
             <div style={styles.dashboardGrid}>
               <div style={styles.dashboardCard}>

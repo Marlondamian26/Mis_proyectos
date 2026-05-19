@@ -1,9 +1,11 @@
 import React, { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext'
 
 // Small reusable reminder cards component
 export default function ReminderCards({ citas = [], user = null, role = 'patient' }) {
   const { t } = useLanguage()
+  const navigate = useNavigate()
   const [dismissed, setDismissed] = useState(() => {
     try {
       const raw = sessionStorage.getItem('dismissedReminders')
@@ -31,16 +33,18 @@ export default function ReminderCards({ citas = [], user = null, role = 'patient
       const fecha = parseDate(cita.fecha)
       if (!fecha) return
 
-      // upcoming: pendiente and fecha >= hoy and not expired (fecha + 1 day)
-      if ((cita.estado === 'pendiente' || cita.estado === 'pending') ) {
+        const pendingStates = ['pendiente', 'pending']
+      const postponedStates = ['pospuesta', 'postponed']
+      const historyStates = ['cancelada', 'cancelled', 'eliminada', 'deleted']
+
+      if (pendingStates.includes(cita.estado) || postponedStates.includes(cita.estado)) {
         const end = new Date(fecha)
         end.setDate(end.getDate() + 1)
         if (today <= end) up.push(cita)
         return
       }
 
-      // cancelled or postponed
-      if (cita.estado === 'cancelada' || cita.estado === 'pospuesta' || cita.estado === 'cancelled' || cita.estado === 'postponed') {
+      if (historyStates.includes(cita.estado)) {
         cp.push(cita)
         return
       }
@@ -53,6 +57,27 @@ export default function ReminderCards({ citas = [], user = null, role = 'patient
     const next = [...dismissed, id]
     setDismissed(next)
     try { sessionStorage.setItem('dismissedReminders', JSON.stringify(next)) } catch(e){}
+  }
+
+  const getAppointmentRoute = (cita) => {
+    const pendingStates = ['pendiente', 'pending', 'pospuesta', 'postponed']
+    const historyStates = ['cancelada', 'cancelled', 'eliminada', 'deleted']
+    const isHistory = historyStates.includes(cita.estado)
+
+    if (role === 'admin') {
+      return { path: '/admin?tab=citas', state: { appointmentId: cita.id, showHistory: isHistory } }
+    }
+
+    if (isHistory) {
+      return { path: '/citas', state: { appointmentId: cita.id, showHistory: true } }
+    }
+
+    return { path: '/citas', state: { appointmentId: cita.id } }
+  }
+
+  const handleViewAppointment = (cita) => {
+    const route = getAppointmentRoute(cita)
+    navigate(route.path, { state: route.state })
   }
 
   // Only show canceled/postponed that are not dismissed in this session
@@ -72,12 +97,12 @@ export default function ReminderCards({ citas = [], user = null, role = 'patient
       <div style={styles.cardsWrap}>
         {upcoming.map(cita => (
           <div key={`up-${cita.id}`} style={styles.cardUpcoming}>
-            <div style={styles.cardHeader}>Próxima cita</div>
+            <div style={styles.cardHeader}>{cita.estado === 'pospuesta' || cita.estado === 'postponed' ? 'Cita Pospuesta' : 'Próxima cita'}</div>
             <div style={styles.cardBody}>
               <div><strong>{cita.doctor_nombre || cita.doctor || t('doctor')}</strong></div>
               <div>{cita.fecha} {cita.hora || ''}</div>
               <div style={styles.cardActions}>
-                <button onClick={() => handleDismiss(cita.id)} style={styles.dismissButton}>{t('dismiss') || 'Cerrar'}</button>
+                <button onClick={() => handleViewAppointment(cita)} style={styles.dismissButton}>{t('viewAppointment') || 'Ver cita'}</button>
               </div>
             </div>
           </div>
@@ -90,7 +115,7 @@ export default function ReminderCards({ citas = [], user = null, role = 'patient
               <div><strong>{cita.paciente_nombre || cita.paciente || t('patient')}</strong></div>
               <div>{cita.fecha} {cita.hora || ''}</div>
               <div style={styles.cardActions}>
-                <button onClick={() => handleDismiss(cita.id)} style={styles.dismissButton}>{t('dismiss') || 'Cerrar'}</button>
+                <button onClick={() => handleViewAppointment(cita)} style={styles.dismissButton}>{t('viewAppointment') || 'Ver cita'}</button>
               </div>
             </div>
           </div>

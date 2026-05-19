@@ -92,6 +92,8 @@ const translations = {
     // Dashboard
     quickAccessAdmin: 'Acesso Rápido de Administrador',
     viewAllAppointments: 'Ver Todas as Consultas',
+    assistant: 'Assistente',
+    viewAppointment: 'Ver consulta',
     // Admin Dashboard
     generalSummary: 'Resumo Geral',
     usersByRole: 'Usuários por Função',
@@ -653,6 +655,8 @@ const translations = {
     // Dashboard
     quickAccessAdmin: 'Accesos Rápidos de Administrador',
     managePatients: 'Todo lo referente al paciente, doctores, enfermería y citas reservadas.',
+    assistant: 'Asistente',
+    viewAppointment: 'Ver cita',
     viewAllAppointments: 'Ver Todas las Citas',
     // Admin Dashboard
     generalSummary: 'Resumen General',
@@ -1516,6 +1520,8 @@ const translations = {
     // Language
     language: 'Language',
     changeLanguage: 'Change Language',
+    assistant: 'Assistant',
+    viewAppointment: 'View appointment',
     appointmentHistory: 'Appointment History',
     portuguese: 'Portuguese',
     spanish: 'Spanish',
