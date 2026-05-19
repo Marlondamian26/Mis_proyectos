@@ -268,7 +268,7 @@ function Perfil() {
       if (fotoPerfil) {
         const formDataFoto = new FormData()
         formDataFoto.append('foto', fotoPerfil)
-        await axiosInstance.post(`foto-perfil/${user.id}/`, formDataFoto, {
+        await axiosInstance.post('foto-perfil/', formDataFoto, {
           headers: { 'Content-Type': 'multipart/form-data' }
         })
       }
@@ -332,7 +332,7 @@ function Perfil() {
     if (!user?.id) return
     setSaving(true)
     try {
-      await axiosInstance.delete(`foto-perfil/${user.id}/`)
+      await axiosInstance.delete('foto-perfil/')
       mostrarMensaje(`${t('removePhoto')} ${t('success').toLowerCase()}`, 'success')
       await fetchUserData()
     } catch (error) {
@@ -542,46 +542,47 @@ function Perfil() {
                    />
                  </div>
 
-                 {/* Foto de perfil */}
-                 <div style={styles.formGroup}>
-                   <label style={styles.label}>
-                     <FaUser /> {t('profilePhoto')}
-                   </label>
-                   {user?.foto_perfil_url && (
-                     <div style={styles.photoPreview}>
-                       <img
-                         src={user.foto_perfil_url}
-                         alt={t('currentProfilePhoto')}
-                         style={styles.previewImage}
-                       />
-                       <p style={styles.currentPhotoLabel}>{t('currentPhoto')}</p>
-                       <button
-                         type="button"
-                         onClick={eliminarFotoPerfil}
-                         style={{
-                           marginTop: '8px',
-                           backgroundColor: 'var(--color-danger)',
-                           color: 'white',
-                           border: 'none',
-                           padding: '8px 12px',
-                           borderRadius: '6px',
-                           cursor: 'pointer'
-                         }}
-                       >
-                         {t('removePhoto')}
-                       </button>
-                     </div>
-                   )}
-                   <input
-                     type="file"
-                     accept="image/*"
-                     onChange={(e) => setFotoPerfil(e.target.files[0])}
-                     style={styles.fileInput}
-                   />
-                   <small style={styles.hint}>
-                     {t('photoRequirements')}: JPEG, PNG, GIF, WebP. Máx 25MB.
-                   </small>
-                 </div>
+                 {user?.rol !== 'patient' && (
+                   <div style={styles.formGroup}>
+                     <label style={styles.label}>
+                       <FaUser /> {t('profilePhoto')}
+                     </label>
+                     {user?.foto_perfil_url && (
+                       <div style={styles.photoPreview}>
+                         <img
+                           src={user.foto_perfil_url}
+                           alt={t('currentProfilePhoto')}
+                           style={styles.previewImage}
+                         />
+                         <p style={styles.currentPhotoLabel}>{t('currentPhoto')}</p>
+                         <button
+                           type="button"
+                           onClick={eliminarFotoPerfil}
+                           style={{
+                             marginTop: '8px',
+                             backgroundColor: 'var(--color-danger)',
+                             color: 'white',
+                             border: 'none',
+                             padding: '8px 12px',
+                             borderRadius: '6px',
+                             cursor: 'pointer'
+                           }}
+                         >
+                           {t('removePhoto')}
+                         </button>
+                       </div>
+                     )}
+                     <input
+                       type="file"
+                       accept="image/*"
+                       onChange={(e) => setFotoPerfil(e.target.files[0])}
+                       style={styles.fileInput}
+                     />
+                     <small style={styles.hint}>
+                       {t('photoRequirements')}: JPEG, PNG, GIF, WebP. Máx 25MB.
+                     </small>
+                   </div>
+                 )}
 
                  {user?.rol === 'patient' && (
                   <>

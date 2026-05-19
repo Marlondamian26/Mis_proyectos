@@ -457,13 +457,13 @@ def gestionar_foto_perfil(request, usuario_id=None):
     """
     # Determinar el usuario a actualizar
     if usuario_id:
-        # Admin actualizando a otro usuario
-        if request.user.rol != 'admin':
-            return Response({'error': 'No tienes permiso para actualizar fotos de otros usuarios'}, status=status.HTTP_403_FORBIDDEN)
         try:
             usuario = Usuario.objects.get(id=usuario_id)
         except Usuario.DoesNotExist:
             return Response({'error': 'Usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+        # Solo admins pueden actualizar fotos de otros usuarios; el propio usuario puede usar su propio ID.
+        if request.user.rol != 'admin' and usuario != request.user:
+            return Response({'error': 'No tienes permiso para actualizar fotos de otros usuarios'}, status=status.HTTP_403_FORBIDDEN)
     else:
         # Usuario actualizando su propia foto
         usuario = request.user
