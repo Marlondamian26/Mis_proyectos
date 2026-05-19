@@ -658,6 +658,8 @@ const translations = {
     // Dashboard
     quickAccessAdmin: 'Accesos Rápidos de Administrador',
     managePatients: 'Todo lo referente al paciente, doctores, enfermería y citas reservadas.',
+    patientsTab: 'Pacientes',
+    newPatient: 'Nuevo paciente',
     assistant: 'Asistente',
     viewAppointment: 'Ver cita',
     upcomingAppointment: 'Próxima cita',

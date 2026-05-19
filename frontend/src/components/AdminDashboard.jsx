@@ -2691,51 +2691,6 @@ function AdminDashboard() {
                       />
                     </div>
 
-                    {/* Foto de perfil */}
-                    <h3 style={styles.modalSubtitle}>{t('profilePhoto')}</h3>
-
-                    {selectedItem?.usuario?.foto_perfil_url && (
-                      <div style={styles.formGroup}>
-                        <label style={styles.label}>{t('currentPhoto')}</label>
-                        <div style={styles.photoPreview}>
-                          <img
-                            src={selectedItem.usuario.foto_perfil_url}
-                            alt={t('currentProfilePhoto')}
-                            style={styles.previewImage}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => eliminarFotoPerfilUsuario(selectedItem.usuario.id)}
-                            style={{
-                              marginTop: '8px',
-                              backgroundColor: 'var(--color-danger)',
-                              color: 'white',
-                              border: 'none',
-                              padding: '8px 12px',
-                              borderRadius: '6px',
-                              cursor: 'pointer'
-                            }}
-                          >
-                            {t('removePhoto')}
-                          </button>
-                        </div>
-                      </div>
-                    )}
-
-                    <div style={styles.formGroup}>
-                      <label style={styles.label}>{t('uploadNewPhoto')} ({t('optional')})</label>
-                      <input
-                        type="file"
-                        name="foto_perfil"
-                        accept="image/*"
-                        onChange={handleFileChange}
-                        disabled={modalMode === 'view'}
-                        style={styles.fileInput}
-                      />
-                      <small style={styles.hint}>
-                        {t('photoRequirements')}: JPEG, PNG, GIF, WebP. Máx 25MB.
-                      </small>
-                    </div>
                   </>
                 )}
 
