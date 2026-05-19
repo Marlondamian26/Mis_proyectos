@@ -97,7 +97,7 @@ export default function ReminderCards({ citas = [], user = null, role = 'patient
       <div style={styles.cardsWrap}>
         {upcoming.map(cita => (
           <div key={`up-${cita.id}`} style={styles.cardUpcoming}>
-            <div style={styles.cardHeader}>{cita.estado === 'pospuesta' || cita.estado === 'postponed' ? 'Cita Pospuesta' : 'Próxima cita'}</div>
+            <div style={styles.cardHeader}>{cita.estado === 'pospuesta' || cita.estado === 'postponed' ? t('postponedAppointment') : t('upcomingAppointment')}</div>
             <div style={styles.cardBody}>
               <div><strong>{cita.doctor_nombre || cita.doctor || t('doctor')}</strong></div>
               <div>{cita.fecha} {cita.hora || ''}</div>
@@ -110,7 +110,7 @@ export default function ReminderCards({ citas = [], user = null, role = 'patient
 
         {visibleCanceled.map(cita => (
           <div key={`cp-${cita.id}`} style={styles.cardCanceled}>
-            <div style={styles.cardHeader}>{cita.estado === 'cancelada' || cita.estado === 'cancelled' ? 'Cita Cancelada' : 'Cita Pospuesta'}</div>
+            <div style={styles.cardHeader}>{cita.estado === 'cancelada' || cita.estado === 'cancelled' ? t('cancelledAppointment') : t('postponedAppointment')}</div>
             <div style={styles.cardBody}>
               <div><strong>{cita.paciente_nombre || cita.paciente || t('patient')}</strong></div>
               <div>{cita.fecha} {cita.hora || ''}</div>

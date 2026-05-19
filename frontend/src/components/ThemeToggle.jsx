@@ -38,7 +38,7 @@ const ThemeToggle = () => {
       minWidth: 'clamp(45px, 10vw, 55px)',
     },
     icon: {
-      fontSize: 'clamp(20px, 4vw, 32px)',
+      fontSize: 'clamp(14px, 3vw, 20px)',
       transition: 'transform 0.3s ease, color 0.3s ease',
       transform: isRotating ? 'rotate(90deg)' : 'rotate(0)',
     },
