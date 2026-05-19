@@ -3,6 +3,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { FaSun, FaMoon, FaAdjust } from 'react-icons/fa';
 import '../styles/promocional.css';
+import '../styles/promo-responsive.css';
 
 import Navbar from './Navbar';
 import Carousel from './Carousel';
@@ -16,20 +17,20 @@ import Footer from './Footer';
 
 const toggleContainerStyle = {
   position: 'fixed',
-  top: '90px',
-  right: '25px',
+  top: 'clamp(80px, 12vw, 90px)',
+  right: 'clamp(15px, 3vw, 25px)',
   zIndex: 2000,
   display: 'flex',
   flexDirection: 'column',
-  gap: '12px',
+  gap: 'clamp(10px, 2vw, 12px)',
 };
 
 const buttonBaseStyle = {
   background: '#ffffff',
-  border: '3px solid #00a896',
+  border: 'clamp(2px, 0.5vw, 3px) solid #00a896',
   borderRadius: '12px',
-  width: '48px',
-  height: '48px',
+  width: 'clamp(40px, 10vw, 48px)',
+  height: 'clamp(40px, 10vw, 48px)',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -38,11 +39,13 @@ const buttonBaseStyle = {
   transition: 'all 0.3s ease',
   boxShadow: '0 4px 16px rgba(0, 168, 150, 0.3)',
   outline: 'none',
+  padding: 0,
+  fontSize: 'clamp(0.9rem, 2vw, 1.3rem)',
 };
 
 const buttonBaseStyleDark = {
   background: '#1e293b',
-  border: '3px solid #02c4ac',
+  border: 'clamp(2px, 0.5vw, 3px) solid #02c4ac',
   color: '#f1f5f9',
   boxShadow: '0 4px 16px rgba(2, 196, 172, 0.3)',
 };
@@ -64,11 +67,11 @@ function PromoThemeToggle() {
   
   const getIcon = () => {
     if (isAutomatic) {
-      return <FaAdjust style={{ fontSize: '20px', color: '#8b5cf6' }} />;
+      return <FaAdjust style={{ fontSize: 'clamp(0.9rem, 2vw, 1.25rem)', color: '#8b5cf6' }} />;
     }
     return theme === 'light' 
-      ? <FaMoon style={{ fontSize: '20px', color: '#3b82f6' }} />
-      : <FaSun style={{ fontSize: '20px', color: '#fbbf24' }} />;
+      ? <FaMoon style={{ fontSize: 'clamp(0.9rem, 2vw, 1.25rem)', color: '#3b82f6' }} />
+      : <FaSun style={{ fontSize: 'clamp(0.9rem, 2vw, 1.25rem)', color: '#fbbf24' }} />;
   };
 
   const isDark = theme === 'dark';
@@ -127,7 +130,7 @@ function PromoLanguageToggle() {
       title={tPromo('changeLanguage')}
       aria-label={tPromo('changeLanguage')}
     >
-      <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#8b5cf6' }}>
+      <span style={{ fontSize: 'clamp(0.6rem, 1.5vw, 0.9rem)', fontWeight: 'bold', color: '#8b5cf6' }}>
         {currentLang.flag}
       </span>
     </button>
@@ -150,7 +153,7 @@ function LandingWrapper() {
       
       <Navbar />
       
-      <main style={{ marginTop: '80px' }}>
+      <main style={{ marginTop: 'clamp(50px, 8vw, 80px)', overflowX: 'hidden', width: '100%', maxWidth: '100vw' }}>
         <Carousel />
         
         <section id="inicio">

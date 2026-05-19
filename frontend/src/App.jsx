@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import './index.css';
 import './App.css';
+import './styles/components-responsive.css';
 
 // Context
 import { ThemeProvider } from './context/ThemeContext';
@@ -33,18 +34,24 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     minHeight: '100vh',
+    width: '100%',
+    maxWidth: '100vw',
+    overflowX: 'hidden',
   },
   contentContainer: {
     flex: 1,
+    width: '100%',
+    maxWidth: '100vw',
+    overflowX: 'hidden',
   },
   headerBar: {
     position: 'fixed',
-    top: '20px',
-    right: '20px',
+    top: 'clamp(15px, 3vw, 20px)',
+    right: 'clamp(15px, 3vw, 20px)',
     zIndex: 1000,
     display: 'flex',
     flexDirection: 'column',
-    gap: '15px',
+    gap: 'clamp(10px, 2vw, 15px)',
     alignItems: 'flex-end',
   },
 };
