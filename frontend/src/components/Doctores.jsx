@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import axiosInstance from '../services/auth'
 import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext'
+import ReminderCards from './ReminderCards'
 import { FaPhone, FaEnvelope, FaCalendarAlt } from 'react-icons/fa'
 
 function Doctores() {
@@ -13,10 +14,22 @@ function Doctores() {
   const [especialistaSeleccionado, setEspecialistaSeleccionado] = useState(null)
   const [horarios, setHorarios] = useState([])
   const navigate = useNavigate()
+  const [misCitas, setMisCitas] = useState([])
 
   useEffect(() => {
     fetchEspecialistas()
     fetchEspecialidades()
+    // intentar cargar citas del usuario (si está autenticado y es doctor)
+    const fetchMyCitas = async () => {
+      try {
+        const resp = await axiosInstance.get('mis-citas/')
+        const data = Array.isArray(resp.data) ? resp.data : resp.data.results || []
+        setMisCitas(data)
+      } catch (e) {
+        // ignore unauthenticated or errors
+      }
+    }
+    fetchMyCitas()
   }, [])
 
   const fetchEspecialistas = async () => {
@@ -103,6 +116,11 @@ function Doctores() {
 
   return (
     <div style={styles.container}>
+      {misCitas.length > 0 && (
+        <div style={{ marginBottom: '16px' }}>
+          <ReminderCards citas={misCitas} role="doctor" />
+        </div>
+      )}
       {/* Header */}
       <div style={styles.header}>
         <h1>👨‍⚕️ {t('ourSpecialists')}</h1>

@@ -1460,7 +1460,8 @@ function AdminDashboard() {
           onClick={() => setChatbotOpen(!chatbotOpen)}
           title="Abrir asistente de citas"
         >
-          <FaCommentDots className={styles.chatbotIcon} />
+          <span style={{ fontSize: '22px' }}>🤖</span>
+          <span style={{ fontSize: '10px', fontWeight: 'bold' }}>Chat</span>
         </button>
       </div>
 
@@ -1483,7 +1484,8 @@ function AdminDashboard() {
               style={styles.chatbotButton}
               title="Abrir asistente de citas"
             >
-              <FaCommentDots /> {t('chatAssistant')}
+              <span style={{ fontSize: '22px' }}>🤖</span>
+              <span style={{ fontSize: '10px', fontWeight: 'bold', marginLeft: '8px' }}>{t('chatAssistant')}</span>
             </button>
             <div style={styles.dashboardGrid}>
               <div style={styles.dashboardCard}>
@@ -3866,23 +3868,23 @@ const styles = {
     marginTop: '8px'
   },
   chatbotButton: {
-    background: 'var(--color-admin)',
-    color: 'white',
+    position: 'fixed',
+    bottom: '20px',
+    right: '20px',
+    width: '70px',
+    height: '60px',
+    borderRadius: '30px',
+    background: 'var(--role-gradient)',
     border: 'none',
-    padding: '0.75rem 1.5rem',
-    borderRadius: '25px',
+    boxShadow: '0 4px 20px var(--shadow-color-hover)',
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
-    gap: '0.5rem',
-    fontSize: '0.875rem',
-    fontWeight: 'bold',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-    transition: 'all 0.2s',
-    position: 'fixed',
-    bottom: '2rem',
-    right: '2rem',
-    zIndex: 1000
+    justifyContent: 'center',
+    fontSize: '22px',
+    zIndex: 999,
+    flexDirection: 'column',
+    gap: '2px'
   },
   chatbotButtonHover: {
     transform: 'scale(1.05)',

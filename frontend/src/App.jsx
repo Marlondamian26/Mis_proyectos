@@ -19,7 +19,6 @@ import Doctores from './components/Doctores';
 import Perfil from './components/Perfil';
 import AdminDashboard from './components/AdminDashboard';
 import EnfermeriaDashboard from './components/EnfermeriaDashboard';
-import NotificacionesCampana from './components/NotificacionesCampana';
 import ThemeToggle from './components/ThemeToggle';
 import LanguageToggle from './components/LanguageToggle';
 import PromocionalToggle from './components/PromocionalToggle';
@@ -60,11 +59,10 @@ function HeaderBar({ isPromocional }) {
   return (
     <div style={styles.headerBar}>
       <PromocionalToggle />
-      {!isPromocional && (
+          {!isPromocional && (
         <>
           <ThemeToggle />
           <LanguageToggle />
-          <NotificacionesCampana />
         </>
       )}
     </div>

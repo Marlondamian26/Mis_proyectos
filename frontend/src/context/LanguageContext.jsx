@@ -652,7 +652,7 @@ const translations = {
     dr: 'Dr.',
     // Dashboard
     quickAccessAdmin: 'Accesos Rápidos de Administrador',
-    managePatients: 'Gestiona pacientes, doctores, enfermeras y citas del sistema.',
+    managePatients: 'Todo lo referente al paciente, doctores, enfermería y citas reservadas.',
     viewAllAppointments: 'Ver Todas las Citas',
     // Admin Dashboard
     generalSummary: 'Resumen General',
@@ -761,7 +761,7 @@ const translations = {
     adminPanel: 'Panel Admin',
     manageSystem: 'Gestionar el sistema',
     reminders: 'Recordatorios',
-    managePatientsInfo: 'Gestiona pacientes, registra signos vitales y realiza procedimientos.',
+    managePatientsInfo: 'Todo lo referente al paciente, doctores, enfermería y citas reservadas.',
     notifications: 'notificaciones',
     medicalSystem: 'Sistema de gestión médica',
     unreadNotifications: 'Tienes {count} notificación{count !== 1 ? "es" : ""} sin leer',

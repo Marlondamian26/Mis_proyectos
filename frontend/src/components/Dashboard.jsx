@@ -5,6 +5,7 @@ import { useNotificaciones } from '../context/NotificacionesContext';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import ChatIA from './ChatIA';
+import ReminderCards from './ReminderCards';
 
 function Dashboard() {
   const { t } = useLanguage()
@@ -18,6 +19,7 @@ function Dashboard() {
     especialidades: 0,
     doctores: 0
   })
+  const [citasList, setCitasList] = useState([])
   const navigate = useNavigate()
   const { noLeidas } = useNotificaciones();
   const { getToken } = useAuth();
@@ -94,6 +96,9 @@ function Dashboard() {
         citasData = Array.isArray(citasRes.value.data) ? citasRes.value.data : citasRes.value.data.results || []
       }
 
+      // guardar lista completa de citas para recordatorios
+      setCitasList(citasData)
+
       if (especialidadesRes.status === 'fulfilled') {
         especialidadesData = Array.isArray(especialidadesRes.value.data) ? especialidadesRes.value.data : especialidadesRes.value.data.results || []
       }
@@ -121,6 +126,8 @@ function Dashboard() {
     console.log('Cerrando sesión...')
     localStorage.removeItem('access_token')
     localStorage.removeItem('refresh_token')
+    // limpiar recordatorios de sesión
+    try { sessionStorage.removeItem('dismissedReminders') } catch(e){}
     setUser(null)
     navigate('/login')
   }
@@ -349,15 +356,7 @@ function Dashboard() {
 
         {/* Información adicional según el rol */}
         {user?.rol === 'patient' && (
-          <div style={styles.infoCard}>
-            <h3 style={styles.cardTitle}>
-              <span style={styles.cardIcon}>💡</span>
-              {t('reminders')}
-            </h3>
-            <p style={styles.infoText}>
-              {t('managePatients')}
-            </p>
-          </div>
+          <ReminderCards citas={citasList} user={user} role="patient" />
         )}
 
         {user?.rol === 'nurse' && (

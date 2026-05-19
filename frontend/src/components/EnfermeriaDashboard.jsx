@@ -3,6 +3,7 @@ import axiosInstance from '../services/auth'
 import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext'
 import PromocionalToggle from './PromocionalToggle';
+import ReminderCards from './ReminderCards'
 import { 
   FaUserNurse, FaHeartbeat, FaThermometerHalf, FaSyringe, 
   FaBandAid, FaFlask, FaClipboardList, FaCheckCircle,
@@ -258,6 +259,11 @@ function EnfermeriaDashboard() {
       <div style={styles.headerBar}>
       </div>
       {/* Header */}
+      {pacientesHoy.length > 0 && (
+        <div style={{ marginBottom: '12px' }}>
+          <ReminderCards citas={pacientesHoy} role="nurse" />
+        </div>
+      )}
       <div style={styles.header}>
         <div style={styles.headerLeft}>
           <h1 style={styles.title}>
