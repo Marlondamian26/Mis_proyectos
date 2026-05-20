@@ -778,7 +778,7 @@ const translations = {
     medicalSystem: 'Sistema de gestión médica',
     unreadNotifications: 'Tienes {count} notificación{count !== 1 ? "es" : ""} sin leer',
     administrator: 'Administrador',
-    nurse: 'Enfermera',
+    nurse: 'Enfermera(o)',
     patient: 'Paciente',
 
      // Appointments
@@ -940,6 +940,7 @@ const translations = {
     createNew: 'Crear Nuevo',
     userManagement: 'Gestión de Usuarios',
     newUser: 'Nuevo Usuario',
+    role: 'Función',
 
     // Table headers
     tableId: 'ID',
