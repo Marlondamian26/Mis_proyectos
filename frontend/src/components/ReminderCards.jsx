@@ -130,11 +130,11 @@ const styles = {
   title: { fontSize: '16px', margin: '0 0 10px 0', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' },
   icon: { fontSize: '18px' },
   cardsWrap: { display: 'flex', flexDirection: 'column', gap: '10px' },
-  cardUpcoming: { background: 'linear-gradient(90deg,#e6f6ff,#f6fbff)', padding: '12px', borderRadius: '8px', border: '1px solid #bfe6ff' },
-  cardCanceled: { background: 'linear-gradient(90deg,#fff6f6,#fffafa)', padding: '12px', borderRadius: '8px', border: '1px solid #ffd6d6' },
-  cardHeader: { fontSize: '13px', fontWeight: '700', marginBottom: '6px' },
+  cardUpcoming: { backgroundColor: 'var(--bg-secondary)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)' },
+  cardCanceled: { backgroundColor: 'var(--bg-secondary)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)' },
+  cardHeader: { fontSize: '13px', fontWeight: '700', marginBottom: '6px', color: 'var(--text-primary)' },
   cardBody: { fontSize: '14px', color: 'var(--text-secondary)' },
   cardActions: { marginTop: '8px' },
-  dismissButton: { background: 'transparent', border: '1px solid var(--border-color)', padding: '6px 10px', borderRadius: '6px', cursor: 'pointer' },
+  dismissButton: { background: 'transparent', border: '1px solid var(--border-color)', padding: '6px 10px', borderRadius: '6px', cursor: 'pointer', color: 'var(--text-primary)' },
   emptyText: { color: 'var(--text-muted)', marginTop: '8px' }
 }
