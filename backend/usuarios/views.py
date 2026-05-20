@@ -185,8 +185,9 @@ def mis_citas(request):
         else:
             citas = Cita.objects.none()
     elif user.rol == 'nurse':
-        # Las enfermeras ven todas las citas (o podrían filtrar por departamento)
-        citas = Cita.objects.all()
+        # Las enfermeras solo ven las citas que les han sido asignadas o con las que trabajan
+        # Como no hay relación directa, por ahora no ven citas en mis-citas (usan otro flujo)
+        citas = Cita.objects.none()
     else:
         # Admin ve todas
         citas = Cita.objects.all()

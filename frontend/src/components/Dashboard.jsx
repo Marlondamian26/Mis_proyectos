@@ -354,9 +354,13 @@ function Dashboard() {
           </div>
         )}
 
-        {/* Información adicional según el rol */}
-        {user?.rol === 'patient' && (
-          <ReminderCards citas={citasList} user={user} role="patient" />
+        {/* Recordatorios al final del dashboard para paciente, doctor y enfermería */}
+        {(user?.rol === 'patient' || user?.rol === 'doctor' || user?.rol === 'nurse') && (
+          <ReminderCards 
+            citas={citasList} 
+            user={user} 
+            role={user?.rol === 'doctor' ? 'doctor' : user?.rol === 'nurse' ? 'nurse' : 'patient'} 
+          />
         )}
 
         {user?.rol === 'nurse' && (
