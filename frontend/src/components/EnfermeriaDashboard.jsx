@@ -259,11 +259,6 @@ function EnfermeriaDashboard() {
       <div style={styles.headerBar}>
       </div>
       {/* Header */}
-      {pacientesHoy.length > 0 && (
-        <div style={{ marginBottom: '12px' }}>
-          <ReminderCards citas={pacientesHoy} role="nurse" />
-        </div>
-      )}
       <div style={styles.header}>
         <div style={styles.headerLeft}>
           <h1 style={styles.title}>
@@ -705,12 +700,17 @@ function EnfermeriaDashboard() {
                 {t('registerProcedure')}
               </button>
             </div>
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
+           </div>
+         )}
+       </div>
+       {pacientesHoy.length > 0 && (
+         <div style={{ marginTop: '24px' }}>
+           <ReminderCards citas={pacientesHoy} role="nurse" />
+         </div>
+       )}
+     </div>
+   )
+ }
 
 // Estilos
 const styles = {
